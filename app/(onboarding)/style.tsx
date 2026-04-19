@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -18,7 +17,6 @@ import { supabase } from '../../lib/supabase';
 
 export default function Style() {
   const { user, profile, refetchProfile } = useAuth();
-  const [saved, setSaved] = useState(false);
 
   const {
     control,
@@ -49,7 +47,7 @@ export default function Style() {
       return;
     }
     await refetchProfile();
-    setSaved(true);
+    router.push('/photos');
   };
 
   return (
@@ -222,15 +220,9 @@ export default function Style() {
             }`}
           >
             <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Save'}
+              {isSubmitting ? 'Saving…' : 'Continue'}
             </Text>
           </Pressable>
-
-          {saved ? (
-            <Text className="mt-3 text-center text-sm text-emerald-600">
-              Saved — photos step comes next.
-            </Text>
-          ) : null}
 
           <Pressable
             onPress={() => router.back()}

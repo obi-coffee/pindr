@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -8,17 +8,15 @@ import {
   Pressable,
   ScrollView,
   Text,
-  TextInput,
-  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Field } from '../../components/form';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { basicsSchema, type BasicsInput } from '../../lib/profile/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function Basics() {
   const { user, profile, refetchProfile, signOut } = useAuth();
-  const [saved, setSaved] = useState(false);
 
   const {
     control,
@@ -52,7 +50,7 @@ export default function Basics() {
       return;
     }
     await refetchProfile();
-    setSaved(true);
+    router.push('/golf');
   };
 
   return (
@@ -163,15 +161,9 @@ export default function Basics() {
             }`}
           >
             <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Save'}
+              {isSubmitting ? 'Saving…' : 'Continue'}
             </Text>
           </Pressable>
-
-          {saved ? (
-            <Text className="mt-3 text-center text-sm text-emerald-600">
-              Saved — more steps coming in the next chunk.
-            </Text>
-          ) : null}
 
           <Pressable
             onPress={signOut}
@@ -185,25 +177,3 @@ export default function Basics() {
   );
 }
 
-type FieldProps = React.ComponentProps<typeof TextInput> & {
-  label: string;
-  error?: string;
-};
-
-function Field({ label, error, ...input }: FieldProps) {
-  return (
-    <View className="mb-4">
-      <Text className="mb-1 text-sm font-medium text-slate-700">{label}</Text>
-      <TextInput
-        placeholderTextColor="#94a3b8"
-        {...input}
-        className={`rounded-lg border bg-white px-3 py-3 text-base text-slate-900 ${
-          error ? 'border-red-400' : 'border-slate-300'
-        }`}
-      />
-      {error ? (
-        <Text className="mt-1 text-xs text-red-500">{error}</Text>
-      ) : null}
-    </View>
-  );
-}

@@ -92,6 +92,14 @@ export default function SignIn() {
             </Text>
           </Pressable>
 
+          <Link href="/phone" asChild>
+            <Pressable className="mt-4 items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
+              <Text className="text-base font-medium text-slate-700">
+                Use phone instead
+              </Text>
+            </Pressable>
+          </Link>
+
           <View className="mt-8 flex-row justify-center">
             <Text className="text-sm text-slate-500">New to Pindr? </Text>
             <Link href="/sign-up" className="text-sm font-semibold text-emerald-600">

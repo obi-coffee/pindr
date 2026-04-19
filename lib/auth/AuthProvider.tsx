@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { supabase } from '../supabase';
+import { useAuthDeepLinks } from './linking';
 
 type AuthContextValue = {
   session: Session | null;
@@ -20,6 +21,8 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useAuthDeepLinks();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {

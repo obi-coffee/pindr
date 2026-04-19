@@ -1,4 +1,5 @@
-import { Pressable, SafeAreaView, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../lib/auth/AuthProvider';
 
 export default function Home() {

@@ -2,6 +2,7 @@ import '../global.css';
 import { Slot } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider, useAuth } from '../lib/auth/AuthProvider';
 
 function RootSlot() {
@@ -12,9 +13,11 @@ function RootSlot() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <StatusBar style="auto" />
-      <RootSlot />
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <StatusBar style="auto" />
+        <RootSlot />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }

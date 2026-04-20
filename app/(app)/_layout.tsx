@@ -6,5 +6,10 @@ export default function AppLayout() {
   if (!session) return <Redirect href="/sign-in" />;
   if (!profile && profileLoading) return null;
   if (!profile?.onboarded_at) return <Redirect href="/basics" />;
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="filters" options={{ presentation: 'modal' }} />
+    </Stack>
+  );
 }

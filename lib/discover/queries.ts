@@ -1,4 +1,5 @@
 import { supabase } from '../supabase';
+import type { DiscoverFilters } from './filters';
 
 export type Candidate = {
   user_id: string;
@@ -7,6 +8,7 @@ export type Candidate = {
   pronouns: string | null;
   bio: string | null;
   home_city: string | null;
+  gender: string | null;
   handicap: number | null;
   has_handicap: boolean;
   years_playing: number | null;
@@ -23,10 +25,17 @@ export type Candidate = {
 };
 
 export async function fetchCandidates(
-  maxDistanceKm = 100,
+  filters: DiscoverFilters,
 ): Promise<Candidate[]> {
   const { data, error } = await supabase.rpc('discover_candidates', {
-    max_distance_km: maxDistanceKm,
+    max_distance_km: filters.maxDistanceKm,
+    min_age: filters.minAge,
+    max_age: filters.maxAge,
+    genders: filters.genders,
+    min_handicap: filters.minHandicap,
+    max_handicap: filters.maxHandicap,
+    play_styles: filters.playStyles,
+    women_only: filters.womenOnly,
   });
   if (error) throw error;
   return (data ?? []) as Candidate[];

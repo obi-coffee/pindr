@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -12,6 +13,11 @@ import { MatchModal } from '../../../components/MatchModal';
 import { SwipeCard } from '../../../components/SwipeCard';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
+  DEFAULT_FILTERS,
+  loadFilters,
+  type DiscoverFilters,
+} from '../../../lib/discover/filters';
+import {
   fetchCandidates,
   recordSwipe,
   type Candidate,
@@ -23,16 +29,17 @@ export default function Discover() {
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
 
+  const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [match, setMatch] = useState<Candidate | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchCandidates();
+      const data = await fetchCandidates(nextFilters);
       setCandidates(data);
     } catch (err) {
       setError((err as Error).message);
@@ -41,9 +48,16 @@ export default function Discover() {
     }
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  useFocusEffect(
+    useCallback(() => {
+      // Re-read filters every time the screen gains focus so the
+      // filters modal closing triggers a refetch with the new values.
+      loadFilters().then((f) => {
+        setFilters(f);
+        load(f);
+      });
+    }, [load]),
+  );
 
   const handleSwipe = useCallback(
     async (cardIndex: number, direction: SwipeDirection) => {
@@ -63,16 +77,33 @@ export default function Discover() {
   const cardWidth = width - 32;
   const cardHeight = Math.min(height - 260, cardWidth * 1.5);
 
+  const activeFilterCount = countActiveFilters(filters);
+
   return (
     <SafeAreaView className="flex-1 bg-slate-50" edges={['top']}>
       <View className="flex-row items-center justify-between px-6 pb-2 pt-2">
         <Text className="text-3xl font-bold text-slate-900">Discover</Text>
-        <Pressable
-          onPress={load}
-          className="rounded-full border border-slate-300 px-3 py-1 active:opacity-70"
-        >
-          <Text className="text-xs font-medium text-slate-600">Refresh</Text>
-        </Pressable>
+        <View className="flex-row items-center gap-2">
+          <Pressable
+            onPress={() => router.push('/filters')}
+            className="flex-row items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1 active:opacity-70"
+          >
+            <Text className="text-xs font-medium text-slate-600">Filters</Text>
+            {activeFilterCount > 0 ? (
+              <View className="h-5 w-5 items-center justify-center rounded-full bg-emerald-600">
+                <Text className="text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </Text>
+              </View>
+            ) : null}
+          </Pressable>
+          <Pressable
+            onPress={() => load(filters)}
+            className="rounded-full border border-slate-300 bg-white px-3 py-1 active:opacity-70"
+          >
+            <Text className="text-xs font-medium text-slate-600">Refresh</Text>
+          </Pressable>
+        </View>
       </View>
 
       {loading ? (
@@ -83,7 +114,7 @@ export default function Discover() {
         <View className="flex-1 items-center justify-center px-8">
           <Text className="text-center text-sm text-red-500">{error}</Text>
           <Pressable
-            onPress={load}
+            onPress={() => load(filters)}
             className="mt-4 rounded-lg border border-slate-300 px-4 py-2 active:opacity-70"
           >
             <Text className="text-sm text-slate-700">Try again</Text>
@@ -93,10 +124,10 @@ export default function Discover() {
         <View className="flex-1 items-center justify-center px-8">
           <Text className="text-4xl">🏁</Text>
           <Text className="mt-4 text-center text-base text-slate-600">
-            No one new nearby right now.
+            No one new matches your filters.
           </Text>
           <Text className="mt-2 text-center text-sm text-slate-400">
-            Pull to refresh later, or widen your range from Profile.
+            Loosen your filters or refresh later.
           </Text>
         </View>
       ) : (
@@ -109,10 +140,7 @@ export default function Discover() {
             onSwipeRight={(i) => handleSwipe(i, 'right')}
             onSwipeLeft={(i) => handleSwipe(i, 'left')}
             onSwipeTop={(i) => handleSwipe(i, 'super')}
-            onSwipedAll={() => {
-              // Triggers empty-state via candidates.length === 0 on next refresh.
-              setCandidates([]);
-            }}
+            onSwipedAll={() => setCandidates([])}
             disableBottomSwipe
           />
 
@@ -143,6 +171,17 @@ export default function Discover() {
       />
     </SafeAreaView>
   );
+}
+
+function countActiveFilters(f: DiscoverFilters): number {
+  let n = 0;
+  if (f.maxDistanceKm !== DEFAULT_FILTERS.maxDistanceKm) n++;
+  if (f.minAge !== null || f.maxAge !== null) n++;
+  if (f.minHandicap !== null || f.maxHandicap !== null) n++;
+  if (f.genders && f.genders.length > 0) n++;
+  if (f.playStyles && f.playStyles.length > 0) n++;
+  if (f.womenOnly) n++;
+  return n;
 }
 
 function ActionButton({

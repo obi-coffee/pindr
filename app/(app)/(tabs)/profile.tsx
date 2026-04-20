@@ -174,7 +174,14 @@ export default function Home() {
           <Row label="City" value={profile?.home_city} />
         </Section>
 
-        <View className="px-6 pt-6">
+        <View className="gap-3 px-6 pt-6">
+          <Link href="/blocks" asChild>
+            <Pressable className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
+              <Text className="text-base font-medium text-slate-700">
+                Blocked users
+              </Text>
+            </Pressable>
+          </Link>
           <Pressable
             onPress={signOut}
             className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70"

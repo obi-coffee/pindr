@@ -21,6 +21,7 @@ import {
   type ChatMessage,
   type MatchDetails,
 } from '../../../lib/chat/queries';
+import { openUserMenu } from '../../../lib/safety/menu';
 import { supabase } from '../../../lib/supabase';
 
 export default function ChatThread() {
@@ -161,15 +162,20 @@ export default function ChatThread() {
         <Text className="flex-1 text-base font-semibold text-slate-900">
           {details?.other_display_name ?? 'Match'}
         </Text>
-        {details?.other_user_id ? (
+        {details?.other_user_id && user ? (
           <Pressable
             onPress={() =>
-              router.push(`/report/${details.other_user_id}` as never)
+              openUserMenu({
+                currentUserId: user.id,
+                targetUserId: details.other_user_id,
+                targetName: details.other_display_name,
+                onBlocked: () => router.replace('/matches'),
+              })
             }
-            className="py-2 active:opacity-70"
+            className="h-9 w-9 items-center justify-center active:opacity-70"
             hitSlop={8}
           >
-            <Text className="text-sm font-medium text-red-500">Report</Text>
+            <Text className="text-xl text-slate-700">⋯</Text>
           </Pressable>
         ) : null}
       </View>

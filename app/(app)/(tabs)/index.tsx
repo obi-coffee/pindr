@@ -23,6 +23,7 @@ import {
   type Candidate,
   type SwipeDirection,
 } from '../../../lib/discover/queries';
+import { openUserMenu } from '../../../lib/safety/menu';
 import {
   fetchActiveOrUpcomingSession,
   type TravelSession,
@@ -154,7 +155,24 @@ export default function Discover() {
             ref={swiperRef}
             data={candidates}
             cardStyle={{ width: cardWidth, height: cardHeight }}
-            renderCard={(item) => <SwipeCard candidate={item} />}
+            renderCard={(item) => (
+              <SwipeCard
+                candidate={item}
+                onMenu={() => {
+                  if (!user) return;
+                  openUserMenu({
+                    currentUserId: user.id,
+                    targetUserId: item.user_id,
+                    targetName: item.display_name,
+                    onBlocked: () => {
+                      setCandidates((prev) =>
+                        prev.filter((c) => c.user_id !== item.user_id),
+                      );
+                    },
+                  });
+                }}
+              />
+            )}
             onSwipeRight={(i) => handleSwipe(i, 'right')}
             onSwipeLeft={(i) => handleSwipe(i, 'left')}
             onSwipeTop={(i) => handleSwipe(i, 'super')}

@@ -23,6 +23,10 @@ import {
   type Candidate,
   type SwipeDirection,
 } from '../../../lib/discover/queries';
+import {
+  fetchActiveOrUpcomingSession,
+  type TravelSession,
+} from '../../../lib/travel/queries';
 
 export default function Discover() {
   const { user, profile } = useAuth();
@@ -30,6 +34,7 @@ export default function Discover() {
   const swiperRef = useRef<SwiperCardRefType>(null);
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
+  const [travel, setTravel] = useState<TravelSession | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,13 +55,18 @@ export default function Discover() {
 
   useFocusEffect(
     useCallback(() => {
-      // Re-read filters every time the screen gains focus so the
-      // filters modal closing triggers a refetch with the new values.
-      loadFilters().then((f) => {
+      // Re-read filters + travel session every time the screen gains focus
+      // so closing either modal triggers a refetch.
+      (async () => {
+        const [f, t] = await Promise.all([
+          loadFilters(),
+          user ? fetchActiveOrUpcomingSession(user.id) : Promise.resolve(null),
+        ]);
         setFilters(f);
+        setTravel(t);
         load(f);
-      });
-    }, [load]),
+      })();
+    }, [load, user]),
   );
 
   const handleSwipe = useCallback(
@@ -85,6 +95,20 @@ export default function Discover() {
         <Text className="text-3xl font-bold text-slate-900">Discover</Text>
         <View className="flex-row items-center gap-2">
           <Pressable
+            onPress={() => router.push('/travel')}
+            className={`rounded-full border px-3 py-1 active:opacity-70 ${
+              travel ? 'border-emerald-600 bg-emerald-50' : 'border-slate-300 bg-white'
+            }`}
+          >
+            <Text
+              className={`text-xs font-medium ${
+                travel ? 'text-emerald-700' : 'text-slate-600'
+              }`}
+            >
+              {travel ? `✈ ${travel.city}` : 'Travel'}
+            </Text>
+          </Pressable>
+          <Pressable
             onPress={() => router.push('/filters')}
             className="flex-row items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1 active:opacity-70"
           >
@@ -96,12 +120,6 @@ export default function Discover() {
                 </Text>
               </View>
             ) : null}
-          </Pressable>
-          <Pressable
-            onPress={() => load(filters)}
-            className="rounded-full border border-slate-300 bg-white px-3 py-1 active:opacity-70"
-          >
-            <Text className="text-xs font-medium text-slate-600">Refresh</Text>
           </Pressable>
         </View>
       </View>

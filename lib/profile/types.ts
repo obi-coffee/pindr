@@ -15,6 +15,7 @@ export type Profile = {
   pronouns: string | null;
   bio: string | null;
   home_location: unknown | null;
+  home_city: string | null;
   home_course_name: string | null;
   handicap: number | null;
   has_handicap: boolean;

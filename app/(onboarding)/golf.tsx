@@ -109,10 +109,14 @@ export default function Golf() {
                 <Field
                   label="Handicap index"
                   error={errors.handicap?.message}
-                  value={value === undefined ? '' : String(value)}
-                  onChangeText={(t) =>
-                    onChange(t === '' ? undefined : Number(t))
+                  value={
+                    value === undefined || Number.isNaN(value) ? '' : String(value)
                   }
+                  onChangeText={(t) => {
+                    if (t === '') return onChange(undefined);
+                    const n = Number(t);
+                    onChange(Number.isNaN(n) ? undefined : n);
+                  }}
                   onBlur={onBlur}
                   keyboardType="decimal-pad"
                   placeholder="e.g. 14.2"
@@ -128,10 +132,14 @@ export default function Golf() {
               <Field
                 label="Years playing"
                 error={errors.years_playing?.message}
-                value={value === undefined ? '' : String(value)}
-                onChangeText={(t) =>
-                  onChange(t === '' ? undefined : Number(t))
+                value={
+                  value === undefined || Number.isNaN(value) ? '' : String(value)
                 }
+                onChangeText={(t) => {
+                  if (t === '') return onChange(undefined);
+                  const n = Number(t);
+                  onChange(Number.isNaN(n) ? undefined : n);
+                }}
                 onBlur={onBlur}
                 keyboardType="number-pad"
                 placeholder="5"

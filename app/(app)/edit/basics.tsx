@@ -89,8 +89,14 @@ export default function EditBasics() {
               <Field
                 label="Age"
                 error={errors.age?.message}
-                value={value === undefined ? '' : String(value)}
-                onChangeText={(t) => onChange(t === '' ? undefined : Number(t))}
+                value={
+                  value === undefined || Number.isNaN(value) ? '' : String(value)
+                }
+                onChangeText={(t) => {
+                  if (t === '') return onChange(undefined);
+                  const n = Number(t);
+                  onChange(Number.isNaN(n) ? undefined : n);
+                }}
                 onBlur={onBlur}
                 keyboardType="number-pad"
               />

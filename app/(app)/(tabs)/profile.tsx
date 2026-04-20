@@ -9,12 +9,12 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../lib/auth/AuthProvider';
+import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchAllInterests,
   fetchUserInterestIds,
   type Interest,
-} from '../../lib/profile/interests';
+} from '../../../lib/profile/interests';
 
 const STYLE_LABELS: Record<string, string> = {
   relaxed: 'Relaxed',

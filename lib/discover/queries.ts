@@ -8,6 +8,7 @@ export type Candidate = {
   pronouns: string | null;
   bio: string | null;
   home_city: string | null;
+  home_course_name: string | null;
   gender: string | null;
   handicap: number | null;
   has_handicap: boolean;

@@ -3,7 +3,6 @@ import { useCallback, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
-  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
@@ -11,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { MatchModal } from '../../../components/MatchModal';
 import { SwipeCard } from '../../../components/SwipeCard';
+import { Typography, colors } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   DEFAULT_FILTERS,
@@ -56,8 +56,6 @@ export default function Discover() {
 
   useFocusEffect(
     useCallback(() => {
-      // Re-read filters + travel session every time the screen gains focus
-      // so closing either modal triggers a refetch.
       (async () => {
         const [f, t] = await Promise.all([
           loadFilters(),
@@ -86,68 +84,90 @@ export default function Discover() {
   );
 
   const cardWidth = width - 32;
-  const cardHeight = Math.min(height - 260, cardWidth * 1.5);
+  const cardHeight = Math.min(height - 160, cardWidth * 1.9);
 
   const activeFilterCount = countActiveFilters(filters);
 
   return (
-    <SafeAreaView className="flex-1 bg-slate-50" edges={['top']}>
-      <View className="flex-row items-center justify-between px-6 pb-2 pt-2">
-        <Text className="text-3xl font-bold text-slate-900">Discover</Text>
-        <View className="flex-row items-center gap-2">
-          <Pressable
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingTop: 6,
+          paddingBottom: 10,
+        }}
+      >
+        <Typography variant="h1">discover</Typography>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <HeaderPill
+            label={travel ? `✈ ${travel.city}` : 'Travel'}
+            highlighted={Boolean(travel)}
             onPress={() => router.push('/travel')}
-            className={`rounded-full border px-3 py-1 active:opacity-70 ${
-              travel ? 'border-emerald-600 bg-emerald-50' : 'border-slate-300 bg-white'
-            }`}
-          >
-            <Text
-              className={`text-xs font-medium ${
-                travel ? 'text-emerald-700' : 'text-slate-600'
-              }`}
-            >
-              {travel ? `✈ ${travel.city}` : 'Travel'}
-            </Text>
-          </Pressable>
-          <Pressable
+          />
+          <HeaderPill
+            label="Filters"
+            badgeCount={activeFilterCount}
             onPress={() => router.push('/filters')}
-            className="flex-row items-center gap-1 rounded-full border border-slate-300 bg-white px-3 py-1 active:opacity-70"
-          >
-            <Text className="text-xs font-medium text-slate-600">Filters</Text>
-            {activeFilterCount > 0 ? (
-              <View className="h-5 w-5 items-center justify-center rounded-full bg-emerald-600">
-                <Text className="text-[10px] font-bold text-white">
-                  {activeFilterCount}
-                </Text>
-              </View>
-            ) : null}
-          </Pressable>
+          />
         </View>
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#059669" />
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color={colors.ink} />
         </View>
       ) : error ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-center text-sm text-red-500">{error}</Text>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 32,
+          }}
+        >
+          <Typography variant="body" color="burgundy" style={{ textAlign: 'center' }}>
+            couldn't load this. check your signal and try again?
+          </Typography>
           <Pressable
             onPress={() => load(filters)}
-            className="mt-4 rounded-lg border border-slate-300 px-4 py-2 active:opacity-70"
+            style={{
+              marginTop: 16,
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              borderRadius: 999,
+              borderWidth: 1,
+              borderColor: colors['stroke-strong'],
+            }}
           >
-            <Text className="text-sm text-slate-700">Try again</Text>
+            <Typography variant="caption">try again</Typography>
           </Pressable>
         </View>
       ) : candidates.length === 0 ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-4xl">🏁</Text>
-          <Text className="mt-4 text-center text-base text-slate-600">
-            No one new matches your filters.
-          </Text>
-          <Text className="mt-2 text-center text-sm text-slate-400">
-            Loosen your filters or refresh later.
-          </Text>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 32,
+          }}
+        >
+          <Typography variant="display-lg" style={{ textAlign: 'center' }}>
+            nobody{'\n'}nearby yet.
+          </Typography>
+          <View style={{ height: 12 }} />
+          <Typography
+            variant="body"
+            color="ink-soft"
+            style={{ textAlign: 'center' }}
+          >
+            widen your distance, or flip on travel mode if you're away from home.
+          </Typography>
         </View>
       ) : (
         <View style={{ flex: 1, alignItems: 'center', paddingTop: 8 }}>
@@ -171,6 +191,8 @@ export default function Discover() {
                     },
                   });
                 }}
+                onPass={() => swiperRef.current?.swipeLeft()}
+                onLockIn={() => swiperRef.current?.swipeRight()}
               />
             )}
             onSwipeRight={(i) => handleSwipe(i, 'right')}
@@ -179,24 +201,6 @@ export default function Discover() {
             onSwipedAll={() => setCandidates([])}
             disableBottomSwipe
           />
-
-          <View className="flex-row items-center justify-center gap-6 pb-6 pt-4">
-            <ActionButton
-              label="✕"
-              onPress={() => swiperRef.current?.swipeLeft()}
-              variant="left"
-            />
-            <ActionButton
-              label="★"
-              onPress={() => swiperRef.current?.swipeTop()}
-              variant="super"
-            />
-            <ActionButton
-              label="♥"
-              onPress={() => swiperRef.current?.swipeRight()}
-              variant="right"
-            />
-          </View>
         </View>
       )}
 
@@ -209,6 +213,60 @@ export default function Discover() {
   );
 }
 
+function HeaderPill({
+  label,
+  onPress,
+  highlighted,
+  badgeCount,
+}: {
+  label: string;
+  onPress: () => void;
+  highlighted?: boolean;
+  badgeCount?: number;
+}) {
+  const showBadge = typeof badgeCount === 'number' && badgeCount > 0;
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 999,
+        borderWidth: 1,
+        borderColor: highlighted ? colors.ink : colors['stroke-strong'],
+        backgroundColor: highlighted ? colors.ink : 'transparent',
+      }}
+    >
+      <Typography
+        variant="caption"
+        color={highlighted ? 'paper-high' : 'ink'}
+      >
+        {label}
+      </Typography>
+      {showBadge ? (
+        <View
+          style={{
+            minWidth: 18,
+            height: 18,
+            paddingHorizontal: 5,
+            borderRadius: 999,
+            backgroundColor: colors.ink,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="caption" color="paper-high">
+            {String(badgeCount)}
+          </Typography>
+        </View>
+      ) : null}
+    </Pressable>
+  );
+}
+
 function countActiveFilters(f: DiscoverFilters): number {
   let n = 0;
   if (f.maxDistanceKm !== DEFAULT_FILTERS.maxDistanceKm) n++;
@@ -218,29 +276,4 @@ function countActiveFilters(f: DiscoverFilters): number {
   if (f.playStyles && f.playStyles.length > 0) n++;
   if (f.womenOnly) n++;
   return n;
-}
-
-function ActionButton({
-  label,
-  onPress,
-  variant,
-}: {
-  label: string;
-  onPress: () => void;
-  variant: 'left' | 'super' | 'right';
-}) {
-  const colors = {
-    left: 'bg-white border-red-200 text-red-500',
-    super: 'bg-white border-sky-200 text-sky-500',
-    right: 'bg-white border-emerald-300 text-emerald-600',
-  }[variant];
-
-  return (
-    <Pressable
-      onPress={onPress}
-      className={`h-14 w-14 items-center justify-center rounded-full border-2 shadow-sm active:opacity-70 ${colors}`}
-    >
-      <Text className={`text-2xl ${colors}`}>{label}</Text>
-    </Pressable>
-  );
 }

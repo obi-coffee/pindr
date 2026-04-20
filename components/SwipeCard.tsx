@@ -1,97 +1,239 @@
-import { Image, Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
+import { Button, Card, Tag, Typography, colors } from './ui';
 
-const STYLE_COLORS: Record<string, { bg: string; text: string }> = {
-  relaxed: { bg: 'bg-sky-100', text: 'text-sky-700' },
-  improvement: { bg: 'bg-indigo-100', text: 'text-indigo-700' },
-  competitive: { bg: 'bg-rose-100', text: 'text-rose-700' },
+export type SwipeCardProps = {
+  candidate: Candidate;
+  onMenu?: () => void;
+  onPass?: () => void;
+  onLockIn?: () => void;
 };
+
+type TagSpec = { label: string; variant: 'outline' | 'solid' };
 
 export function SwipeCard({
   candidate,
   onMenu,
-}: {
-  candidate: Candidate;
-  onMenu?: () => void;
-}) {
-  const photo = candidate.photo_urls[0];
-  const styleColors = candidate.style_default
-    ? STYLE_COLORS[candidate.style_default]
-    : undefined;
+  onPass,
+  onLockIn,
+}: SwipeCardProps) {
+  const photoUrl = candidate.photo_urls[0];
 
-  const handicapText = candidate.has_handicap
-    ? candidate.handicap !== null
-      ? `HCP ${candidate.handicap}`
-      : null
-    : 'No handicap';
-
-  const locationText = [
-    candidate.home_city,
+  const distanceLabel =
     candidate.distance_km !== null
-      ? `${candidate.distance_km.toFixed(0)} km`
-      : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+      ? `${Math.max(1, Math.round(candidate.distance_km * 0.621))} mi`
+      : null;
+
+  const metaParts = [candidate.home_course_name, candidate.home_city].filter(
+    (p): p is string => Boolean(p && p.trim()),
+  );
+  const metaLine = metaParts.length > 0 ? `Home · ${metaParts.join(', ')}` : null;
+
+  const stats = [
+    {
+      label: 'Handicap',
+      value:
+        candidate.has_handicap && candidate.handicap !== null
+          ? candidate.handicap.toFixed(1)
+          : 'None',
+    },
+    {
+      label: 'Playing',
+      value:
+        candidate.years_playing === null
+          ? '—'
+          : candidate.years_playing >= 10
+            ? '10+ yrs'
+            : `${candidate.years_playing} yrs`,
+    },
+    {
+      label: 'Style',
+      value: titleCase(candidate.style_default) ?? '—',
+    },
+  ];
+
+  const tags = buildTags(candidate);
+
+  const badge = candidate.home_city ? (
+    <Tag size="sm">{candidate.home_city}</Tag>
+  ) : null;
 
   return (
-    <View className="overflow-hidden rounded-3xl bg-white shadow-lg" style={{ flex: 1 }}>
-      {photo ? (
-        <Image source={{ uri: photo }} style={{ flex: 1 }} resizeMode="cover" />
-      ) : (
-        <View className="flex-1 items-center justify-center bg-slate-200">
-          <Text className="text-6xl">⛳</Text>
+    <View style={{ flex: 1 }}>
+      <Card
+        photo={photoUrl ? { uri: photoUrl } : undefined}
+        stateBadge={badge}
+        style={{ flex: 1 }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            marginBottom: 4,
+          }}
+        >
+          <Typography variant="card-name">
+            {candidate.display_name ?? 'Unnamed'}
+            {candidate.age ? `, ${candidate.age}` : ''}
+          </Typography>
+          {distanceLabel ? (
+            <Typography variant="card-distance" color="ink-soft">
+              {distanceLabel}
+            </Typography>
+          ) : null}
         </View>
-      )}
+
+        {metaLine ? (
+          <Typography
+            variant="card-meta"
+            color="ink-soft"
+            style={{ marginBottom: 16 }}
+          >
+            {metaLine}
+          </Typography>
+        ) : (
+          <View style={{ height: 16 }} />
+        )}
+
+        <View
+          style={{
+            flexDirection: 'row',
+            gap: 20,
+            paddingVertical: 14,
+            marginBottom: 16,
+            borderTopWidth: 1,
+            borderBottomWidth: 1,
+            borderColor: colors.stroke,
+          }}
+        >
+          {stats.map((stat) => (
+            <View key={stat.label} style={{ gap: 2 }}>
+              <Typography variant="card-stat-label" color="ink-subtle">
+                {stat.label}
+              </Typography>
+              <Typography variant="card-stat-value">{stat.value}</Typography>
+            </View>
+          ))}
+        </View>
+
+        {tags.length > 0 ? (
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: 6,
+              marginBottom: 18,
+            }}
+          >
+            {tags.map((tag) => (
+              <Tag key={tag.label} variant={tag.variant} size="sm">
+                {tag.label}
+              </Tag>
+            ))}
+          </View>
+        ) : null}
+
+        {candidate.bio && candidate.bio.trim() ? (
+          <View style={{ marginBottom: 20 }}>
+            <Typography
+              variant="card-prompt-label"
+              color="ink-subtle"
+              style={{ marginBottom: 6 }}
+            >
+              In their words
+            </Typography>
+            <Typography variant="card-prompt-body">
+              {candidate.bio.trim()}
+            </Typography>
+          </View>
+        ) : null}
+
+        <View style={{ flexDirection: 'row', gap: 10, paddingTop: 4 }}>
+          <Button
+            variant="ghost"
+            size="lg"
+            style={{ flex: 1 }}
+            onPress={onPass}
+          >
+            Pass
+          </Button>
+          <Button
+            variant="primary"
+            size="lg"
+            style={{ flex: 1 }}
+            onPress={onLockIn}
+          >
+            Lock in
+          </Button>
+        </View>
+      </Card>
 
       {onMenu ? (
         <Pressable
           onPress={onMenu}
           hitSlop={8}
-          className="absolute right-3 top-3 h-9 w-9 items-center justify-center rounded-full bg-black/40 active:opacity-70"
+          style={{
+            position: 'absolute',
+            top: 14,
+            right: 14,
+            backgroundColor: colors['paper-high'],
+            borderRadius: 999,
+            paddingHorizontal: 11,
+            paddingVertical: 7,
+            zIndex: 3,
+          }}
         >
-          <Text className="text-white">⋯</Text>
+          <Typography variant="caption" color="ink">
+            ⋯
+          </Typography>
         </Pressable>
       ) : null}
-
-      <View
-        className="absolute bottom-0 left-0 right-0 bg-black/40 p-5"
-        style={{ paddingTop: 40 }}
-      >
-        <Text className="text-2xl font-bold text-white">
-          {candidate.display_name ?? 'Unnamed'}
-          {candidate.age ? `, ${candidate.age}` : ''}
-        </Text>
-        {locationText ? (
-          <Text className="mt-1 text-sm text-white/90">{locationText}</Text>
-        ) : null}
-
-        <View className="mt-3 flex-row flex-wrap gap-2">
-          {candidate.style_default && styleColors ? (
-            <View className={`rounded-full px-3 py-1 ${styleColors.bg}`}>
-              <Text
-                className={`text-xs font-semibold uppercase ${styleColors.text}`}
-              >
-                {candidate.style_default}
-              </Text>
-            </View>
-          ) : null}
-          {handicapText ? (
-            <View className="rounded-full bg-white/20 px-3 py-1">
-              <Text className="text-xs font-semibold text-white">
-                {handicapText}
-              </Text>
-            </View>
-          ) : null}
-          {candidate.pace ? (
-            <View className="rounded-full bg-white/20 px-3 py-1">
-              <Text className="text-xs font-semibold text-white">
-                {candidate.pace}
-              </Text>
-            </View>
-          ) : null}
-        </View>
-      </View>
     </View>
   );
+}
+
+function titleCase(s: string | null | undefined): string | null {
+  if (!s) return null;
+  return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
+function buildTags(c: Candidate): TagSpec[] {
+  const tags: TagSpec[] = [];
+
+  switch (c.walking_preference) {
+    case 'walk':
+      tags.push({ label: 'Walks', variant: 'outline' });
+      break;
+    case 'ride':
+      tags.push({ label: 'Rides', variant: 'outline' });
+      break;
+    case 'either':
+      tags.push({ label: 'Walk or ride', variant: 'outline' });
+      break;
+  }
+
+  switch (c.holes_preference) {
+    case '9':
+      tags.push({ label: '9 only', variant: 'outline' });
+      break;
+    case '18':
+      tags.push({ label: '18 only', variant: 'outline' });
+      break;
+    case 'either':
+      tags.push({ label: '9 or 18', variant: 'outline' });
+      break;
+  }
+
+  if (c.post_round === 'hangout') {
+    tags.push({ label: 'Post-round hang', variant: 'outline' });
+  }
+
+  if (c.teaching_mindset === 'open_to_tips') {
+    tags.push({ label: 'Open to tips', variant: 'solid' });
+  } else if (c.teaching_mindset === 'just_play') {
+    tags.push({ label: 'Just play', variant: 'solid' });
+  }
+
+  return tags;
 }

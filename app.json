@@ -36,6 +36,13 @@
         {
           "photosPermission": "Pindr uses your photos so you can add them to your profile."
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Pindr uses your location to find players nearby.",
+          "locationAlwaysAndWhenInUsePermission": "Pindr uses your location to find players nearby."
+        }
       ]
     ],
     "experiments": {

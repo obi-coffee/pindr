@@ -22,7 +22,6 @@ const MAX_PHOTOS = 6;
 export default function Photos() {
   const { user, profile, refetchProfile } = useAuth();
   const [uploading, setUploading] = useState(false);
-  const [saved, setSaved] = useState(false);
 
   const urls = profile?.photo_urls ?? [];
   const slots: (string | null)[] = [...urls];
@@ -84,7 +83,7 @@ export default function Photos() {
       Alert.alert('Add at least one photo', 'Profiles need a photo to match.');
       return;
     }
-    setSaved(true);
+    router.push('/interests');
   };
 
   return (
@@ -129,12 +128,6 @@ export default function Photos() {
         >
           <Text className="text-base font-semibold text-white">Continue</Text>
         </Pressable>
-
-        {saved ? (
-          <Text className="mt-3 text-center text-sm text-emerald-600">
-            Photos saved — interests and location come next chunk.
-          </Text>
-        ) : null}
 
         <Pressable
           onPress={() => router.back()}

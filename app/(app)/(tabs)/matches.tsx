@@ -1,4 +1,4 @@
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
@@ -94,7 +94,10 @@ function MatchRow({ match }: { match: MatchSummary }) {
     : 'text-sm italic text-slate-400';
 
   return (
-    <Pressable className="flex-row items-center rounded-xl bg-white p-3 active:bg-slate-50">
+    <Pressable
+      onPress={() => router.push(`/chat/${match.match_id}` as never)}
+      className="flex-row items-center rounded-xl bg-white p-3 active:bg-slate-50"
+    >
       <View className="mr-3 h-14 w-14 overflow-hidden rounded-full bg-slate-100">
         {match.other_photo_url ? (
           <Image

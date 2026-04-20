@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as Linking from 'expo-linking';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -25,7 +25,12 @@ export default function SignUp() {
     formState: { errors, isSubmitting },
   } = useForm<SignUpInput>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { email: '', password: '', confirmPassword: '' },
+    defaultValues: {
+      email: '',
+      password: '',
+      confirmPassword: '',
+      acceptGuidelines: false,
+    },
   });
 
   const onSubmit = async (values: SignUpInput) => {
@@ -106,6 +111,50 @@ export default function SignUp() {
                 secureTextEntry
                 placeholder="Re-enter password"
               />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="acceptGuidelines"
+            render={({ field: { value, onChange } }) => (
+              <View className="mb-4">
+                <Pressable
+                  onPress={() => onChange(!value)}
+                  className="flex-row items-start active:opacity-80"
+                  hitSlop={4}
+                >
+                  <View
+                    className={`mr-3 mt-0.5 h-5 w-5 items-center justify-center rounded border-2 ${
+                      value
+                        ? 'border-emerald-600 bg-emerald-600'
+                        : 'border-slate-300 bg-white'
+                    }`}
+                  >
+                    {value ? (
+                      <Text className="text-xs font-bold text-white">✓</Text>
+                    ) : null}
+                  </View>
+                  <Text className="flex-1 text-sm text-slate-700">
+                    I agree to the{' '}
+                    <Text
+                      className="font-semibold text-emerald-600"
+                      onPress={(e) => {
+                        e.stopPropagation();
+                        router.push('/guidelines' as never);
+                      }}
+                    >
+                      community guidelines
+                    </Text>
+                    .
+                  </Text>
+                </Pressable>
+                {errors.acceptGuidelines ? (
+                  <Text className="mt-1 text-xs text-red-500">
+                    {errors.acceptGuidelines.message}
+                  </Text>
+                ) : null}
+              </View>
             )}
           />
 

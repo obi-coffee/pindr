@@ -15,6 +15,10 @@ export default function AppLayout() {
         name="report/[userId]"
         options={{ presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="share-plan/[matchId]"
+        options={{ presentation: 'modal' }}
+      />
     </Stack>
   );
 }

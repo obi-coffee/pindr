@@ -169,6 +169,7 @@ export default function ChatThread() {
                 currentUserId: user.id,
                 targetUserId: details.other_user_id,
                 targetName: details.other_display_name,
+                matchId: details.match_id,
                 onBlocked: () => router.replace('/matches'),
               })
             }

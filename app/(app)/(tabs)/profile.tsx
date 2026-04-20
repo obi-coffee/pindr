@@ -175,6 +175,13 @@ export default function Home() {
         </Section>
 
         <View className="gap-3 px-6 pt-6">
+          <Link href="/guidelines" asChild>
+            <Pressable className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
+              <Text className="text-base font-medium text-slate-700">
+                Community guidelines
+              </Text>
+            </Pressable>
+          </Link>
           <Link href="/blocks" asChild>
             <Pressable className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
               <Text className="text-base font-medium text-slate-700">

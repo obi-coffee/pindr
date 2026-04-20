@@ -197,6 +197,16 @@ export default function Home() {
               Sign out
             </Text>
           </Pressable>
+
+          {__DEV__ ? (
+            <Link href="/dev/ui-kit" asChild>
+              <Pressable className="items-center rounded-lg border border-dashed border-slate-300 py-3 active:opacity-70">
+                <Text className="text-xs font-medium text-slate-400">
+                  UI kit (dev)
+                </Text>
+              </Pressable>
+            </Link>
+          ) : null}
         </View>
       </ScrollView>
     </SafeAreaView>

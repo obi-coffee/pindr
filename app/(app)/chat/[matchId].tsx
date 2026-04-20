@@ -158,9 +158,20 @@ export default function ChatThread() {
             </View>
           )}
         </View>
-        <Text className="text-base font-semibold text-slate-900">
+        <Text className="flex-1 text-base font-semibold text-slate-900">
           {details?.other_display_name ?? 'Match'}
         </Text>
+        {details?.other_user_id ? (
+          <Pressable
+            onPress={() =>
+              router.push(`/report/${details.other_user_id}` as never)
+            }
+            className="py-2 active:opacity-70"
+            hitSlop={8}
+          >
+            <Text className="text-sm font-medium text-red-500">Report</Text>
+          </Pressable>
+        ) : null}
       </View>
 
       <KeyboardAvoidingView

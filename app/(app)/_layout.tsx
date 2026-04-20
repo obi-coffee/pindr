@@ -11,6 +11,10 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="filters" options={{ presentation: 'modal' }} />
       <Stack.Screen name="travel" options={{ presentation: 'modal' }} />
+      <Stack.Screen
+        name="report/[userId]"
+        options={{ presentation: 'modal' }}
+      />
     </Stack>
   );
 }

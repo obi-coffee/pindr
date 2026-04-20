@@ -1,4 +1,5 @@
-import { Image, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Image, Pressable, Text, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
 
 const STYLE_COLORS: Record<string, { bg: string; text: string }> = {
@@ -37,6 +38,16 @@ export function SwipeCard({ candidate }: { candidate: Candidate }) {
           <Text className="text-6xl">⛳</Text>
         </View>
       )}
+
+      <Pressable
+        onPress={() =>
+          router.push(`/report/${candidate.user_id}` as never)
+        }
+        hitSlop={8}
+        className="absolute right-3 top-3 h-9 w-9 items-center justify-center rounded-full bg-black/40 active:opacity-70"
+      >
+        <Text className="text-white">⋯</Text>
+      </Pressable>
 
       <View
         className="absolute bottom-0 left-0 right-0 bg-black/40 p-5"

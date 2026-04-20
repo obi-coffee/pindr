@@ -1,24 +1,35 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
-  Image,
-  RefreshControl,
+  Pressable,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { fetchCandidates, type Candidate } from '../../../lib/discover/queries';
+import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
+import { MatchModal } from '../../../components/MatchModal';
+import { SwipeCard } from '../../../components/SwipeCard';
+import { useAuth } from '../../../lib/auth/AuthProvider';
+import {
+  fetchCandidates,
+  recordSwipe,
+  type Candidate,
+  type SwipeDirection,
+} from '../../../lib/discover/queries';
 
 export default function Discover() {
+  const { user, profile } = useAuth();
+  const { width, height } = useWindowDimensions();
+  const swiperRef = useRef<SwiperCardRefType>(null);
+
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [match, setMatch] = useState<Candidate | null>(null);
 
-  const load = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+  const load = useCallback(async () => {
+    setLoading(true);
     setError(null);
     try {
       const data = await fetchCandidates();
@@ -27,7 +38,6 @@ export default function Discover() {
       setError((err as Error).message);
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   }, []);
 
@@ -35,94 +45,127 @@ export default function Discover() {
     load();
   }, [load]);
 
+  const handleSwipe = useCallback(
+    async (cardIndex: number, direction: SwipeDirection) => {
+      if (!user) return;
+      const candidate = candidates[cardIndex];
+      if (!candidate) return;
+      try {
+        const result = await recordSwipe(user.id, candidate.user_id, direction);
+        if (result.matched) setMatch(candidate);
+      } catch (err) {
+        setError((err as Error).message);
+      }
+    },
+    [candidates, user],
+  );
+
+  const cardWidth = width - 32;
+  const cardHeight = Math.min(height - 260, cardWidth * 1.5);
+
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="px-6 pt-2">
+    <SafeAreaView className="flex-1 bg-slate-50" edges={['top']}>
+      <View className="flex-row items-center justify-between px-6 pb-2 pt-2">
         <Text className="text-3xl font-bold text-slate-900">Discover</Text>
-        <Text className="mt-1 text-sm text-slate-500">
-          Candidates within 100 km. Swipe deck comes next.
-        </Text>
+        <Pressable
+          onPress={load}
+          className="rounded-full border border-slate-300 px-3 py-1 active:opacity-70"
+        >
+          <Text className="text-xs font-medium text-slate-600">Refresh</Text>
+        </Pressable>
       </View>
 
-      {loading && !refreshing ? (
+      {loading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color="#059669" />
         </View>
       ) : error ? (
-        <View className="flex-1 items-center justify-center px-6">
+        <View className="flex-1 items-center justify-center px-8">
           <Text className="text-center text-sm text-red-500">{error}</Text>
+          <Pressable
+            onPress={load}
+            className="mt-4 rounded-lg border border-slate-300 px-4 py-2 active:opacity-70"
+          >
+            <Text className="text-sm text-slate-700">Try again</Text>
+          </Pressable>
+        </View>
+      ) : candidates.length === 0 ? (
+        <View className="flex-1 items-center justify-center px-8">
+          <Text className="text-4xl">🏁</Text>
+          <Text className="mt-4 text-center text-base text-slate-600">
+            No one new nearby right now.
+          </Text>
+          <Text className="mt-2 text-center text-sm text-slate-400">
+            Pull to refresh later, or widen your range from Profile.
+          </Text>
         </View>
       ) : (
-        <FlatList
-          data={candidates}
-          keyExtractor={(item) => item.user_id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => load(true)}
-              tintColor="#059669"
+        <View style={{ flex: 1, alignItems: 'center', paddingTop: 8 }}>
+          <Swiper
+            ref={swiperRef}
+            data={candidates}
+            cardStyle={{ width: cardWidth, height: cardHeight }}
+            renderCard={(item) => <SwipeCard candidate={item} />}
+            onSwipeRight={(i) => handleSwipe(i, 'right')}
+            onSwipeLeft={(i) => handleSwipe(i, 'left')}
+            onSwipeTop={(i) => handleSwipe(i, 'super')}
+            onSwipedAll={() => {
+              // Triggers empty-state via candidates.length === 0 on next refresh.
+              setCandidates([]);
+            }}
+            disableBottomSwipe
+          />
+
+          <View className="flex-row items-center justify-center gap-6 pb-6 pt-4">
+            <ActionButton
+              label="✕"
+              onPress={() => swiperRef.current?.swipeLeft()}
+              variant="left"
             />
-          }
-          ListEmptyComponent={() => (
-            <View className="mt-20 items-center px-6">
-              <Text className="text-center text-base text-slate-500">
-                No one nearby yet.
-              </Text>
-              <Text className="mt-2 text-center text-sm text-slate-400">
-                Create another test account from the sign-in screen to see
-                Discover light up.
-              </Text>
-            </View>
-          )}
-          renderItem={({ item }) => <CandidateRow candidate={item} />}
-        />
+            <ActionButton
+              label="★"
+              onPress={() => swiperRef.current?.swipeTop()}
+              variant="super"
+            />
+            <ActionButton
+              label="♥"
+              onPress={() => swiperRef.current?.swipeRight()}
+              variant="right"
+            />
+          </View>
+        </View>
       )}
+
+      <MatchModal
+        match={match}
+        myPhotoUrl={profile?.photo_urls?.[0] ?? null}
+        onKeepSwiping={() => setMatch(null)}
+      />
     </SafeAreaView>
   );
 }
 
-function CandidateRow({ candidate }: { candidate: Candidate }) {
-  const firstPhoto = candidate.photo_urls[0];
-  return (
-    <View className="mb-3 flex-row items-center rounded-xl border border-slate-200 bg-white p-3">
-      <View className="mr-3 h-16 w-16 overflow-hidden rounded-lg bg-slate-100">
-        {firstPhoto ? (
-          <Image
-            source={{ uri: firstPhoto }}
-            style={{ flex: 1 }}
-            resizeMode="cover"
-          />
-        ) : (
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-xl text-slate-300">⛳</Text>
-          </View>
-        )}
-      </View>
+function ActionButton({
+  label,
+  onPress,
+  variant,
+}: {
+  label: string;
+  onPress: () => void;
+  variant: 'left' | 'super' | 'right';
+}) {
+  const colors = {
+    left: 'bg-white border-red-200 text-red-500',
+    super: 'bg-white border-sky-200 text-sky-500',
+    right: 'bg-white border-emerald-300 text-emerald-600',
+  }[variant];
 
-      <View className="flex-1">
-        <Text className="text-base font-semibold text-slate-900">
-          {candidate.display_name ?? 'Unnamed'}
-          {candidate.age ? `, ${candidate.age}` : ''}
-        </Text>
-        <Text className="mt-0.5 text-xs text-slate-500">
-          {[
-            candidate.home_city,
-            candidate.distance_km !== null
-              ? `${candidate.distance_km.toFixed(1)} km`
-              : null,
-          ]
-            .filter(Boolean)
-            .join(' · ')}
-        </Text>
-        {candidate.style_default ? (
-          <View className="mt-1 self-start rounded-full bg-emerald-50 px-2 py-0.5">
-            <Text className="text-[10px] font-medium uppercase text-emerald-700">
-              {candidate.style_default}
-            </Text>
-          </View>
-        ) : null}
-      </View>
-    </View>
+  return (
+    <Pressable
+      onPress={onPress}
+      className={`h-14 w-14 items-center justify-center rounded-full border-2 shadow-sm active:opacity-70 ${colors}`}
+    >
+      <Text className={`text-2xl ${colors}`}>{label}</Text>
+    </Pressable>
   );
 }

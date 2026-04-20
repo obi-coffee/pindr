@@ -31,3 +31,31 @@ export async function fetchCandidates(
   if (error) throw error;
   return (data ?? []) as Candidate[];
 }
+
+export type SwipeDirection = 'right' | 'left' | 'super';
+
+export async function recordSwipe(
+  swiperId: string,
+  swipeeId: string,
+  direction: SwipeDirection,
+): Promise<{ matched: boolean }> {
+  const { error: insertError } = await supabase.from('swipes').insert({
+    swiper_id: swiperId,
+    swipee_id: swipeeId,
+    direction,
+  });
+  if (insertError) throw insertError;
+
+  if (direction === 'left') return { matched: false };
+
+  const lo = swiperId < swipeeId ? swiperId : swipeeId;
+  const hi = swiperId < swipeeId ? swipeeId : swiperId;
+  const { data, error } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('user_a_id', lo)
+    .eq('user_b_id', hi)
+    .maybeSingle();
+  if (error) throw error;
+  return { matched: Boolean(data) };
+}

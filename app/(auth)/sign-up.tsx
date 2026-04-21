@@ -8,11 +8,11 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Text,
-  TextInput,
+  ScrollView,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Input, Typography, colors } from '../../components/ui';
 import { signUpSchema, type SignUpInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
 
@@ -41,34 +41,51 @@ export default function SignUp() {
       options: { emailRedirectTo: Linking.createURL('/') },
     });
     if (error) {
-      Alert.alert('Sign up failed', error.message);
+      Alert.alert('sign up failed', error.message);
       return;
     }
-    if (data.session) {
-      // Email confirmation is disabled in Supabase — session is live now,
-      // AuthProvider will route us to the signed-in home.
-      return;
-    }
+    if (data.session) return;
     setSentTo(email);
   };
 
   if (sentTo) return <CheckInbox email={sentTo} onBack={() => setSentTo(null)} />;
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 justify-center px-6">
-          <Text className="mb-2 text-4xl font-bold text-emerald-600">Pindr</Text>
-          <Text className="mb-8 text-base text-slate-500">Create your account</Text>
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Typography
+            variant="caption"
+            color="ink-soft"
+            style={{ marginBottom: 10, marginTop: 12 }}
+          >
+            pindr
+          </Typography>
+          <Typography variant="display-lg" style={{ marginBottom: 12 }}>
+            find your{'\n'}foursome.
+          </Typography>
+          <Typography
+            variant="body-lg"
+            color="ink-soft"
+            style={{ marginBottom: 28 }}
+          >
+            first-timers to straight-up ringers. everyone belongs.
+          </Typography>
 
           <Controller
             control={control}
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Email"
                 error={errors.email?.message}
                 value={value}
@@ -86,14 +103,14 @@ export default function SignUp() {
             control={control}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Password"
                 error={errors.password?.message}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 secureTextEntry
-                placeholder="At least 8 characters"
+                placeholder="at least 8 characters"
               />
             )}
           />
@@ -102,14 +119,14 @@ export default function SignUp() {
             control={control}
             name="confirmPassword"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Confirm password"
                 error={errors.confirmPassword?.message}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 secureTextEntry
-                placeholder="Re-enter password"
+                placeholder="re-enter password"
               />
             )}
           />
@@ -118,117 +135,140 @@ export default function SignUp() {
             control={control}
             name="acceptGuidelines"
             render={({ field: { value, onChange } }) => (
-              <View className="mb-4">
+              <View style={{ marginBottom: 4 }}>
                 <Pressable
                   onPress={() => onChange(!value)}
-                  className="flex-row items-start active:opacity-80"
                   hitSlop={4}
+                  style={{ flexDirection: 'row', alignItems: 'flex-start' }}
                 >
                   <View
-                    className={`mr-3 mt-0.5 h-5 w-5 items-center justify-center rounded border-2 ${
-                      value
-                        ? 'border-emerald-600 bg-emerald-600'
-                        : 'border-slate-300 bg-white'
-                    }`}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 4,
+                      borderWidth: 2,
+                      borderColor: value ? colors.ink : colors['stroke-strong'],
+                      backgroundColor: value ? colors.ink : 'transparent',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      marginRight: 12,
+                      marginTop: 2,
+                    }}
                   >
                     {value ? (
-                      <Text className="text-xs font-bold text-white">✓</Text>
+                      <Typography variant="caption" color="paper-high">
+                        ✓
+                      </Typography>
                     ) : null}
                   </View>
-                  <Text className="flex-1 text-sm text-slate-700">
-                    I agree to the{' '}
-                    <Text
-                      className="font-semibold text-emerald-600"
+                  <Typography variant="body-sm" color="ink" style={{ flex: 1 }}>
+                    i agree to the{' '}
+                    <Typography
+                      variant="body-sm"
+                      color="ink"
                       onPress={(e) => {
                         e.stopPropagation();
                         router.push('/guidelines' as never);
                       }}
+                      style={{ fontWeight: '700' }}
                     >
                       community guidelines
-                    </Text>
+                    </Typography>
                     .
-                  </Text>
+                  </Typography>
                 </Pressable>
                 {errors.acceptGuidelines ? (
-                  <Text className="mt-1 text-xs text-red-500">
+                  <Typography
+                    variant="body-sm"
+                    color="burgundy"
+                    style={{ marginTop: 4, marginLeft: 32 }}
+                  >
                     {errors.acceptGuidelines.message}
-                  </Text>
+                  </Typography>
                 ) : null}
               </View>
             )}
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 20 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Creating account…' : 'Create account'}
-            </Text>
-          </Pressable>
+            Get started
+          </Button>
 
-          <View className="mt-8 flex-row justify-center">
-            <Text className="text-sm text-slate-500">Already have an account? </Text>
-            <Link href="/sign-in" className="text-sm font-semibold text-emerald-600">
-              Sign in
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: 28,
+              gap: 6,
+            }}
+          >
+            <Typography variant="body-sm" color="ink-soft">
+              already in?
+            </Typography>
+            <Link href="/sign-in" asChild>
+              <Pressable hitSlop={8}>
+                <Typography variant="body-sm" color="ink">
+                  sign in
+                </Typography>
+              </Pressable>
             </Link>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-function CheckInbox({ email, onBack }: { email: string; onBack: () => void }) {
+function CheckInbox({
+  email,
+  onBack,
+}: {
+  email: string;
+  onBack: () => void;
+}) {
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 items-center justify-center px-6">
-        <Text className="mb-2 text-3xl font-bold text-emerald-600">
-          Check your inbox
-        </Text>
-        <Text className="mb-6 text-center text-base text-slate-600">
-          We sent a confirmation link to{'\n'}
-          <Text className="font-semibold text-slate-900">{email}</Text>
-        </Text>
-        <Text className="mb-10 text-center text-sm text-slate-400">
-          Tap the link on this device to finish signing up.
-        </Text>
-
-        <Pressable
-          onPress={onBack}
-          className="rounded-lg border border-slate-300 px-6 py-3 active:opacity-70"
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          paddingHorizontal: 28,
+        }}
+      >
+        <Typography
+          variant="caption"
+          color="ink-soft"
+          style={{ marginBottom: 14 }}
         >
-          <Text className="text-base font-medium text-slate-700">
-            Use a different email
-          </Text>
-        </Pressable>
+          almost there.
+        </Typography>
+        <Typography variant="display-lg" style={{ marginBottom: 16 }}>
+          check your inbox.
+        </Typography>
+        <Typography variant="body-lg" color="ink-soft">
+          we sent a confirmation link to{' '}
+          <Typography variant="body-lg" color="ink">
+            {email}
+          </Typography>
+          . tap it on this device to finish signing up.
+        </Typography>
+      </View>
+
+      <View style={{ paddingHorizontal: 28, paddingBottom: 24 }}>
+        <Button variant="ghost" size="lg" fullWidth onPress={onBack}>
+          Use a different email
+        </Button>
       </View>
     </SafeAreaView>
-  );
-}
-
-type FieldProps = React.ComponentProps<typeof TextInput> & {
-  label: string;
-  error?: string;
-};
-
-function Field({ label, error, ...input }: FieldProps) {
-  return (
-    <View className="mb-4">
-      <Text className="mb-1 text-sm font-medium text-slate-700">{label}</Text>
-      <TextInput
-        placeholderTextColor="#94a3b8"
-        {...input}
-        className={`rounded-lg border bg-white px-3 py-3 text-base text-slate-900 ${
-          error ? 'border-red-400' : 'border-slate-300'
-        }`}
-      />
-      {error ? (
-        <Text className="mt-1 text-xs text-red-500">{error}</Text>
-      ) : null}
-    </View>
   );
 }

@@ -6,11 +6,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Text,
-  TextInput,
-  View,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Input, Typography, colors } from '../../components/ui';
 import { phoneSchema, type PhoneInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
 
@@ -27,79 +26,83 @@ export default function Phone() {
   const onSubmit = async ({ phone }: PhoneInput) => {
     const { error } = await supabase.auth.signInWithOtp({ phone });
     if (error) {
-      Alert.alert('Could not send code', error.message);
+      Alert.alert('could not send code', error.message);
       return;
     }
     router.push({ pathname: '/verify-otp', params: { phone } });
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 justify-center px-6">
-          <Text className="mb-2 text-4xl font-bold text-emerald-600">Pindr</Text>
-          <Text className="mb-8 text-base text-slate-500">
-            We'll text you a 6-digit code
-          </Text>
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Typography
+            variant="caption"
+            color="ink-soft"
+            style={{ marginBottom: 10, marginTop: 12 }}
+          >
+            pindr
+          </Typography>
+          <Typography variant="display-lg" style={{ marginBottom: 12 }}>
+            sign in by phone.
+          </Typography>
+          <Typography
+            variant="body-lg"
+            color="ink-soft"
+            style={{ marginBottom: 28 }}
+          >
+            we'll text you a 6-digit code. no passwords.
+          </Typography>
 
           <Controller
             control={control}
             name="phone"
             render={({ field: { onChange, onBlur, value } }) => (
-              <View className="mb-4">
-                <Text className="mb-1 text-sm font-medium text-slate-700">
-                  Phone number
-                </Text>
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  keyboardType="phone-pad"
-                  placeholder="+15551234567"
-                  placeholderTextColor="#94a3b8"
-                  className={`rounded-lg border bg-white px-3 py-3 text-base text-slate-900 ${
-                    errors.phone ? 'border-red-400' : 'border-slate-300'
-                  }`}
-                />
-                {errors.phone ? (
-                  <Text className="mt-1 text-xs text-red-500">
-                    {errors.phone.message}
-                  </Text>
-                ) : (
-                  <Text className="mt-1 text-xs text-slate-400">
-                    Include country code, e.g. +1 for the US.
-                  </Text>
-                )}
-              </View>
+              <Input
+                label="Phone number"
+                error={errors.phone?.message}
+                hint="include the country code, e.g. +1 for the US."
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="phone-pad"
+                placeholder="+15551234567"
+              />
             )}
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Sending…' : 'Send code'}
-            </Text>
-          </Pressable>
+            Send code
+          </Button>
 
           <Pressable
             onPress={() => router.back()}
-            className="mt-6 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 20, paddingVertical: 8 }}
           >
-            <Text className="text-sm font-medium text-slate-500">
-              Use email instead
-            </Text>
+            <Typography variant="caption" color="ink-subtle">
+              use email instead
+            </Typography>
           </Pressable>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

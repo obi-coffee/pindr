@@ -6,11 +6,10 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Text,
-  TextInput,
-  View,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Input, Typography, colors } from '../../components/ui';
 import { otpSchema, type OtpInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
 
@@ -28,7 +27,7 @@ export default function VerifyOtp() {
 
   const onSubmit = async ({ code }: OtpInput) => {
     if (!phone) {
-      Alert.alert('Missing phone number', 'Go back and enter your number again.');
+      Alert.alert('missing phone number', 'go back and enter your number again.');
       return;
     }
     const { error } = await supabase.auth.verifyOtp({
@@ -36,90 +35,99 @@ export default function VerifyOtp() {
       token: code,
       type: 'sms',
     });
-    if (error) Alert.alert('Verification failed', error.message);
-    // On success, AuthProvider's onAuthStateChange flips the app to signed-in.
+    if (error) Alert.alert('verification failed', error.message);
   };
 
   const resend = async () => {
     if (!phone) return;
     const { error } = await supabase.auth.signInWithOtp({ phone });
     Alert.alert(
-      error ? 'Resend failed' : 'Code resent',
-      error ? error.message : `New code sent to ${phone}`,
+      error ? 'resend failed' : 'code resent',
+      error ? error.message : `new code sent to ${phone}.`,
     );
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 justify-center px-6">
-          <Text className="mb-2 text-4xl font-bold text-emerald-600">Pindr</Text>
-          <Text className="mb-8 text-base text-slate-500">
-            Enter the code we sent to {phone ?? 'your phone'}
-          </Text>
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Typography
+            variant="caption"
+            color="ink-soft"
+            style={{ marginBottom: 10, marginTop: 12 }}
+          >
+            pindr
+          </Typography>
+          <Typography variant="display-lg" style={{ marginBottom: 12 }}>
+            check your texts.
+          </Typography>
+          <Typography
+            variant="body-lg"
+            color="ink-soft"
+            style={{ marginBottom: 28 }}
+          >
+            {phone
+              ? `we sent a code to ${phone}.`
+              : 'we sent a code to your phone.'}
+          </Typography>
 
           <Controller
             control={control}
             name="code"
             render={({ field: { onChange, onBlur, value } }) => (
-              <View className="mb-4">
-                <Text className="mb-1 text-sm font-medium text-slate-700">
-                  6-digit code
-                </Text>
-                <TextInput
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  keyboardType="number-pad"
-                  maxLength={6}
-                  placeholder="123456"
-                  placeholderTextColor="#94a3b8"
-                  className={`rounded-lg border bg-white px-3 py-3 text-2xl tracking-widest text-slate-900 ${
-                    errors.code ? 'border-red-400' : 'border-slate-300'
-                  }`}
-                />
-                {errors.code ? (
-                  <Text className="mt-1 text-xs text-red-500">
-                    {errors.code.message}
-                  </Text>
-                ) : null}
-              </View>
+              <Input
+                label="6-digit code"
+                error={errors.code?.message}
+                value={value}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                keyboardType="number-pad"
+                maxLength={6}
+                placeholder="123456"
+              />
             )}
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Verifying…' : 'Verify'}
-            </Text>
-          </Pressable>
+            Verify
+          </Button>
 
           <Pressable
             onPress={resend}
-            className="mt-6 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 20, paddingVertical: 8 }}
           >
-            <Text className="text-sm font-medium text-slate-500">
-              Didn't get it? Resend code
-            </Text>
+            <Typography variant="caption" color="ink-soft">
+              didn't get it? resend code
+            </Typography>
           </Pressable>
 
           <Pressable
             onPress={() => router.back()}
-            className="mt-2 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 8, paddingVertical: 8 }}
           >
-            <Text className="text-sm font-medium text-slate-400">
-              Change phone number
-            </Text>
+            <Typography variant="caption" color="ink-subtle">
+              change phone number
+            </Typography>
           </Pressable>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

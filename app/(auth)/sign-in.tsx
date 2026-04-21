@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Text,
-  TextInput,
+  ScrollView,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Input, Typography, colors } from '../../components/ui';
 import { signInSchema, type SignInInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
 
@@ -29,28 +29,47 @@ export default function SignIn() {
       email: values.email.trim(),
       password: values.password,
     });
-    if (error) Alert.alert('Sign in failed', error.message);
+    if (error) Alert.alert('sign in failed', error.message);
   };
 
+  const disabled = isSubmitting;
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-1 justify-center px-6">
-          <Text className="mb-2 text-4xl font-bold text-emerald-600">
-            Pindr
-          </Text>
-          <Text className="mb-8 text-base text-slate-500">
-            Sign in to continue
-          </Text>
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Typography
+            variant="caption"
+            color="ink-soft"
+            style={{ marginBottom: 10, marginTop: 12 }}
+          >
+            pindr
+          </Typography>
+          <Typography variant="display-lg" style={{ marginBottom: 12 }}>
+            welcome back.
+          </Typography>
+          <Typography
+            variant="body-lg"
+            color="ink-soft"
+            style={{ marginBottom: 28 }}
+          >
+            your foursome's waiting.
+          </Typography>
 
           <Controller
             control={control}
             name="email"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Email"
                 error={errors.email?.message}
                 value={value}
@@ -68,7 +87,7 @@ export default function SignIn() {
             control={control}
             name="password"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Password"
                 error={errors.password?.message}
                 value={value}
@@ -80,57 +99,48 @@ export default function SignIn() {
             )}
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={disabled}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Signing in…' : 'Sign in'}
-            </Text>
+            Sign in
+          </Button>
+
+          <Pressable
+            onPress={() => router.push('/phone' as never)}
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 14, paddingVertical: 8 }}
+          >
+            <Typography variant="caption" color="ink-soft">
+              use phone instead
+            </Typography>
           </Pressable>
 
-          <Link href="/phone" asChild>
-            <Pressable className="mt-4 items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
-              <Text className="text-base font-medium text-slate-700">
-                Use phone instead
-              </Text>
-            </Pressable>
-          </Link>
-
-          <View className="mt-8 flex-row justify-center">
-            <Text className="text-sm text-slate-500">New to Pindr? </Text>
-            <Link href="/sign-up" className="text-sm font-semibold text-emerald-600">
-              Create an account
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              marginTop: 28,
+              gap: 6,
+            }}
+          >
+            <Typography variant="body-sm" color="ink-soft">
+              new to pindr?
+            </Typography>
+            <Link href="/sign-up" asChild>
+              <Pressable hitSlop={8}>
+                <Typography variant="body-sm" color="ink">
+                  get started
+                </Typography>
+              </Pressable>
             </Link>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
-  );
-}
-
-type FieldProps = React.ComponentProps<typeof TextInput> & {
-  label: string;
-  error?: string;
-};
-
-function Field({ label, error, ...input }: FieldProps) {
-  return (
-    <View className="mb-4">
-      <Text className="mb-1 text-sm font-medium text-slate-700">{label}</Text>
-      <TextInput
-        placeholderTextColor="#94a3b8"
-        {...input}
-        className={`rounded-lg border bg-white px-3 py-3 text-base text-slate-900 ${
-          error ? 'border-red-400' : 'border-slate-300'
-        }`}
-      />
-      {error ? (
-        <Text className="mt-1 text-xs text-red-500">{error}</Text>
-      ) : null}
-    </View>
   );
 }

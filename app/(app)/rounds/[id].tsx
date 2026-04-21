@@ -4,12 +4,11 @@ import {
   ActivityIndicator,
   Alert,
   Image,
-  Pressable,
   ScrollView,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Tag, Typography, useTheme } from '../../../components/ui';
+import { Button, PindrLogo, Tag, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   cancelRound,
@@ -120,15 +119,11 @@ export default function RoundDetail() {
           justifyContent: 'space-between',
           paddingHorizontal: 20,
           paddingTop: 6,
-          paddingBottom: 12,
+          paddingBottom: 10,
         }}
       >
+        <PindrLogo height={32} />
         <Typography variant="h1">the round</Typography>
-        <Pressable hitSlop={12} onPress={() => router.back()}>
-          <Typography variant="caption" color="ink">
-            back
-          </Typography>
-        </Pressable>
       </View>
 
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 120, gap: 20 }}>

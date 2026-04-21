@@ -2,13 +2,12 @@ import { router } from 'expo-router';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RoundForm } from '../../../components/RoundForm';
-import { Typography, useTheme } from '../../../components/ui';
+import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { createRound } from '../../../lib/rounds/queries';
 
@@ -58,15 +57,11 @@ function Header() {
         justifyContent: 'space-between',
         paddingHorizontal: 20,
         paddingTop: 6,
-        paddingBottom: 12,
+        paddingBottom: 10,
       }}
     >
+      <PindrLogo height={32} />
       <Typography variant="h1">post a round</Typography>
-      <Pressable hitSlop={12} onPress={() => router.back()}>
-        <Typography variant="caption" color="ink">
-          cancel
-        </Typography>
-      </Pressable>
     </View>
   );
 }

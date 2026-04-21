@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-import { Alert, Platform, Pressable, View } from 'react-native';
+import { Alert, Modal, Platform, Pressable, View } from 'react-native';
 import {
   Button,
   ChipSelect,
@@ -232,51 +232,131 @@ export function RoundForm({ initial, submitLabel, onSubmit }: RoundFormProps) {
         onSelect={setCourse}
       />
 
-      {dateOpen ? (
-        <DateTimePicker
-          mode="date"
-          display={Platform.OS === 'ios' ? 'inline' : 'default'}
+      {Platform.OS === 'ios' ? (
+        <DateTimeSheet
+          visible={dateOpen || timeOpen}
+          mode={timeOpen ? 'time' : 'date'}
           value={teeTime}
-          minimumDate={new Date()}
-          onChange={(_, next) => {
-            if (Platform.OS !== 'ios') setDateOpen(false);
-            if (next) {
-              const merged = new Date(teeTime);
-              merged.setFullYear(next.getFullYear(), next.getMonth(), next.getDate());
-              setTeeTime(merged);
-            }
-          }}
-        />
-      ) : null}
-      {timeOpen ? (
-        <DateTimePicker
-          mode="time"
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          value={teeTime}
-          onChange={(_, next) => {
-            if (Platform.OS !== 'ios') setTimeOpen(false);
-            if (next) {
-              const merged = new Date(teeTime);
+          onChange={(next) => {
+            const merged = new Date(teeTime);
+            if (timeOpen) {
               merged.setHours(next.getHours(), next.getMinutes(), 0, 0);
-              setTeeTime(merged);
+            } else {
+              merged.setFullYear(
+                next.getFullYear(),
+                next.getMonth(),
+                next.getDate(),
+              );
             }
+            setTeeTime(merged);
           }}
-        />
-      ) : null}
-      {Platform.OS === 'ios' && (dateOpen || timeOpen) ? (
-        <Pressable
-          onPress={() => {
+          onClose={() => {
             setDateOpen(false);
             setTimeOpen(false);
           }}
-          style={{ alignSelf: 'center', marginTop: 4 }}
-        >
-          <Typography variant="caption" color="ink">
-            done
-          </Typography>
-        </Pressable>
-      ) : null}
+        />
+      ) : (
+        <>
+          {dateOpen ? (
+            <DateTimePicker
+              mode="date"
+              display="default"
+              value={teeTime}
+              minimumDate={new Date()}
+              onChange={(_, next) => {
+                setDateOpen(false);
+                if (next) {
+                  const merged = new Date(teeTime);
+                  merged.setFullYear(
+                    next.getFullYear(),
+                    next.getMonth(),
+                    next.getDate(),
+                  );
+                  setTeeTime(merged);
+                }
+              }}
+            />
+          ) : null}
+          {timeOpen ? (
+            <DateTimePicker
+              mode="time"
+              display="default"
+              value={teeTime}
+              onChange={(_, next) => {
+                setTimeOpen(false);
+                if (next) {
+                  const merged = new Date(teeTime);
+                  merged.setHours(next.getHours(), next.getMinutes(), 0, 0);
+                  setTeeTime(merged);
+                }
+              }}
+            />
+          ) : null}
+        </>
+      )}
     </View>
+  );
+}
+
+function DateTimeSheet({
+  visible,
+  mode,
+  value,
+  onChange,
+  onClose,
+}: {
+  visible: boolean;
+  mode: 'date' | 'time';
+  value: Date;
+  onChange: (next: Date) => void;
+  onClose: () => void;
+}) {
+  const { colors, scheme } = useTheme();
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+    >
+      <Pressable
+        onPress={onClose}
+        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' }}
+      />
+      <View
+        style={{
+          backgroundColor: colors['paper-high'],
+          paddingHorizontal: 16,
+          paddingBottom: 28,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            paddingVertical: 10,
+          }}
+        >
+          <Pressable hitSlop={12} onPress={onClose}>
+            <Typography variant="caption" color="ink">
+              done
+            </Typography>
+          </Pressable>
+        </View>
+        <DateTimePicker
+          mode={mode}
+          display={mode === 'date' ? 'inline' : 'spinner'}
+          value={value}
+          minimumDate={mode === 'date' ? new Date() : undefined}
+          onChange={(_, next) => {
+            if (next) onChange(next);
+          }}
+          themeVariant={scheme}
+        />
+      </View>
+    </Modal>
   );
 }
 

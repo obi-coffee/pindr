@@ -7,11 +7,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Typography,
+  colors,
+  fontFamilyFor,
+  radii,
+} from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchMatchDetails,
@@ -117,51 +122,101 @@ export default function ChatThread() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator color="#059669" />
+      <SafeAreaView
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.paper,
+        }}
+      >
+        <ActivityIndicator color={colors.ink} />
       </SafeAreaView>
     );
   }
 
   if (error) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white px-8">
-        <Text className="text-center text-sm text-red-500">{error}</Text>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.paper,
+          paddingHorizontal: 32,
+        }}
+      >
+        <Typography
+          variant="body"
+          color="burgundy"
+          style={{ textAlign: 'center' }}
+        >
+          {error}
+        </Typography>
         <Pressable
           onPress={() => router.back()}
-          className="mt-4 rounded-lg border border-slate-300 px-4 py-2 active:opacity-70"
+          hitSlop={8}
+          style={{ marginTop: 16, paddingVertical: 8 }}
         >
-          <Text className="text-sm text-slate-700">Back</Text>
+          <Typography variant="caption" color="ink-subtle">
+            back
+          </Typography>
         </Pressable>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="flex-row items-center border-b border-slate-100 px-4 py-2">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top', 'bottom']}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.stroke,
+        }}
+      >
         <Pressable
           onPress={() => router.back()}
-          className="mr-2 h-9 w-9 items-center justify-center active:opacity-70"
+          hitSlop={8}
+          style={{
+            height: 36,
+            width: 36,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
         >
-          <Text className="text-2xl text-slate-700">‹</Text>
+          <Typography variant="h2" color="ink">
+            ‹
+          </Typography>
         </Pressable>
-        <View className="mr-3 h-10 w-10 overflow-hidden rounded-full bg-slate-100">
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 999,
+            overflow: 'hidden',
+            backgroundColor: colors['paper-raised'],
+            marginRight: 12,
+          }}
+        >
           {details?.other_photo_url ? (
             <Image
               source={{ uri: details.other_photo_url }}
               style={{ flex: 1 }}
               resizeMode="cover"
             />
-          ) : (
-            <View className="flex-1 items-center justify-center">
-              <Text className="text-base">⛳</Text>
-            </View>
-          )}
+          ) : null}
         </View>
-        <Text className="flex-1 text-base font-semibold text-slate-900">
-          {details?.other_display_name ?? 'Match'}
-        </Text>
+        <Typography variant="h3" style={{ flex: 1 }}>
+          {details?.other_display_name ?? 'match'}
+        </Typography>
         {details?.other_user_id && user ? (
           <Pressable
             onPress={() =>
@@ -173,24 +228,34 @@ export default function ChatThread() {
                 onBlocked: () => router.replace('/matches'),
               })
             }
-            className="h-9 w-9 items-center justify-center active:opacity-70"
             hitSlop={8}
+            style={{
+              height: 36,
+              width: 36,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <Text className="text-xl text-slate-700">⋯</Text>
+            <Typography variant="h3" color="ink">
+              ⋯
+            </Typography>
           </Pressable>
         ) : null}
       </View>
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <FlatList
           ref={listRef}
           data={messages}
           keyExtractor={(m) => m.id}
-          contentContainerStyle={{ padding: 12, paddingBottom: 8 }}
+          contentContainerStyle={{
+            paddingHorizontal: 16,
+            paddingTop: 12,
+            paddingBottom: 8,
+          }}
           renderItem={({ item }) => (
             <MessageBubble message={item} mine={item.sender_id === user?.id} />
           )}
@@ -198,33 +263,81 @@ export default function ChatThread() {
             listRef.current?.scrollToEnd({ animated: false })
           }
           ListEmptyComponent={() => (
-            <View className="mt-24 items-center px-6">
-              <Text className="text-4xl">👋</Text>
-              <Text className="mt-3 text-center text-sm text-slate-500">
-                You matched. Send the first message.
-              </Text>
+            <View
+              style={{
+                marginTop: 120,
+                alignItems: 'center',
+                paddingHorizontal: 28,
+              }}
+            >
+              <Typography
+                variant="display-lg"
+                style={{ textAlign: 'center' }}
+              >
+                you{'\n'}locked in.
+              </Typography>
+              <View style={{ height: 12 }} />
+              <Typography
+                variant="body"
+                color="ink-soft"
+                style={{ textAlign: 'center' }}
+              >
+                send the first message. keep it plain.
+              </Typography>
             </View>
           )}
         />
 
-        <View className="flex-row items-end gap-2 border-t border-slate-100 bg-white px-3 py-2">
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'flex-end',
+            gap: 10,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            borderTopWidth: 1,
+            borderTopColor: colors.stroke,
+            backgroundColor: colors.paper,
+          }}
+        >
           <TextInput
             value={draft}
             onChangeText={setDraft}
-            placeholder="Message…"
-            placeholderTextColor="#94a3b8"
+            placeholder="say something…"
+            placeholderTextColor={colors['ink-subtle']}
             multiline
-            className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 text-base text-slate-900"
-            style={{ maxHeight: 120 }}
+            style={{
+              flex: 1,
+              maxHeight: 120,
+              minHeight: 40,
+              paddingHorizontal: 14,
+              paddingVertical: 10,
+              borderRadius: radii.pill,
+              borderWidth: 1,
+              borderColor: colors['stroke-strong'],
+              backgroundColor: colors['paper-high'],
+              fontSize: 16,
+              fontFamily: fontFamilyFor('400'),
+              color: colors.ink,
+            }}
           />
           <Pressable
             onPress={onSend}
             disabled={!draft.trim() || sending}
-            className={`rounded-full px-4 py-2 ${
-              !draft.trim() || sending ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{
+              height: 40,
+              paddingHorizontal: 18,
+              borderRadius: radii.pill,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor:
+                !draft.trim() || sending ? colors['ink-subtle'] : colors.ink,
+              opacity: !draft.trim() || sending ? 0.6 : 1,
+            }}
           >
-            <Text className="text-sm font-semibold text-white">Send</Text>
+            <Typography variant="caption" color="paper-high">
+              send
+            </Typography>
           </Pressable>
         </View>
       </KeyboardAvoidingView>
@@ -241,16 +354,25 @@ function MessageBubble({
 }) {
   return (
     <View
-      className={`mb-2 max-w-[80%] ${mine ? 'self-end' : 'self-start'}`}
+      style={{
+        marginBottom: 8,
+        maxWidth: '80%',
+        alignSelf: mine ? 'flex-end' : 'flex-start',
+      }}
     >
       <View
-        className={`rounded-2xl px-3 py-2 ${
-          mine ? 'bg-emerald-600' : 'bg-slate-100'
-        }`}
+        style={{
+          paddingHorizontal: 14,
+          paddingVertical: 10,
+          borderRadius: 18,
+          backgroundColor: mine ? colors.ink : colors['paper-raised'],
+          borderWidth: mine ? 0 : 1,
+          borderColor: colors.stroke,
+        }}
       >
-        <Text className={mine ? 'text-white' : 'text-slate-900'}>
+        <Typography variant="body-lg" color={mine ? 'paper-high' : 'ink'}>
           {message.body}
-        </Text>
+        </Typography>
       </View>
     </View>
   );

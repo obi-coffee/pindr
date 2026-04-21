@@ -1,5 +1,6 @@
-import { Image, Modal, Pressable, Text, View } from 'react-native';
+import { Image, Modal, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
+import { Button, Typography, colors } from './ui';
 
 type MatchModalProps = {
   match: Candidate | null;
@@ -7,38 +8,76 @@ type MatchModalProps = {
   onKeepSwiping: () => void;
 };
 
-export function MatchModal({ match, myPhotoUrl, onKeepSwiping }: MatchModalProps) {
+export function MatchModal({
+  match,
+  myPhotoUrl,
+  onKeepSwiping,
+}: MatchModalProps) {
   const theirPhoto = match?.photo_urls[0];
+  const name = match?.display_name ?? 'they';
 
   return (
     <Modal
       visible={match !== null}
-      transparent
+      transparent={false}
       animationType="fade"
       onRequestClose={onKeepSwiping}
     >
-      <View className="flex-1 items-center justify-center bg-black/75 px-8">
-        <Text className="mb-2 text-center text-5xl font-bold text-emerald-400">
-          It's a match!
-        </Text>
-        <Text className="mb-10 text-center text-base text-white/80">
-          You and {match?.display_name ?? 'they'} liked each other.
-        </Text>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: colors.moss,
+          paddingHorizontal: 28,
+          paddingVertical: 64,
+          justifyContent: 'space-between',
+        }}
+      >
+        <View style={{ marginTop: 24 }}>
+          <Typography
+            variant="caption"
+            color="stone"
+            style={{ marginBottom: 16 }}
+          >
+            moment
+          </Typography>
+          <Typography variant="display-lg" color="paper">
+            you found{'\n'}your people.
+          </Typography>
+          <Typography
+            variant="body-lg"
+            color="stone"
+            style={{ marginTop: 16 }}
+          >
+            {name} locked in too. group chat's open — pick a tee time and pull
+            up.
+          </Typography>
+        </View>
 
-        <View className="mb-12 flex-row items-center justify-center">
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 20,
+          }}
+        >
           <Avatar uri={myPhotoUrl} />
-          <Text className="mx-2 text-3xl">⛳</Text>
+          <Typography variant="h1" color="stone">
+            ⛳
+          </Typography>
           <Avatar uri={theirPhoto ?? null} />
         </View>
 
-        <Pressable
-          onPress={onKeepSwiping}
-          className="w-full items-center rounded-lg bg-emerald-600 py-3 active:opacity-80"
-        >
-          <Text className="text-base font-semibold text-white">
+        <View>
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            onPress={onKeepSwiping}
+          >
             Keep swiping
-          </Text>
-        </Pressable>
+          </Button>
+        </View>
       </View>
     </Modal>
   );
@@ -46,14 +85,20 @@ export function MatchModal({ match, myPhotoUrl, onKeepSwiping }: MatchModalProps
 
 function Avatar({ uri }: { uri: string | null }) {
   return (
-    <View className="h-24 w-24 overflow-hidden rounded-full border-4 border-white bg-slate-300">
+    <View
+      style={{
+        width: 108,
+        height: 108,
+        borderRadius: 999,
+        overflow: 'hidden',
+        backgroundColor: colors['moss-soft'],
+        borderWidth: 3,
+        borderColor: colors.paper,
+      }}
+    >
       {uri ? (
         <Image source={{ uri }} style={{ flex: 1 }} resizeMode="cover" />
-      ) : (
-        <View className="flex-1 items-center justify-center">
-          <Text className="text-3xl">⛳</Text>
-        </View>
-      )}
+      ) : null}
     </View>
   );
 }

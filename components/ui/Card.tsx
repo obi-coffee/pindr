@@ -40,7 +40,7 @@ export function Card({
       style={[
         {
           overflow: 'hidden',
-          borderRadius: radii.lg,
+          borderRadius: 24,
           backgroundColor: colors['paper-raised'],
         },
         style,
@@ -72,10 +72,11 @@ export function Card({
       </View>
       <View
         style={{
+          flex: 1,
           marginTop: -overlap,
-          paddingHorizontal: 20,
-          paddingTop: 20,
-          paddingBottom: 24,
+          paddingHorizontal: 16,
+          paddingTop: 16,
+          paddingBottom: 16,
           backgroundColor: 'transparent',
           zIndex: 2,
         }}

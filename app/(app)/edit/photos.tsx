@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Typography, colors, radii } from '../../../components/ui';
+import { PlusIcon, Typography, colors, radii } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   deletePhoto,
@@ -188,9 +188,7 @@ function PhotoSlot({
         justifyContent: 'center',
       }}
     >
-      <Typography variant="display-lg" color="ink-subtle">
-        +
-      </Typography>
+      <PlusIcon size={28} />
     </Pressable>
   );
 }

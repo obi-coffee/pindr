@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Typography, colors } from '../../../components/ui';
+import { PindrLogo, Typography, colors } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
 
@@ -46,7 +46,17 @@ export default function Matches() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 12 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingTop: 6,
+          paddingBottom: 10,
+        }}
+      >
+        <PindrLogo height={32} />
         <Typography variant="h1">matches</Typography>
       </View>
 

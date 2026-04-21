@@ -8,7 +8,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Tag, Typography, colors, radii } from '../../../components/ui';
+import { PindrLogo, PlusIcon, Tag, Typography, colors, radii } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchAllInterests,
@@ -103,11 +103,47 @@ export default function Profile() {
       edges={['top']}
     >
       <ScrollView contentContainerStyle={{ paddingBottom: 56 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingTop: 6,
+            paddingBottom: 10,
+          }}
+        >
+          <PindrLogo height={32} />
+          <Typography variant="h1">profile</Typography>
+        </View>
+
+        <View
+          style={{
+            paddingHorizontal: 20,
+            paddingTop: 8,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            marginBottom: 10,
+          }}
+        >
+          <Typography variant="caption" color="ink-soft">
+            photos
+          </Typography>
+          <Link href="/edit/photos" asChild>
+            <Pressable hitSlop={8}>
+              <Typography variant="caption" color="ink">
+                edit
+              </Typography>
+            </Pressable>
+          </Link>
+        </View>
+
         {photos.length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 8 }}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
           >
             {photos.map((url, i) => (
               <Image
@@ -125,23 +161,30 @@ export default function Profile() {
             ))}
           </ScrollView>
         ) : (
-          <View
-            style={{
-              marginHorizontal: 20,
-              marginTop: 8,
-              aspectRatio: 4 / 5,
-              backgroundColor: colors['paper-raised'],
-              borderRadius: radii.lg,
-              borderWidth: 1,
-              borderColor: colors.stroke,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="body-sm" color="ink-subtle">
-              no photos yet
-            </Typography>
-          </View>
+          <Link href="/edit/photos" asChild>
+            <Pressable
+              style={{
+                marginHorizontal: 20,
+                aspectRatio: 4 / 5,
+                backgroundColor: colors['paper-raised'],
+                borderRadius: radii.lg,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: colors['stroke-strong'],
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <PlusIcon size={32} />
+              <Typography
+                variant="body-sm"
+                color="ink-subtle"
+                style={{ marginTop: 12 }}
+              >
+                add your first photo
+              </Typography>
+            </Pressable>
+          </Link>
         )}
 
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>

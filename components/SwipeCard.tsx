@@ -55,7 +55,15 @@ export function SwipeCard({
   const tags = buildTags(candidate);
 
   const badge = candidate.home_city ? (
-    <Tag size="sm">{candidate.home_city}</Tag>
+    <Tag
+      size="sm"
+      style={{
+        backgroundColor: colors['paper-high'],
+        borderColor: colors['paper-high'],
+      }}
+    >
+      {candidate.home_city}
+    </Tag>
   ) : null;
 
   return (
@@ -63,6 +71,8 @@ export function SwipeCard({
       <Card
         photo={photoUrl ? { uri: photoUrl } : undefined}
         stateBadge={badge}
+        aspectRatio={1}
+        overlapRatio={0.25}
         style={{ flex: 1 }}
       >
         <View
@@ -88,20 +98,20 @@ export function SwipeCard({
           <Typography
             variant="card-meta"
             color="ink-soft"
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 12 }}
           >
             {metaLine}
           </Typography>
         ) : (
-          <View style={{ height: 16 }} />
+          <View style={{ height: 12 }} />
         )}
 
         <View
           style={{
             flexDirection: 'row',
             gap: 20,
-            paddingVertical: 14,
-            marginBottom: 16,
+            paddingVertical: 10,
+            marginBottom: 12,
             borderTopWidth: 1,
             borderBottomWidth: 1,
             borderColor: colors.stroke,
@@ -123,7 +133,7 @@ export function SwipeCard({
               flexDirection: 'row',
               flexWrap: 'wrap',
               gap: 6,
-              marginBottom: 18,
+              marginBottom: 12,
             }}
           >
             {tags.map((tag) => (
@@ -135,23 +145,23 @@ export function SwipeCard({
         ) : null}
 
         {candidate.bio && candidate.bio.trim() ? (
-          <View style={{ marginBottom: 20 }}>
+          <View style={{ marginBottom: 14 }}>
             <Typography
               variant="card-prompt-label"
               color="ink-subtle"
-              style={{ marginBottom: 6 }}
+              style={{ marginBottom: 4 }}
             >
               In their words
             </Typography>
-            <Typography variant="card-prompt-body">
+            <Typography variant="card-prompt-body" numberOfLines={2}>
               {candidate.bio.trim()}
             </Typography>
           </View>
         ) : null}
 
-        <View style={{ flexDirection: 'row', gap: 10, paddingTop: 4 }}>
+        <View style={{ flexDirection: 'row', gap: 10, marginTop: 'auto' }}>
           <Button
-            variant="ghost"
+            variant="destructive"
             size="lg"
             style={{ flex: 1 }}
             onPress={onPass}
@@ -161,7 +171,7 @@ export function SwipeCard({
           <Button
             variant="primary"
             size="lg"
-            style={{ flex: 1 }}
+            style={{ flex: 1, backgroundColor: colors.moss }}
             onPress={onLockIn}
           >
             Lock in

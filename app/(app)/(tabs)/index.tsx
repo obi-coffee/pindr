@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { MatchModal } from '../../../components/MatchModal';
 import { SwipeCard } from '../../../components/SwipeCard';
-import { Typography, colors } from '../../../components/ui';
+import { PindrLogo, Typography, colors } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   DEFAULT_FILTERS,
@@ -84,7 +84,8 @@ export default function Discover() {
   );
 
   const cardWidth = width - 32;
-  const cardHeight = Math.min(height - 160, cardWidth * 1.9);
+  // Header (~60) + nav pill footprint (~78) + safe insets + breathing room.
+  const cardHeight = height - 220;
 
   const activeFilterCount = countActiveFilters(filters);
 
@@ -103,7 +104,7 @@ export default function Discover() {
           paddingBottom: 10,
         }}
       >
-        <Typography variant="h1">discover</Typography>
+        <PindrLogo height={32} />
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <HeaderPill
             label={travel ? `✈ ${travel.city}` : 'Travel'}
@@ -170,37 +171,46 @@ export default function Discover() {
           </Typography>
         </View>
       ) : (
-        <View style={{ flex: 1, alignItems: 'center', paddingTop: 8 }}>
-          <Swiper
-            ref={swiperRef}
-            data={candidates}
-            cardStyle={{ width: cardWidth, height: cardHeight }}
-            renderCard={(item) => (
-              <SwipeCard
-                candidate={item}
-                onMenu={() => {
-                  if (!user) return;
-                  openUserMenu({
-                    currentUserId: user.id,
-                    targetUserId: item.user_id,
-                    targetName: item.display_name,
-                    onBlocked: () => {
-                      setCandidates((prev) =>
-                        prev.filter((c) => c.user_id !== item.user_id),
-                      );
-                    },
-                  });
-                }}
-                onPass={() => swiperRef.current?.swipeLeft()}
-                onLockIn={() => swiperRef.current?.swipeRight()}
-              />
-            )}
-            onSwipeRight={(i) => handleSwipe(i, 'right')}
-            onSwipeLeft={(i) => handleSwipe(i, 'left')}
-            onSwipeTop={(i) => handleSwipe(i, 'super')}
-            onSwipedAll={() => setCandidates([])}
-            disableBottomSwipe
-          />
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingBottom: 78,
+          }}
+        >
+          <View style={{ width: cardWidth, height: cardHeight }}>
+            <Swiper
+              ref={swiperRef}
+              data={candidates}
+              cardStyle={{ width: cardWidth, height: cardHeight }}
+              renderCard={(item) => (
+                <SwipeCard
+                  candidate={item}
+                  onMenu={() => {
+                    if (!user) return;
+                    openUserMenu({
+                      currentUserId: user.id,
+                      targetUserId: item.user_id,
+                      targetName: item.display_name,
+                      onBlocked: () => {
+                        setCandidates((prev) =>
+                          prev.filter((c) => c.user_id !== item.user_id),
+                        );
+                      },
+                    });
+                  }}
+                  onPass={() => swiperRef.current?.swipeLeft()}
+                  onLockIn={() => swiperRef.current?.swipeRight()}
+                />
+              )}
+              onSwipeRight={(i) => handleSwipe(i, 'right')}
+              onSwipeLeft={(i) => handleSwipe(i, 'left')}
+              onSwipeTop={(i) => handleSwipe(i, 'super')}
+              onSwipedAll={() => setCandidates([])}
+              disableBottomSwipe
+            />
+          </View>
         </View>
       )}
 

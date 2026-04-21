@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Typography, colors, radii } from '../../components/ui';
+import { Button, PlusIcon, Typography, colors, radii } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { deletePhoto, pickAndUploadPhoto } from '../../lib/profile/photos';
 import { supabase } from '../../lib/supabase';
@@ -222,9 +222,7 @@ function PhotoSlot({
         justifyContent: 'center',
       }}
     >
-      <Typography variant="display-lg" color="ink-subtle">
-        +
-      </Typography>
+      <PlusIcon size={28} />
     </Pressable>
   );
 }

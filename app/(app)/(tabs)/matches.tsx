@@ -9,12 +9,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PindrLogo, Typography, colors } from '../../../components/ui';
+import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
 
 export default function Matches() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [matches, setMatches] = useState<MatchSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -145,6 +146,7 @@ function MatchRow({
   match: MatchSummary;
   myUserId: string | null;
 }) {
+  const { colors } = useTheme();
   const hasMessage = Boolean(match.last_message);
   const mine =
     hasMessage && match.last_message_sender_id === myUserId;
@@ -232,6 +234,7 @@ function MatchRow({
 }
 
 function UnreadBadge({ count }: { count: number }) {
+  const { colors } = useTheme();
   return (
     <View
       style={{

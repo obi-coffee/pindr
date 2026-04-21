@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ChipSelect,
   Typography,
-  colors,
+  useTheme,
 } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
@@ -25,6 +25,7 @@ const MIN_SELECTIONS = 3;
 
 export default function EditInterests() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [all, setAll] = useState<Interest[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [previous, setPrevious] = useState<string[]>([]);

@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Typography, colors } from '../../../components/ui';
+import { Button, Input, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchMatchDetails,
@@ -21,6 +21,7 @@ import {
 export default function SharePlan() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [details, setDetails] = useState<MatchDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState('');

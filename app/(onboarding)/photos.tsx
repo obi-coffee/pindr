@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, PlusIcon, Typography, colors, radii } from '../../components/ui';
+import { Button, PlusIcon, Typography, radii, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { deletePhoto, pickAndUploadPhoto } from '../../lib/profile/photos';
 import { supabase } from '../../lib/supabase';
@@ -18,6 +18,7 @@ const MAX_PHOTOS = 6;
 
 export default function Photos() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
   const [uploading, setUploading] = useState(false);
 
   const urls = profile?.photo_urls ?? [];
@@ -171,6 +172,7 @@ function PhotoSlot({
   onRemove?: () => void;
   disabled: boolean;
 }) {
+  const { colors } = useTheme();
   if (url) {
     return (
       <Pressable

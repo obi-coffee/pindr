@@ -4,7 +4,8 @@ import {
   type PressableProps,
   type ViewStyle,
 } from 'react-native';
-import { colors, fontFamilyFor, radii } from './theme';
+import { useTheme } from './ThemeProvider';
+import { fontFamilyFor, radii } from './theme';
 
 type Size = 'sm' | 'md';
 
@@ -26,6 +27,7 @@ export function ChipSelect({
   style,
   ...rest
 }: ChipSelectProps) {
+  const { colors } = useTheme();
   const fontSize = FONT_SIZE[size];
   return (
     <Pressable

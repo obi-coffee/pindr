@@ -13,8 +13,8 @@ import {
   Button,
   Input,
   Typography,
-  colors,
   radii,
+  useTheme,
 } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
@@ -26,6 +26,7 @@ import {
 export default function ReportScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   const [reason, setReason] = useState<ReportReason | null>(null);
   const [details, setDetails] = useState('');

@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Typography, colors, radii } from '../../../components/ui';
+import { Typography, radii, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { supabase } from '../../../lib/supabase';
 import { EditHeader } from './basics';
@@ -22,6 +22,7 @@ type Fix = {
 
 export default function EditLocation() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
   const [fix, setFix] = useState<Fix | null>(null);
   const [busy, setBusy] = useState(false);
 

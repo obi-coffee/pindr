@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PlusIcon, Typography, colors, radii } from '../../../components/ui';
+import { PlusIcon, Typography, radii, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   deletePhoto,
@@ -21,6 +21,7 @@ const MAX_PHOTOS = 6;
 
 export default function EditPhotos() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
   const [uploading, setUploading] = useState(false);
 
   const urls = profile?.photo_urls ?? [];
@@ -137,6 +138,7 @@ function PhotoSlot({
   onRemove?: () => void;
   disabled: boolean;
 }) {
+  const { colors } = useTheme();
   if (url) {
     return (
       <Pressable

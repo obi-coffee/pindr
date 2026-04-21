@@ -1,5 +1,6 @@
 import { View } from 'react-native';
-import { colors, type ColorToken } from './theme';
+import { useTheme } from './ThemeProvider';
+import { type ColorToken } from './theme';
 
 export type PlusIconProps = {
   size?: number;
@@ -12,6 +13,7 @@ export function PlusIcon({
   thickness = 2,
   color = 'ink-subtle',
 }: PlusIconProps) {
+  const { colors } = useTheme();
   const c = colors[color];
   const offset = (size - thickness) / 2;
   return (

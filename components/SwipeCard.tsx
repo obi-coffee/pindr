@@ -1,6 +1,6 @@
 import { Pressable, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
-import { Button, Card, Tag, Typography, colors } from './ui';
+import { Button, Card, Tag, Typography, useTheme } from './ui';
 
 export type SwipeCardProps = {
   candidate: Candidate;
@@ -17,6 +17,7 @@ export function SwipeCard({
   onPass,
   onLockIn,
 }: SwipeCardProps) {
+  const { colors } = useTheme();
   const photoUrl = candidate.photo_urls[0];
 
   const distanceLabel =

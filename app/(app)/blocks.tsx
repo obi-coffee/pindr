@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Typography, colors } from '../../components/ui';
+import { Button, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import {
   fetchBlockedProfiles,
@@ -19,6 +19,7 @@ import {
 
 export default function Blocks() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [blocks, setBlocks] = useState<BlockedProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

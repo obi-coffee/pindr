@@ -5,7 +5,8 @@ import {
   type PressableProps,
   type ViewStyle,
 } from 'react-native';
-import { colors, fontFamilyFor, radii } from './theme';
+import { useTheme } from './ThemeProvider';
+import { fontFamilyFor, radii } from './theme';
 
 type Variant = 'primary' | 'ghost' | 'destructive';
 type Size = 'sm' | 'md' | 'lg';
@@ -39,6 +40,7 @@ export function Button({
   style,
   ...rest
 }: ButtonProps) {
+  const { colors } = useTheme();
   const isPrimary = variant === 'primary';
   const isDestructive = variant === 'destructive';
   const isGhost = variant === 'ghost';

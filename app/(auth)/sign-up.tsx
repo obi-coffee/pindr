@@ -12,11 +12,12 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Typography, colors } from '../../components/ui';
+import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { signUpSchema, type SignUpInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function SignUp() {
+  const { colors } = useTheme();
   const [sentTo, setSentTo] = useState<string | null>(null);
 
   const {
@@ -233,6 +234,7 @@ function CheckInbox({
   email: string;
   onBack: () => void;
 }) {
+  const { colors } = useTheme();
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: colors.paper }}

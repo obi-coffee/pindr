@@ -6,7 +6,7 @@ import {
   Card,
   Tag,
   Typography,
-  colors,
+  useTheme,
   type TypographyVariant,
 } from '../../components/ui';
 
@@ -45,6 +45,7 @@ const TYPE_SAMPLES: { variant: TypographyVariant; sample: string }[] = [
 ];
 
 export default function UIKit() {
+  const { colors } = useTheme();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.paper }}>
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 64 }}>
@@ -169,6 +170,7 @@ function SectionHeading({ children }: { children: string }) {
 }
 
 function Divider() {
+  const { colors } = useTheme();
   return (
     <View
       style={{

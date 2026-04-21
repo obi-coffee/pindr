@@ -8,7 +8,14 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { PindrLogo, PlusIcon, Tag, Typography, colors, radii } from '../../../components/ui';
+import {
+  PindrLogo,
+  PlusIcon,
+  Tag,
+  Typography,
+  radii,
+  useTheme,
+} from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchAllInterests,
@@ -57,6 +64,7 @@ const TEACHING_LABEL: Record<string, string> = {
 
 export default function Profile() {
   const { user, profile, signOut } = useAuth();
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [interests, setInterests] = useState<Interest[]>([]);
   const [myInterestIds, setMyInterestIds] = useState<Set<string>>(new Set());
@@ -319,6 +327,7 @@ export default function Profile() {
         </Section>
 
         <View style={{ marginTop: 40 }}>
+          <AppearanceRow />
           <Row label="community guidelines" href="/guidelines" />
           <Row label="blocked users" href="/blocks" />
           <Row label="sign out" onPress={signOut} />
@@ -377,6 +386,38 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
+const APPEARANCE_LABEL = {
+  system: 'system',
+  light: 'light',
+  dark: 'dark',
+} as const;
+
+function AppearanceRow() {
+  const { colors, mode, setMode } = useTheme();
+  const next =
+    mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system';
+  return (
+    <Pressable onPress={() => setMode(next)}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          borderTopWidth: 1,
+          borderColor: colors.stroke,
+        }}
+      >
+        <Typography variant="body">appearance</Typography>
+        <Typography variant="body" color="ink-subtle">
+          {APPEARANCE_LABEL[mode]} ›
+        </Typography>
+      </View>
+    </Pressable>
+  );
+}
+
 function Row({
   label,
   href,
@@ -386,6 +427,7 @@ function Row({
   href?: string;
   onPress?: () => void;
 }) {
+  const { colors } = useTheme();
   const content = (
     <View
       style={{

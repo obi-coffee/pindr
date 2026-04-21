@@ -10,13 +10,14 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Input, Typography, colors } from '../../../components/ui';
+import { Input, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { basicsSchema, type BasicsInput } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
 
 export default function EditBasics() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,
@@ -168,6 +169,7 @@ export function EditHeader({
   saving?: boolean;
   saveLabel?: string;
 }) {
+  const { colors } = useTheme();
   return (
     <View
       style={{

@@ -1,6 +1,6 @@
 import { Image, Modal, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
-import { Button, Typography, colors } from './ui';
+import { Button, Typography, useTheme } from './ui';
 
 type MatchModalProps = {
   match: Candidate | null;
@@ -13,6 +13,7 @@ export function MatchModal({
   myPhotoUrl,
   onKeepSwiping,
 }: MatchModalProps) {
+  const { colors } = useTheme();
   const theirPhoto = match?.photo_urls[0];
   const name = match?.display_name ?? 'they';
 
@@ -84,6 +85,7 @@ export function MatchModal({
 }
 
 function Avatar({ uri }: { uri: string | null }) {
+  const { colors } = useTheme();
   return (
     <View
       style={{

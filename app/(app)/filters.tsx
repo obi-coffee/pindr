@@ -14,7 +14,7 @@ import {
   ChipSelect,
   Input,
   Typography,
-  colors,
+  useTheme,
 } from '../../components/ui';
 import {
   DEFAULT_FILTERS,
@@ -33,6 +33,7 @@ const PLAY_STYLE_OPTIONS: { value: PlayStyleFilter; label: string }[] = [
 ];
 
 export default function FiltersScreen() {
+  const { colors } = useTheme();
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [ready, setReady] = useState(false);
 

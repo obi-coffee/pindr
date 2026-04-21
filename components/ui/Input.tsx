@@ -5,7 +5,8 @@ import {
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
-import { colors, fontFamilyFor, radii } from './theme';
+import { useTheme } from './ThemeProvider';
+import { fontFamilyFor, radii } from './theme';
 import { Typography } from './Typography';
 
 export type InputProps = Omit<TextInputProps, 'style'> & {
@@ -19,6 +20,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
   { label, error, hint, containerStyle, multiline, ...rest },
   ref,
 ) {
+  const { colors } = useTheme();
   return (
     <View style={[{ marginBottom: 16 }, containerStyle]}>
       {label ? (

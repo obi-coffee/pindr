@@ -9,11 +9,12 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Input, Typography, colors } from '../../components/ui';
+import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { phoneSchema, type PhoneInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function Phone() {
+  const { colors } = useTheme();
   const {
     control,
     handleSubmit,

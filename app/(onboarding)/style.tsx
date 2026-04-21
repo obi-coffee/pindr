@@ -14,7 +14,7 @@ import {
   Button,
   ChipSelect,
   Typography,
-  colors,
+  useTheme,
 } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { styleSchema, type StyleInput } from '../../lib/profile/schemas';
@@ -70,6 +70,7 @@ function ChipGroup<T extends string>({
 
 export default function Style() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,

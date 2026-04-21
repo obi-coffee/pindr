@@ -5,5 +5,11 @@ export { Input, type InputProps } from './Input';
 export { PindrLogo, type PindrLogoProps } from './PindrLogo';
 export { PlusIcon, type PlusIconProps } from './PlusIcon';
 export { Tag, type TagProps } from './Tag';
+export {
+  ThemeProvider,
+  useTheme,
+  type ColorScheme,
+  type ThemeMode,
+} from './ThemeProvider';
 export { Typography, type TypographyProps } from './Typography';
 export * from './theme';

@@ -1,25 +1,32 @@
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, fontFamilyFor } from '../../../components/ui';
+import { fontFamilyFor, useTheme, type Palette } from '../../../components/ui';
 
 function PillLabel({
   label,
   focused,
+  colors,
+  isDark,
 }: {
   label: string;
   focused: boolean;
+  colors: Palette;
+  isDark: boolean;
 }) {
+  const activeBg = isDark
+    ? 'rgba(245,239,226,0.14)'
+    : 'rgba(251,249,243,0.9)';
   return (
     <View
       style={{
         paddingHorizontal: 14,
         paddingVertical: 8,
         borderRadius: 16,
-        backgroundColor: focused ? 'rgba(251,249,243,0.9)' : 'transparent',
+        backgroundColor: focused ? activeBg : 'transparent',
         alignSelf: 'center',
         shadowColor: colors.ink,
-        shadowOpacity: focused ? 0.06 : 0,
+        shadowOpacity: focused && !isDark ? 0.06 : 0,
         shadowRadius: 4,
         shadowOffset: { width: 0, height: 1 },
       }}
@@ -39,6 +46,8 @@ function PillLabel({
 }
 
 export default function TabsLayout() {
+  const { colors, scheme } = useTheme();
+  const isDark = scheme === 'dark';
   return (
     <Tabs
       screenOptions={{
@@ -65,17 +74,25 @@ export default function TabsLayout() {
               borderRadius: 28,
               overflow: 'hidden',
               borderWidth: StyleSheet.hairlineWidth,
-              borderColor: 'rgba(255,255,255,0.5)',
-              backgroundColor: 'rgba(251,249,243,0.15)',
+              borderColor: isDark
+                ? 'rgba(245,239,226,0.12)'
+                : 'rgba(255,255,255,0.5)',
+              backgroundColor: isDark
+                ? 'rgba(20,26,21,0.35)'
+                : 'rgba(251,249,243,0.15)',
               shadowColor: colors.ink,
-              shadowOpacity: 0.12,
+              shadowOpacity: isDark ? 0.4 : 0.12,
               shadowRadius: 24,
               shadowOffset: { width: 0, height: 8 },
             }}
           >
             <BlurView
               intensity={60}
-              tint="systemUltraThinMaterialLight"
+              tint={
+                isDark
+                  ? 'systemUltraThinMaterialDark'
+                  : 'systemUltraThinMaterialLight'
+              }
               style={StyleSheet.absoluteFill}
             />
           </View>
@@ -98,7 +115,12 @@ export default function TabsLayout() {
         options={{
           title: 'discover',
           tabBarIcon: ({ focused }) => (
-            <PillLabel label="Discover" focused={focused} />
+            <PillLabel
+              label="Discover"
+              focused={focused}
+              colors={colors}
+              isDark={isDark}
+            />
           ),
         }}
       />
@@ -107,7 +129,12 @@ export default function TabsLayout() {
         options={{
           title: 'matches',
           tabBarIcon: ({ focused }) => (
-            <PillLabel label="Matches" focused={focused} />
+            <PillLabel
+              label="Matches"
+              focused={focused}
+              colors={colors}
+              isDark={isDark}
+            />
           ),
         }}
       />
@@ -116,7 +143,12 @@ export default function TabsLayout() {
         options={{
           title: 'profile',
           tabBarIcon: ({ focused }) => (
-            <PillLabel label="Profile" focused={focused} />
+            <PillLabel
+              label="Profile"
+              focused={focused}
+              colors={colors}
+              isDark={isDark}
+            />
           ),
         }}
       />

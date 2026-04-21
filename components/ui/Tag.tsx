@@ -1,5 +1,6 @@
 import { Text, View, type ViewStyle } from 'react-native';
-import { colors, fontFamilyFor, radii } from './theme';
+import { useTheme } from './ThemeProvider';
+import { fontFamilyFor, radii } from './theme';
 
 type Variant = 'outline' | 'solid';
 type Size = 'sm' | 'md';
@@ -21,6 +22,7 @@ export function Tag({
   size = 'md',
   style,
 }: TagProps) {
+  const { colors } = useTheme();
   const isSolid = variant === 'solid';
   const fontSize = FONT_SIZE[size];
 

@@ -7,7 +7,8 @@ import {
   type ImageSourcePropType,
   type ViewStyle,
 } from 'react-native';
-import { colors, radii } from './theme';
+import { useTheme } from './ThemeProvider';
+import { radii } from './theme';
 
 export type CardProps = {
   photo?: ImageSourcePropType;
@@ -32,6 +33,7 @@ export function Card({
   overlapRatio = 0.3,
   style,
 }: CardProps) {
+  const { colors } = useTheme();
   const [photoHeight, setPhotoHeight] = useState(0);
   const overlap = Math.round(photoHeight * overlapRatio);
 

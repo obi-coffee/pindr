@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Typography, colors, radii } from '../../components/ui';
+import { Button, Typography, radii, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { supabase } from '../../lib/supabase';
 
@@ -21,6 +21,7 @@ type Fix = {
 
 export default function LocationStep() {
   const { user, refetchProfile } = useAuth();
+  const { colors } = useTheme();
   const [fix, setFix] = useState<Fix | null>(null);
   const [busy, setBusy] = useState(false);
 

@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Input, Typography, colors } from '../../../components/ui';
+import { Input, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { golfSchema, type GolfInput } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
@@ -18,6 +18,7 @@ import { EditHeader } from './basics';
 
 export default function EditGolf() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,

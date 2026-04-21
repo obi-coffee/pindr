@@ -2,12 +2,13 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Button, Typography, colors } from '../../components/ui';
+import { Button, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { supabase } from '../../lib/supabase';
 
 export default function Done() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
   const [busy, setBusy] = useState(false);
 
   const finish = async () => {

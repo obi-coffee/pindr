@@ -13,9 +13,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Typography,
-  colors,
   fontFamilyFor,
   radii,
+  useTheme,
 } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
@@ -32,6 +32,7 @@ import { supabase } from '../../../lib/supabase';
 export default function ChatThread() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { user } = useAuth();
+  const { colors } = useTheme();
 
   const [details, setDetails] = useState<MatchDetails | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -352,6 +353,7 @@ function MessageBubble({
   message: ChatMessage;
   mine: boolean;
 }) {
+  const { colors } = useTheme();
   return (
     <View
       style={{

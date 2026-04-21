@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Typography, colors } from '../../components/ui';
+import { Typography, useTheme } from '../../components/ui';
 import { CommunityGuidelinesBody } from '../(app)/guidelines';
 
 export default function AuthGuidelines() {
+  const { colors } = useTheme();
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: colors.paper }}

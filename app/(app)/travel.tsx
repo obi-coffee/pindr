@@ -15,8 +15,8 @@ import {
   Button,
   Input,
   Typography,
-  colors,
   radii,
+  useTheme,
 } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import {
@@ -34,6 +34,7 @@ function todayIso(): string {
 
 export default function TravelScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [session, setSession] = useState<TravelSession | null>(null);

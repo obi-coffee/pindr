@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Typography, colors } from '../../components/ui';
+import { Typography, useTheme } from '../../components/ui';
 
 const SECTIONS: { title: string; points: string[] }[] = [
   {
@@ -98,6 +98,7 @@ export function CommunityGuidelinesBody() {
 }
 
 export default function GuidelinesScreen() {
+  const { colors } = useTheme();
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: colors.paper }}

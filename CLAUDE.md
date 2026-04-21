@@ -56,8 +56,13 @@ variables live in `.env` (gitignored) with the `EXPO_PUBLIC_` prefix.
 
 ## Data model (authoritative — update this section if it changes)
 Core tables: users, profiles, interests, profile_interests, courses, swipes,
-matches, messages, reports, travel_sessions. See the project plan for full
-schema. Location columns use `geography(point, 4326)` with PostGIS.
+matches, messages, reports, travel_sessions. Phase 5b adds: rounds,
+round_requests, plus a `partner_refs` jsonb column on courses. See the
+project plan for full schema. Location columns use `geography(point, 4326)`
+with PostGIS. The `rounds.source`, `rounds.external_ref`,
+`rounds.price_cents`, and `courses.partner_refs` fields are V2-readiness
+slots — present in V1 but unused/null; partner inventory (GolfNow) will
+populate them in V2 without a schema change.
 
 ## Safety requirements that must ship in MVP
 - Phone + email verification at signup
@@ -70,25 +75,22 @@ schema. Location columns use `geography(point, 4326)` with PostGIS.
 - Community guidelines acceptance at signup, linked in settings
 
 ## What is explicitly out of scope for MVP
-Swing video uploads, tee-time booking integration, GHIN handicap
-verification, photo/selfie verification, group rounds, push notifications,
+Swing video uploads, tee-time booking integration (V2 — GolfNow affiliate),
+GHIN handicap verification, photo/selfie verification, push notifications,
 subscriptions, pro/coach profile type, post-round reviews. Do not build
-these without explicit approval, even if they seem small.
+these without explicit approval, even if they seem small. NOTE: user-posted
+"open rounds" are IN scope as of Phase 5b — see project plan §8.
 
 ## Where we are right now
-Phase 0 is complete: Expo + TypeScript scaffold running, Supabase project
-provisioned, client initialized at `lib/supabase.ts`, env vars in place,
-repo pushed to GitHub.
+Phases 0–5 are complete: Expo + TypeScript scaffold, Supabase client wired,
+auth + app shell, profile creation, discovery & swipe, matches & chat, and
+safety + polish. All features listed in §3 of the project plan are shipped.
 
-## Your first task (Phase 1)
-Phase 1: authentication and app shell. Before writing any code, walk the
-user through your plan in plain English:
-- What auth methods we're enabling (phone OTP + email/password)
-- What files you'll create or change
-- What the user will see on screen at the end of this phase
-- Which parts of the Supabase dashboard the user needs to touch (e.g.,
-  enabling phone provider) and what exact setting to flip
-
-Wait for the user's approval before writing code. When you do write code,
-do it in small, reviewable chunks — show the user one screen or one
-concept working end-to-end before moving to the next.
+## Your current task (Phase 5b — user-posted rounds)
+Add an open-rounds feature alongside the existing swipe/matching loop. See
+§8 "Phase 5b" of `../Pindr-Project-Plan.md` for full scope, V2-readiness
+rules, and the five-step build order. Do **not** touch the existing swipe
+deck, card composition (beyond the small "OPEN ROUND" badge), or visual
+system. Follow the process rules in "How we work" above — propose the
+plan in plain English first, wait for approval, then build step by step
+with review pauses between each step.

@@ -1,6 +1,7 @@
 import { View, Text } from 'react-native';
 import { SvgXml } from 'react-native-svg';
-import { colors, fontFamilyFor } from './theme';
+import { useTheme } from './ThemeProvider';
+import { fontFamilyFor } from './theme';
 
 const WORDMARK_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="40 100 420 160">
@@ -22,6 +23,7 @@ export type PindrLogoProps = {
 };
 
 export function PindrLogo({ height = 32, withTagline = false }: PindrLogoProps) {
+  const { colors } = useTheme();
   const width = height * (420 / 160);
   return (
     <View style={{ alignItems: 'flex-start' }}>

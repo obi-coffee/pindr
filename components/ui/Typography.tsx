@@ -1,6 +1,6 @@
 import { Text, type TextProps } from 'react-native';
+import { useTheme } from './ThemeProvider';
 import {
-  colors,
   fontFamilyFor,
   typography,
   type ColorToken,
@@ -18,6 +18,7 @@ export function Typography({
   style,
   ...rest
 }: TypographyProps) {
+  const { colors } = useTheme();
   const typeStyle = typography[variant];
   const fontFamily = fontFamilyFor(typeStyle.fontWeight);
   return (

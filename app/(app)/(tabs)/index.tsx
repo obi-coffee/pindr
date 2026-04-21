@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { MatchModal } from '../../../components/MatchModal';
 import { SwipeCard } from '../../../components/SwipeCard';
-import { PindrLogo, Typography, colors } from '../../../components/ui';
+import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   DEFAULT_FILTERS,
@@ -31,6 +31,7 @@ import {
 
 export default function Discover() {
   const { user, profile } = useAuth();
+  const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
 
@@ -234,6 +235,7 @@ function HeaderPill({
   highlighted?: boolean;
   badgeCount?: number;
 }) {
+  const { colors } = useTheme();
   const showBadge = typeof badgeCount === 'number' && badgeCount > 0;
   return (
     <Pressable

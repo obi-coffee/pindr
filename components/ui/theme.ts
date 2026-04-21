@@ -3,7 +3,7 @@
 
 import type { TextStyle, ViewStyle } from 'react-native';
 
-export const colors = {
+export const lightColors = {
   paper: '#EDE9E1',
   'paper-raised': '#F6F3EC',
   'paper-high': '#FBF9F3',
@@ -30,7 +30,42 @@ export const colors = {
   'stroke-strong': '#B9B2A4',
 } as const;
 
-export type ColorToken = keyof typeof colors;
+// Dark palette: deep moss-tinted background, warm paper text. Accents
+// (moss, burgundy, mustard) are lifted in luminance so they read against
+// the dark background. Stroke and stone become muted moss.
+export const darkColors: Record<keyof typeof lightColors, string> = {
+  paper: '#141A15',
+  'paper-raised': '#1C231D',
+  'paper-high': '#242C25',
+
+  ink: '#F5EFE2',
+  'ink-soft': '#B8B2A5',
+  'ink-subtle': '#7F7A70',
+
+  moss: '#B5C9AF',
+  'moss-soft': '#7A9580',
+
+  taupe: '#C2A090',
+  clay: '#D68E77',
+
+  mustard: '#E8BE63',
+  burgundy: '#D27179',
+  stone: '#3A423B',
+
+  success: '#7AB089',
+  warning: '#E8BE63',
+  danger: '#D27179',
+
+  stroke: '#2E352F',
+  'stroke-strong': '#40483F',
+};
+
+export type ColorToken = keyof typeof lightColors;
+export type Palette = Record<ColorToken, string>;
+
+// Backward-compatible static export. Non-theme-aware imports (`import { colors }`)
+// keep rendering as light. Phase 2 migrates the rest of the app onto useTheme().
+export const colors: Palette = lightColors;
 
 export const radii = {
   sm: 4,

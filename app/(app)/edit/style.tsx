@@ -9,7 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChipSelect, Typography, colors } from '../../../components/ui';
+import { ChipSelect, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { styleSchema, type StyleInput } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
@@ -65,6 +65,7 @@ function ChipGroup<T extends string>({
 
 export default function EditStyle() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,

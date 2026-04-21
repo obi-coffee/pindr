@@ -6,15 +6,12 @@ import {
   Image,
   Pressable,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Typography, colors, radii } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
-import {
-  deletePhoto,
-  pickAndUploadPhoto,
-} from '../../lib/profile/photos';
+import { deletePhoto, pickAndUploadPhoto } from '../../lib/profile/photos';
 import { supabase } from '../../lib/supabase';
 
 const MAX_PHOTOS = 6;
@@ -46,24 +43,24 @@ export default function Photos() {
         await savePhotoUrls([...urls, result.url]);
       } else if (result.status === 'permission_denied') {
         Alert.alert(
-          'Photo access needed',
-          'Enable Photos access for Pindr in Settings to add photos.',
+          'photo access needed',
+          'enable photos for pindr in settings to add them here.',
         );
       } else if (result.status === 'error') {
-        Alert.alert('Upload failed', result.message);
+        Alert.alert('upload failed', result.message);
       }
     } catch (err) {
-      Alert.alert('Upload failed', (err as Error).message);
+      Alert.alert('upload failed', (err as Error).message);
     } finally {
       setUploading(false);
     }
   };
 
   const removePhoto = (url: string) => {
-    Alert.alert('Remove photo?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('remove photo?', undefined, [
+      { text: 'cancel', style: 'cancel' },
       {
-        text: 'Remove',
+        text: 'remove',
         style: 'destructive',
         onPress: async () => {
           try {
@@ -71,7 +68,7 @@ export default function Photos() {
             await savePhotoUrls(next);
             await deletePhoto(url);
           } catch (err) {
-            Alert.alert('Could not remove', (err as Error).message);
+            Alert.alert('could not remove', (err as Error).message);
           }
         },
       },
@@ -80,29 +77,36 @@ export default function Photos() {
 
   const onContinue = () => {
     if (urls.length < 1) {
-      Alert.alert('Add at least one photo', 'Profiles need a photo to match.');
+      Alert.alert(
+        'add at least one photo',
+        'profiles need a photo to match.',
+      );
       return;
     }
     router.push('/interests');
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
-        contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">
-          Step 4 of 6
-        </Text>
-        <Text className="mb-2 text-3xl font-bold text-slate-900">
-          Your photos
-        </Text>
-        <Text className="mb-6 text-base text-slate-500">
-          Add 1–6 photos. The first one is your main profile picture.
-        </Text>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+        <Typography
+          variant="caption"
+          color="ink-soft"
+          style={{ marginBottom: 8 }}
+        >
+          step 4 of 6
+        </Typography>
+        <Typography variant="h1" style={{ marginBottom: 6 }}>
+          your photos.
+        </Typography>
+        <Typography variant="body" color="ink-soft" style={{ marginBottom: 24 }}>
+          add 1–6 photos. the first is your main profile picture.
+        </Typography>
 
-        <View className="flex-row flex-wrap" style={{ gap: 12 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
           {slots.map((url, index) => (
             <PhotoSlot
               key={`${url ?? 'empty'}-${index}`}
@@ -115,25 +119,41 @@ export default function Photos() {
         </View>
 
         {uploading ? (
-          <View className="mt-6 flex-row items-center justify-center">
-            <ActivityIndicator color="#059669" />
-            <Text className="ml-2 text-sm text-slate-500">Uploading…</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 18,
+              gap: 8,
+            }}
+          >
+            <ActivityIndicator color={colors.ink} />
+            <Typography variant="body-sm" color="ink-soft">
+              uploading…
+            </Typography>
           </View>
         ) : null}
 
-        <Pressable
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
           onPress={onContinue}
           disabled={uploading}
-          className="mt-8 items-center rounded-lg bg-emerald-600 py-3 active:opacity-80"
+          style={{ marginTop: 28 }}
         >
-          <Text className="text-base font-semibold text-white">Continue</Text>
-        </Pressable>
+          Continue
+        </Button>
 
         <Pressable
           onPress={() => router.back()}
-          className="mt-4 items-center py-2 active:opacity-70"
+          hitSlop={8}
+          style={{ alignSelf: 'center', marginTop: 20, paddingVertical: 8 }}
         >
-          <Text className="text-sm font-medium text-slate-500">Back</Text>
+          <Typography variant="caption" color="ink-subtle">
+            back
+          </Typography>
         </Pressable>
       </ScrollView>
     </SafeAreaView>
@@ -156,12 +176,32 @@ function PhotoSlot({
       <Pressable
         onPress={onRemove}
         disabled={disabled}
-        className="relative overflow-hidden rounded-lg bg-slate-100"
-        style={{ width: '31%', aspectRatio: 4 / 5 }}
+        style={{
+          width: '31%',
+          aspectRatio: 4 / 5,
+          borderRadius: radii.md,
+          overflow: 'hidden',
+          backgroundColor: colors['paper-raised'],
+          position: 'relative',
+        }}
       >
         <Image source={{ uri: url }} style={{ flex: 1 }} resizeMode="cover" />
-        <View className="absolute right-1 top-1 h-6 w-6 items-center justify-center rounded-full bg-black/60">
-          <Text className="text-white">×</Text>
+        <View
+          style={{
+            position: 'absolute',
+            top: 6,
+            right: 6,
+            width: 22,
+            height: 22,
+            borderRadius: 999,
+            backgroundColor: colors.ink,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="caption" color="paper-high">
+            ×
+          </Typography>
         </View>
       </Pressable>
     );
@@ -170,10 +210,21 @@ function PhotoSlot({
     <Pressable
       onPress={onAdd}
       disabled={disabled}
-      className="items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 active:opacity-70"
-      style={{ width: '31%', aspectRatio: 4 / 5 }}
+      style={{
+        width: '31%',
+        aspectRatio: 4 / 5,
+        borderRadius: radii.md,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: colors['stroke-strong'],
+        backgroundColor: colors['paper-raised'],
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      <Text className="text-3xl text-slate-400">+</Text>
+      <Typography variant="display-lg" color="ink-subtle">
+        +
+      </Typography>
     </Pressable>
   );
 }

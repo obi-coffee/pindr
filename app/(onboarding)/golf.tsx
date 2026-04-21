@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { golfSchema, type GolfInput } from '../../lib/profile/schemas';
@@ -70,6 +71,7 @@ export default function Golf() {
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
+          <BrandMark />
           <Typography
             variant="caption"
             color="ink-soft"

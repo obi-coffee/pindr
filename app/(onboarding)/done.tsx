@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Button, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { supabase } from '../../lib/supabase';
@@ -33,6 +34,7 @@ export default function Done() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top', 'bottom']}
     >
+      <BrandMark />
       <View style={{ flex: 1, justifyContent: 'center', paddingHorizontal: 28 }}>
         <Typography
           variant="caption"

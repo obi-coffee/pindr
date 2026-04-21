@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { phoneSchema, type PhoneInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
@@ -46,13 +47,7 @@ export default function Phone() {
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Typography
-            variant="caption"
-            color="ink-soft"
-            style={{ marginBottom: 10, marginTop: 12 }}
-          >
-            pindr
-          </Typography>
+          <BrandMark />
           <Typography variant="display-lg" style={{ marginBottom: 12 }}>
             sign in by phone.
           </Typography>

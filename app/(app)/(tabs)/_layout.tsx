@@ -20,9 +20,9 @@ function PillLabel({
   return (
     <View
       style={{
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 16,
+        paddingHorizontal: 6,
+        paddingVertical: 6,
+        borderRadius: 12,
         backgroundColor: focused ? activeBg : 'transparent',
         alignSelf: 'center',
         shadowColor: colors.ink,
@@ -60,6 +60,7 @@ export default function TabsLayout() {
           height: 88,
           paddingTop: 0,
           paddingBottom: 0,
+          paddingHorizontal: 16,
           elevation: 0,
         },
         tabBarBackground: () => (
@@ -131,6 +132,20 @@ export default function TabsLayout() {
           tabBarIcon: ({ focused }) => (
             <PillLabel
               label="Matches"
+              focused={focused}
+              colors={colors}
+              isDark={isDark}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="rounds"
+        options={{
+          title: 'rounds',
+          tabBarIcon: ({ focused }) => (
+            <PillLabel
+              label="Rounds"
               focused={focused}
               colors={colors}
               isDark={isDark}

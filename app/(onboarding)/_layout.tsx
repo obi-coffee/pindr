@@ -6,5 +6,13 @@ export default function OnboardingLayout() {
   if (!session) return <Redirect href="/sign-in" />;
   if (!profile && profileLoading) return null;
   if (profile?.onboarded_at) return <Redirect href="/" />;
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        gestureEnabled: true,
+        fullScreenGestureEnabled: true,
+      }}
+    />
+  );
 }

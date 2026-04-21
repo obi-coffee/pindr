@@ -43,7 +43,8 @@
           "locationWhenInUsePermission": "Pindr uses your location to find players nearby.",
           "locationAlwaysAndWhenInUsePermission": "Pindr uses your location to find players nearby."
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true

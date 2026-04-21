@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { basicsSchema, type BasicsInput } from '../../lib/profile/schemas';
@@ -66,6 +67,7 @@ export default function Basics() {
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
+          <BrandMark />
           <Typography
             variant="caption"
             color="ink-soft"

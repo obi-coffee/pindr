@@ -327,6 +327,8 @@ export default function Profile() {
         </Section>
 
         <View style={{ marginTop: 40 }}>
+          <Row label="post a round" href="/rounds/new" />
+          <Row label="your rounds" href="/rounds/mine" />
           <AppearanceRow />
           <Row label="community guidelines" href="/guidelines" />
           <Row label="blocked users" href="/blocks" />

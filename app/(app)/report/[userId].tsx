@@ -68,9 +68,8 @@ export default function ReportScreen() {
             alignItems: 'center',
             justifyContent: 'space-between',
             paddingHorizontal: 20,
-            paddingVertical: 12,
-            borderBottomWidth: 1,
-            borderBottomColor: colors.stroke,
+            paddingTop: 28,
+            paddingBottom: 12,
           }}
         >
           <Pressable onPress={() => router.back()} hitSlop={8}>

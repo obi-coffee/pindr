@@ -4,5 +4,13 @@ import { useAuth } from '../../lib/auth/AuthProvider';
 export default function AuthLayout() {
   const { session } = useAuth();
   if (session) return <Redirect href="/" />;
-  return <Stack screenOptions={{ headerShown: false }} />;
+  return (
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        gestureEnabled: true,
+        fullScreenGestureEnabled: true,
+      }}
+    />
+  );
 }

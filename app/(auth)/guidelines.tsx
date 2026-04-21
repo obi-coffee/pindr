@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Typography, useTheme } from '../../components/ui';
 import { CommunityGuidelinesBody } from '../(app)/guidelines';
 
@@ -41,6 +42,7 @@ export default function AuthGuidelines() {
         </Typography>
       </View>
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+        <BrandMark />
         <CommunityGuidelinesBody />
       </ScrollView>
     </SafeAreaView>

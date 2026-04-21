@@ -7,16 +7,16 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Text,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Field } from '../../components/form';
+import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { basicsSchema, type BasicsInput } from '../../lib/profile/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function Basics() {
   const { user, profile, refetchProfile, signOut } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,
@@ -46,7 +46,7 @@ export default function Basics() {
       })
       .eq('user_id', user.id);
     if (error) {
-      Alert.alert('Could not save', error.message);
+      Alert.alert('could not save', error.message);
       return;
     }
     await refetchProfile();
@@ -54,36 +54,47 @@ export default function Basics() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">
-            Step 1 of 6
-          </Text>
-          <Text className="mb-2 text-3xl font-bold text-slate-900">
-            The basics
-          </Text>
-          <Text className="mb-8 text-base text-slate-500">
-            Just the essentials to get started.
-          </Text>
+          <Typography
+            variant="caption"
+            color="ink-soft"
+            style={{ marginBottom: 8 }}
+          >
+            step 1 of 6
+          </Typography>
+          <Typography variant="h1" style={{ marginBottom: 6 }}>
+            the basics.
+          </Typography>
+          <Typography
+            variant="body"
+            color="ink-soft"
+            style={{ marginBottom: 28 }}
+          >
+            just the essentials to get started.
+          </Typography>
 
           <Controller
             control={control}
             name="display_name"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="First name"
                 error={errors.display_name?.message}
                 value={value}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                placeholder="Obi"
+                placeholder="obi"
                 autoCapitalize="words"
               />
             )}
@@ -93,7 +104,7 @@ export default function Basics() {
             control={control}
             name="age"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Age"
                 error={errors.age?.message}
                 value={
@@ -115,13 +126,13 @@ export default function Basics() {
             control={control}
             name="gender"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Gender (optional)"
                 error={errors.gender?.message}
                 value={value ?? ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                placeholder="Woman, man, non-binary…"
+                placeholder="woman, man, non-binary…"
               />
             )}
           />
@@ -130,7 +141,7 @@ export default function Basics() {
             control={control}
             name="pronouns"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Pronouns (optional)"
                 error={errors.pronouns?.message}
                 value={value ?? ''}
@@ -145,41 +156,41 @@ export default function Basics() {
             control={control}
             name="bio"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Short bio (optional)"
                 error={errors.bio?.message}
                 value={value ?? ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
-                placeholder="What's your golf story?"
+                placeholder="what's your golf story?"
                 multiline
                 numberOfLines={4}
-                textAlignVertical="top"
               />
             )}
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Continue'}
-            </Text>
-          </Pressable>
+            Continue
+          </Button>
 
           <Pressable
             onPress={signOut}
-            className="mt-8 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 28, paddingVertical: 8 }}
           >
-            <Text className="text-sm font-medium text-slate-400">Sign out</Text>
+            <Typography variant="caption" color="ink-subtle">
+              sign out
+            </Typography>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-

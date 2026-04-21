@@ -8,17 +8,17 @@ import {
   Pressable,
   ScrollView,
   Switch,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Field } from '../../components/form';
+import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { golfSchema, type GolfInput } from '../../lib/profile/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function Golf() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,
@@ -50,7 +50,7 @@ export default function Golf() {
       })
       .eq('user_id', user.id);
     if (error) {
-      Alert.alert('Could not save', error.message);
+      Alert.alert('could not save', error.message);
       return;
     }
     await refetchProfile();
@@ -58,43 +58,71 @@ export default function Golf() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">
-            Step 2 of 6
-          </Text>
-          <Text className="mb-2 text-3xl font-bold text-slate-900">
-            Your golf
-          </Text>
-          <Text className="mb-8 text-base text-slate-500">
-            This helps us match you with compatible players.
-          </Text>
+          <Typography
+            variant="caption"
+            color="ink-soft"
+            style={{ marginBottom: 8 }}
+          >
+            step 2 of 6
+          </Typography>
+          <Typography variant="h1" style={{ marginBottom: 6 }}>
+            your golf.
+          </Typography>
+          <Typography
+            variant="body"
+            color="ink-soft"
+            style={{ marginBottom: 28 }}
+          >
+            this helps us match you with people who play your kind of round.
+          </Typography>
 
           <Controller
             control={control}
             name="has_handicap"
             render={({ field: { value, onChange } }) => (
-              <View className="mb-4 flex-row items-center justify-between">
-                <View className="flex-1 pr-4">
-                  <Text className="text-sm font-medium text-slate-700">
-                    I have a handicap
-                  </Text>
-                  <Text className="text-xs text-slate-400">
-                    Toggle off if you are new or don't track one.
-                  </Text>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 14,
+                  borderTopWidth: 1,
+                  borderBottomWidth: 1,
+                  borderColor: colors.stroke,
+                  marginBottom: 16,
+                }}
+              >
+                <View style={{ flex: 1, paddingRight: 12 }}>
+                  <Typography variant="body-lg">I have a handicap</Typography>
+                  <Typography
+                    variant="body-sm"
+                    color="ink-soft"
+                    style={{ marginTop: 2 }}
+                  >
+                    toggle off if you're new or don't track one.
+                  </Typography>
                 </View>
                 <Switch
                   value={value}
                   onValueChange={(v) => {
                     onChange(v);
                     if (!v) setValue('handicap', undefined);
+                  }}
+                  trackColor={{
+                    false: colors['stroke-strong'],
+                    true: colors.ink,
                   }}
                 />
               </View>
@@ -106,11 +134,13 @@ export default function Golf() {
               control={control}
               name="handicap"
               render={({ field: { value, onChange, onBlur } }) => (
-                <Field
+                <Input
                   label="Handicap index"
                   error={errors.handicap?.message}
                   value={
-                    value === undefined || Number.isNaN(value) ? '' : String(value)
+                    value === undefined || Number.isNaN(value)
+                      ? ''
+                      : String(value)
                   }
                   onChangeText={(t) => {
                     if (t === '') return onChange(undefined);
@@ -129,11 +159,13 @@ export default function Golf() {
             control={control}
             name="years_playing"
             render={({ field: { value, onChange, onBlur } }) => (
-              <Field
+              <Input
                 label="Years playing"
                 error={errors.years_playing?.message}
                 value={
-                  value === undefined || Number.isNaN(value) ? '' : String(value)
+                  value === undefined || Number.isNaN(value)
+                    ? ''
+                    : String(value)
                 }
                 onChangeText={(t) => {
                   if (t === '') return onChange(undefined);
@@ -151,35 +183,37 @@ export default function Golf() {
             control={control}
             name="home_course_name"
             render={({ field: { value, onChange, onBlur } }) => (
-              <Field
+              <Input
                 label="Home course (optional)"
                 error={errors.home_course_name?.message}
                 value={value ?? ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Bethpage Black"
-                hint="Free text for now. We'll add a course picker later."
+                hint="free text for now. course picker lands later."
               />
             )}
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={isSubmitting}
             onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Continue'}
-            </Text>
-          </Pressable>
+            Continue
+          </Button>
 
           <Pressable
             onPress={() => router.back()}
-            className="mt-4 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 20, paddingVertical: 8 }}
           >
-            <Text className="text-sm font-medium text-slate-500">Back</Text>
+            <Typography variant="caption" color="ink-subtle">
+              back
+            </Typography>
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>

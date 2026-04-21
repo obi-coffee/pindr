@@ -4,11 +4,18 @@ import {
   Image,
   Pressable,
   ScrollView,
-  Text,
   View,
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  PindrLogo,
+  PlusIcon,
+  Tag,
+  Typography,
+  radii,
+  useTheme,
+} from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchAllInterests,
@@ -16,33 +23,48 @@ import {
   type Interest,
 } from '../../../lib/profile/interests';
 
-const STYLE_LABELS: Record<string, string> = {
+const STYLE_LABEL: Record<string, string> = {
   relaxed: 'Relaxed',
   improvement: 'Improvement',
   competitive: 'Competitive',
+};
+const PACE_LABEL: Record<string, string> = {
   chill: 'Chill',
   moderate: 'Moderate',
   ready: 'Ready golf',
-  walk: 'Walk',
-  ride: 'Ride',
-  either: 'Either',
-  '9': '9 holes',
-  '18': '18 holes',
-  open_to_tips: 'Open to tips',
-  just_play: 'Just play',
-  yes: 'Yes',
-  small: 'Small stakes',
-  no: 'No',
+};
+const WALKING_LABEL: Record<string, string> = {
+  walk: 'Walks',
+  ride: 'Rides',
+  either: 'Walk or ride',
+};
+const HOLES_LABEL: Record<string, string> = {
+  '9': '9 only',
+  '18': '18 only',
+  either: '9 or 18',
+};
+const BETTING_LABEL: Record<string, string> = {
+  yes: 'Bets',
+  small: 'Small bets',
+  no: 'No bets',
+};
+const DRINKS_LABEL: Record<string, string> = {
+  yes: 'Drinks on course',
   sometimes: 'Sometimes',
-  hangout: 'Food & drinks after',
+  no: 'No drinks',
+};
+const POST_ROUND_LABEL: Record<string, string> = {
+  hangout: 'Post-round hang',
   just_round: 'Just the round',
 };
+const TEACHING_LABEL: Record<string, string> = {
+  open_to_tips: 'Open to tips',
+  just_play: 'Just play',
+};
 
-const label = (value: string | null | undefined): string =>
-  value ? (STYLE_LABELS[value] ?? value) : '—';
-
-export default function Home() {
+export default function Profile() {
   const { user, profile, signOut } = useAuth();
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [interests, setInterests] = useState<Interest[]>([]);
   const [myInterestIds, setMyInterestIds] = useState<Set<string>>(new Set());
@@ -58,40 +80,78 @@ export default function Home() {
         setInterests(all);
         setMyInterestIds(new Set(mine));
       } catch {
-        // Non-fatal: we just won't show the chips.
+        // Non-fatal — the interests section just stays empty.
       }
     })();
   }, [user, profile?.updated_at]);
 
   const photos = profile?.photo_urls ?? [];
-  const photoSize = width - 48; // 24px horizontal padding on each side
+  const photoSize = width - 40;
+  const photoHeight = photoSize * 1.25;
+
+  const styleTags: string[] = [];
+  if (profile?.style_default) styleTags.push(STYLE_LABEL[profile.style_default] ?? profile.style_default);
+  if (profile?.pace) styleTags.push(PACE_LABEL[profile.pace] ?? profile.pace);
+  if (profile?.walking_preference) styleTags.push(WALKING_LABEL[profile.walking_preference] ?? profile.walking_preference);
+  if (profile?.holes_preference) styleTags.push(HOLES_LABEL[profile.holes_preference] ?? profile.holes_preference);
+  if (profile?.teaching_mindset) styleTags.push(TEACHING_LABEL[profile.teaching_mindset] ?? profile.teaching_mindset);
+  if (profile?.betting) styleTags.push(BETTING_LABEL[profile.betting] ?? profile.betting);
+  if (profile?.drinks) styleTags.push(DRINKS_LABEL[profile.drinks] ?? profile.drinks);
+  if (profile?.post_round) styleTags.push(POST_ROUND_LABEL[profile.post_round] ?? profile.post_round);
+
+  const myInterests = interests.filter((i) => myInterestIds.has(i.id));
+
+  const subtitleParts = [profile?.pronouns, profile?.home_city].filter(
+    (p): p is string => Boolean(p && p.trim()),
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <View className="px-6 pt-2">
-          <Text className="text-3xl font-bold text-slate-900">
-            {profile?.display_name ?? 'Your profile'}
-            {profile?.age ? `, ${profile.age}` : ''}
-          </Text>
-          {profile?.pronouns ? (
-            <Text className="mt-1 text-sm text-slate-500">
-              {profile.pronouns}
-            </Text>
-          ) : null}
-          {profile?.home_city ? (
-            <Text className="mt-1 text-sm text-slate-500">
-              📍 {profile.home_city}
-            </Text>
-          ) : null}
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <ScrollView contentContainerStyle={{ paddingBottom: 56 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingTop: 6,
+            paddingBottom: 10,
+          }}
+        >
+          <PindrLogo height={32} />
+          <Typography variant="h1">profile</Typography>
+        </View>
+
+        <View
+          style={{
+            paddingHorizontal: 20,
+            paddingTop: 8,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'baseline',
+            marginBottom: 10,
+          }}
+        >
+          <Typography variant="caption" color="ink-soft">
+            photos
+          </Typography>
+          <Link href="/edit/photos" asChild>
+            <Pressable hitSlop={8}>
+              <Typography variant="caption" color="ink">
+                edit
+              </Typography>
+            </Pressable>
+          </Link>
         </View>
 
         {photos.length > 0 ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ padding: 24 }}
-            className="mt-2"
+            contentContainerStyle={{ paddingHorizontal: 20 }}
           >
             {photos.map((url, i) => (
               <Image
@@ -99,104 +159,179 @@ export default function Home() {
                 source={{ uri: url }}
                 style={{
                   width: photoSize,
-                  height: photoSize * 1.25,
-                  borderRadius: 16,
+                  height: photoHeight,
+                  borderRadius: radii.lg,
                   marginRight: i === photos.length - 1 ? 0 : 12,
-                  backgroundColor: '#f1f5f9',
+                  backgroundColor: colors['paper-raised'],
                 }}
                 resizeMode="cover"
               />
             ))}
           </ScrollView>
         ) : (
-          <View className="mx-6 mt-4 items-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 py-12">
-            <Text className="text-sm text-slate-400">No photos yet</Text>
-          </View>
+          <Link href="/edit/photos" asChild>
+            <Pressable
+              style={{
+                marginHorizontal: 20,
+                aspectRatio: 4 / 5,
+                backgroundColor: colors['paper-raised'],
+                borderRadius: radii.lg,
+                borderWidth: 1,
+                borderStyle: 'dashed',
+                borderColor: colors['stroke-strong'],
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <PlusIcon size={32} />
+              <Typography
+                variant="body-sm"
+                color="ink-subtle"
+                style={{ marginTop: 12 }}
+              >
+                add your first photo
+              </Typography>
+            </Pressable>
+          </Link>
         )}
 
-        <Section
-          title="Basics"
-          editHref="/edit/basics"
-        >
-          <Row label="Bio" value={profile?.bio} multi />
-          <Row label="Gender" value={profile?.gender} />
-        </Section>
+        <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
+          <Typography variant="h1">
+            {profile?.display_name ?? 'your profile'}
+            {profile?.age ? `, ${profile.age}` : ''}
+          </Typography>
+          {subtitleParts.length > 0 ? (
+            <Typography
+              variant="body-sm"
+              color="ink-soft"
+              style={{ marginTop: 4 }}
+            >
+              {subtitleParts.join(' · ')}
+            </Typography>
+          ) : null}
+        </View>
 
-        <Section title="Golf" editHref="/edit/golf">
-          <Row
-            label="Handicap"
-            value={
-              profile?.has_handicap
-                ? profile.handicap?.toString() ?? '—'
-                : 'No handicap yet'
-            }
-          />
-          <Row
-            label="Years playing"
-            value={profile?.years_playing?.toString()}
-          />
-          <Row label="Home course" value={profile?.home_course_name} />
-        </Section>
-
-        <Section title="How I play" editHref="/edit/style">
-          <Row label="Style" value={label(profile?.style_default)} />
-          <Row label="Pace" value={label(profile?.pace)} />
-          <Row label="Walk / ride" value={label(profile?.walking_preference)} />
-          <Row label="9 / 18" value={label(profile?.holes_preference)} />
-          <Row label="Mindset" value={label(profile?.teaching_mindset)} />
-          <Row label="Betting" value={label(profile?.betting)} />
-          <Row label="Drinks" value={label(profile?.drinks)} />
-          <Row label="After round" value={label(profile?.post_round)} />
-        </Section>
-
-        <Section title="Interests" editHref="/edit/interests">
-          {myInterestIds.size === 0 ? (
-            <Text className="text-sm text-slate-400">None picked</Text>
+        <Section title="basics" editHref="/edit/basics">
+          {profile?.bio && profile.bio.trim() ? (
+            <Typography variant="body-lg">{profile.bio.trim()}</Typography>
           ) : (
-            <View className="flex-row flex-wrap gap-2">
-              {interests
-                .filter((i) => myInterestIds.has(i.id))
-                .map((i) => (
-                  <View
-                    key={i.id}
-                    className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1"
-                  >
-                    <Text className="text-xs font-medium text-emerald-700">
-                      {i.name}
-                    </Text>
-                  </View>
-                ))}
+            <Typography variant="body-sm" color="ink-subtle">
+              no bio yet.
+            </Typography>
+          )}
+          {profile?.gender ? (
+            <Typography
+              variant="body-sm"
+              color="ink-soft"
+              style={{ marginTop: 8 }}
+            >
+              {profile.gender}
+            </Typography>
+          ) : null}
+        </Section>
+
+        <Section title="golf" editHref="/edit/golf">
+          {profile?.home_course_name ? (
+            <Typography
+              variant="card-meta"
+              color="ink-soft"
+              style={{ marginBottom: 12 }}
+            >
+              Home · {profile.home_course_name}
+            </Typography>
+          ) : null}
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 24,
+              paddingVertical: 14,
+              borderTopWidth: 1,
+              borderBottomWidth: 1,
+              borderColor: colors.stroke,
+            }}
+          >
+            <Stat
+              label="Handicap"
+              value={
+                profile?.has_handicap && profile?.handicap !== null
+                  ? profile.handicap.toFixed(1)
+                  : 'None'
+              }
+            />
+            <Stat
+              label="Playing"
+              value={
+                profile?.years_playing === null ||
+                profile?.years_playing === undefined
+                  ? '—'
+                  : profile.years_playing >= 10
+                    ? '10+ yrs'
+                    : `${profile.years_playing} yrs`
+              }
+            />
+            <Stat
+              label="Style"
+              value={
+                profile?.style_default
+                  ? (STYLE_LABEL[profile.style_default] ?? '—')
+                  : '—'
+              }
+            />
+          </View>
+        </Section>
+
+        <Section title="how you play" editHref="/edit/style">
+          {styleTags.length === 0 ? (
+            <Typography variant="body-sm" color="ink-subtle">
+              not set yet.
+            </Typography>
+          ) : (
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}
+            >
+              {styleTags.map((label) => (
+                <Tag key={label} size="sm">
+                  {label}
+                </Tag>
+              ))}
             </View>
           )}
         </Section>
 
-        <Section title="Location" editHref="/edit/location">
-          <Row label="City" value={profile?.home_city} />
+        <Section title="interests" editHref="/edit/interests">
+          {myInterests.length === 0 ? (
+            <Typography variant="body-sm" color="ink-subtle">
+              none picked yet.
+            </Typography>
+          ) : (
+            <View
+              style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}
+            >
+              {myInterests.map((i) => (
+                <Tag key={i.id} size="sm">
+                  {i.name}
+                </Tag>
+              ))}
+            </View>
+          )}
         </Section>
 
-        <View className="gap-3 px-6 pt-6">
-          <Link href="/guidelines" asChild>
-            <Pressable className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
-              <Text className="text-base font-medium text-slate-700">
-                Community guidelines
-              </Text>
-            </Pressable>
-          </Link>
-          <Link href="/blocks" asChild>
-            <Pressable className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70">
-              <Text className="text-base font-medium text-slate-700">
-                Blocked users
-              </Text>
-            </Pressable>
-          </Link>
-          <Pressable
-            onPress={signOut}
-            className="items-center rounded-lg border border-slate-300 py-3 active:opacity-70"
-          >
-            <Text className="text-base font-medium text-slate-700">
-              Sign out
-            </Text>
-          </Pressable>
+        <Section title="location" editHref="/edit/location">
+          {profile?.home_city ? (
+            <Typography variant="body">{profile.home_city}</Typography>
+          ) : (
+            <Typography variant="body-sm" color="ink-subtle">
+              no location set.
+            </Typography>
+          )}
+        </Section>
+
+        <View style={{ marginTop: 40 }}>
+          <AppearanceRow />
+          <Row label="community guidelines" href="/guidelines" />
+          <Row label="blocked users" href="/blocks" />
+          <Row label="sign out" onPress={signOut} />
+          {__DEV__ ? <Row label="UI kit (dev)" href="/dev/ui-kit" /> : null}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -209,41 +344,115 @@ function Section({
   children,
 }: {
   title: string;
-  editHref: string;
+  editHref?: string;
   children: React.ReactNode;
 }) {
   return (
-    <View className="mt-8 px-6">
-      <View className="mb-3 flex-row items-center justify-between">
-        <Text className="text-lg font-semibold text-slate-900">{title}</Text>
-        <Link
-          href={editHref as never}
-          className="text-sm font-semibold text-emerald-600"
-        >
-          Edit
-        </Link>
+    <View style={{ paddingHorizontal: 20, marginTop: 32 }}>
+      <View
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'baseline',
+          marginBottom: 14,
+        }}
+      >
+        <Typography variant="caption" color="ink-soft">
+          {title}
+        </Typography>
+        {editHref ? (
+          <Link href={editHref as never} asChild>
+            <Pressable hitSlop={8}>
+              <Typography variant="caption" color="ink">
+                edit
+              </Typography>
+            </Pressable>
+          </Link>
+        ) : null}
       </View>
       {children}
     </View>
   );
 }
 
-function Row({
-  label,
-  value,
-  multi,
-}: {
-  label: string;
-  value: string | null | undefined;
-  multi?: boolean;
-}) {
-  if (!value) return null;
+function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <View className={`mb-2 ${multi ? '' : 'flex-row'}`}>
-      <Text className={`text-xs text-slate-500 ${multi ? 'mb-1' : 'w-28'}`}>
+    <View style={{ gap: 4 }}>
+      <Typography variant="card-stat-label" color="ink-subtle">
         {label}
-      </Text>
-      <Text className="flex-1 text-sm text-slate-800">{value}</Text>
+      </Typography>
+      <Typography variant="card-stat-value">{value}</Typography>
     </View>
   );
+}
+
+const APPEARANCE_LABEL = {
+  system: 'system',
+  light: 'light',
+  dark: 'dark',
+} as const;
+
+function AppearanceRow() {
+  const { colors, mode, setMode } = useTheme();
+  const next =
+    mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system';
+  return (
+    <Pressable onPress={() => setMode(next)}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          borderTopWidth: 1,
+          borderColor: colors.stroke,
+        }}
+      >
+        <Typography variant="body">appearance</Typography>
+        <Typography variant="body" color="ink-subtle">
+          {APPEARANCE_LABEL[mode]} ›
+        </Typography>
+      </View>
+    </Pressable>
+  );
+}
+
+function Row({
+  label,
+  href,
+  onPress,
+}: {
+  label: string;
+  href?: string;
+  onPress?: () => void;
+}) {
+  const { colors } = useTheme();
+  const content = (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        borderTopWidth: 1,
+        borderColor: colors.stroke,
+      }}
+    >
+      <Typography variant="body">{label}</Typography>
+      <Typography variant="body" color="ink-subtle">
+        ›
+      </Typography>
+    </View>
+  );
+
+  if (href) {
+    return (
+      <Link href={href as never} asChild>
+        <Pressable>{content}</Pressable>
+      </Link>
+    );
+  }
+  return <Pressable onPress={onPress}>{content}</Pressable>;
 }

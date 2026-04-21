@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Typography, useTheme } from '../../components/ui';
 
 const SECTIONS: { title: string; points: string[] }[] = [
   {
@@ -47,49 +48,90 @@ const SECTIONS: { title: string; points: string[] }[] = [
 export function CommunityGuidelinesBody() {
   return (
     <View>
-      <Text className="mb-2 text-3xl font-bold text-slate-900">
-        Community guidelines
-      </Text>
-      <Text className="mb-6 text-base text-slate-500">
+      <Typography variant="h1" style={{ marginBottom: 8 }}>
+        community guidelines.
+      </Typography>
+      <Typography
+        variant="body-lg"
+        color="ink-soft"
+        style={{ marginBottom: 28 }}
+      >
         Pindr is a place for golfers to find playing partners. Breaking these
         rules can get you suspended or banned.
-      </Text>
+      </Typography>
 
       {SECTIONS.map((section) => (
-        <View key={section.title} className="mb-6">
-          <Text className="mb-2 text-lg font-semibold text-slate-900">
+        <View key={section.title} style={{ marginBottom: 24 }}>
+          <Typography variant="h3" style={{ marginBottom: 8 }}>
             {section.title}
-          </Text>
+          </Typography>
           {section.points.map((point, i) => (
-            <View key={i} className="mb-1.5 flex-row">
-              <Text className="mr-2 text-slate-500">•</Text>
-              <Text className="flex-1 text-base text-slate-700">{point}</Text>
+            <View
+              key={i}
+              style={{ flexDirection: 'row', marginBottom: 6 }}
+            >
+              <Typography
+                variant="body"
+                color="ink-subtle"
+                style={{ marginRight: 8 }}
+              >
+                •
+              </Typography>
+              <Typography variant="body" color="ink" style={{ flex: 1 }}>
+                {point}
+              </Typography>
             </View>
           ))}
         </View>
       ))}
 
-      <Text className="mt-2 text-xs text-slate-400">
+      <Typography
+        variant="body-sm"
+        color="ink-subtle"
+        style={{ marginTop: 12 }}
+      >
         We may update these rules as the community grows. You're responsible
         for following the current version.
-      </Text>
+      </Typography>
     </View>
   );
 }
 
 export default function GuidelinesScreen() {
+  const { colors } = useTheme();
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="flex-row items-center border-b border-slate-100 px-4 py-2">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.stroke,
+        }}
+      >
         <Pressable
           onPress={() => router.back()}
-          className="mr-2 h-9 w-9 items-center justify-center active:opacity-70"
+          hitSlop={8}
+          style={{
+            height: 36,
+            width: 36,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
         >
-          <Text className="text-2xl text-slate-700">‹</Text>
+          <Typography variant="h2" color="ink">
+            ‹
+          </Typography>
         </Pressable>
-        <Text className="text-base font-semibold text-slate-900">
-          Community guidelines
-        </Text>
+        <Typography variant="caption" color="ink">
+          guidelines
+        </Typography>
       </View>
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
         <CommunityGuidelinesBody />

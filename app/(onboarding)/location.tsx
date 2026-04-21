@@ -6,10 +6,10 @@ import {
   Alert,
   Pressable,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Typography, radii, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { supabase } from '../../lib/supabase';
 
@@ -21,6 +21,7 @@ type Fix = {
 
 export default function LocationStep() {
   const { user, refetchProfile } = useAuth();
+  const { colors } = useTheme();
   const [fix, setFix] = useState<Fix | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -30,8 +31,8 @@ export default function LocationStep() {
       const perm = await Location.requestForegroundPermissionsAsync();
       if (!perm.granted) {
         Alert.alert(
-          'Location access needed',
-          'Enable location for Pindr in Settings so we can find players nearby.',
+          'location access needed',
+          "enable location for pindr in settings so we can find people nearby.",
         );
         return;
       }
@@ -40,7 +41,7 @@ export default function LocationStep() {
       });
       const { latitude, longitude } = pos.coords;
 
-      let city = 'Unknown area';
+      let city = 'unknown area';
       try {
         const reverse = await Location.reverseGeocodeAsync({
           latitude,
@@ -51,12 +52,12 @@ export default function LocationStep() {
           city = [first.city, first.region].filter(Boolean).join(', ');
         }
       } catch {
-        // Reverse geocode is nice-to-have; we still save the point.
+        // Non-fatal — we still save the point.
       }
 
       setFix({ latitude, longitude, city });
     } catch (err) {
-      Alert.alert('Could not get your location', (err as Error).message);
+      Alert.alert('could not get your location', (err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -78,87 +79,121 @@ export default function LocationStep() {
       await refetchProfile();
       router.push('/done');
     } catch (err) {
-      Alert.alert('Could not save', (err as Error).message);
+      Alert.alert('could not save', (err as Error).message);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      <ScrollView
-        contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
-      >
-        <Text className="mb-1 text-xs font-semibold uppercase tracking-wider text-emerald-600">
-          Step 6 of 6
-        </Text>
-        <Text className="mb-2 text-3xl font-bold text-slate-900">
-          Where do you play?
-        </Text>
-        <Text className="mb-8 text-base text-slate-500">
-          We use your location to surface players nearby. City-level only.
-        </Text>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+        <Typography
+          variant="caption"
+          color="ink-soft"
+          style={{ marginBottom: 8 }}
+        >
+          step 6 of 6
+        </Typography>
+        <Typography variant="h1" style={{ marginBottom: 6 }}>
+          where do you play?
+        </Typography>
+        <Typography variant="body" color="ink-soft" style={{ marginBottom: 28 }}>
+          we use your location to surface people nearby. city-level only, never exact.
+        </Typography>
 
         {fix ? (
-          <View className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-            <Text className="text-sm font-medium text-slate-500">
-              We have you in
-            </Text>
-            <Text className="mt-1 text-xl font-semibold text-slate-900">
+          <View
+            style={{
+              marginBottom: 24,
+              padding: 16,
+              borderRadius: radii.md,
+              borderWidth: 1,
+              borderColor: colors['stroke-strong'],
+              backgroundColor: colors['paper-raised'],
+            }}
+          >
+            <Typography variant="caption" color="success">
+              we have you in
+            </Typography>
+            <Typography variant="h2" style={{ marginTop: 4 }}>
               {fix.city}
-            </Text>
+            </Typography>
           </View>
         ) : (
           <Pressable
             onPress={getLocation}
             disabled={busy}
-            className="mb-4 items-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 py-6 active:opacity-70"
+            style={{
+              marginBottom: 16,
+              paddingVertical: 28,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: radii.md,
+              borderWidth: 1,
+              borderStyle: 'dashed',
+              borderColor: colors['stroke-strong'],
+              backgroundColor: colors['paper-raised'],
+            }}
           >
             {busy ? (
-              <ActivityIndicator color="#059669" />
+              <ActivityIndicator color={colors.ink} />
             ) : (
               <>
-                <Text className="text-base font-semibold text-slate-700">
-                  Use my current location
-                </Text>
-                <Text className="mt-1 text-xs text-slate-400">
-                  Granted once, stored city-level only.
-                </Text>
+                <Typography variant="body-lg" style={{ fontWeight: '600' }}>
+                  use my current location
+                </Typography>
+                <Typography
+                  variant="body-sm"
+                  color="ink-subtle"
+                  style={{ marginTop: 4 }}
+                >
+                  granted once, stored city-level only.
+                </Typography>
               </>
             )}
           </Pressable>
         )}
 
-        <Pressable
-          onPress={onContinue}
+        <Button
+          variant="primary"
+          size="lg"
+          fullWidth
+          loading={busy && Boolean(fix)}
           disabled={!fix || busy}
-          className={`mt-2 items-center rounded-lg py-3 ${
-            !fix || busy
-              ? 'bg-emerald-300'
-              : 'bg-emerald-600 active:opacity-80'
-          }`}
+          onPress={onContinue}
+          style={{ marginTop: 8 }}
         >
-          <Text className="text-base font-semibold text-white">
-            {busy ? 'Saving…' : 'Continue'}
-          </Text>
-        </Pressable>
+          Continue
+        </Button>
 
         {fix ? (
           <Pressable
             onPress={() => setFix(null)}
-            className="mt-4 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{
+              alignSelf: 'center',
+              marginTop: 16,
+              paddingVertical: 8,
+            }}
           >
-            <Text className="text-sm font-medium text-slate-500">
-              Try again
-            </Text>
+            <Typography variant="caption" color="ink-subtle">
+              try again
+            </Typography>
           </Pressable>
         ) : null}
 
         <Pressable
           onPress={() => router.back()}
-          className="mt-4 items-center py-2 active:opacity-70"
+          hitSlop={8}
+          style={{ alignSelf: 'center', marginTop: 8, paddingVertical: 8 }}
         >
-          <Text className="text-sm font-medium text-slate-500">Back</Text>
+          <Typography variant="caption" color="ink-subtle">
+            back
+          </Typography>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

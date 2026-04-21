@@ -8,11 +8,16 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Button,
+  Input,
+  Typography,
+  radii,
+  useTheme,
+} from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import {
   deleteTravelSession,
@@ -29,15 +34,17 @@ function todayIso(): string {
 
 export default function TravelScreen() {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [session, setSession] = useState<TravelSession | null>(null);
   const [city, setCity] = useState('');
   const [startDate, setStartDate] = useState(todayIso());
   const [endDate, setEndDate] = useState(todayIso());
-  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(
-    null,
-  );
+  const [coords, setCoords] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -51,7 +58,7 @@ export default function TravelScreen() {
           setEndDate(s.end_date);
         }
       } catch (err) {
-        Alert.alert('Could not load travel', (err as Error).message);
+        Alert.alert('could not load travel', (err as Error).message);
       } finally {
         setLoading(false);
       }
@@ -60,20 +67,20 @@ export default function TravelScreen() {
 
   const lookupCity = async () => {
     if (!city.trim()) {
-      Alert.alert('Enter a city first');
+      Alert.alert('enter a city first');
       return;
     }
     setBusy(true);
     try {
       const results = await Location.geocodeAsync(city.trim());
       if (results.length === 0) {
-        Alert.alert("Couldn't find that city", 'Try a more specific name.');
+        Alert.alert("couldn't find that city", 'try a more specific name.');
         return;
       }
       const first = results[0];
       setCoords({ latitude: first.latitude, longitude: first.longitude });
     } catch (err) {
-      Alert.alert('Lookup failed', (err as Error).message);
+      Alert.alert('lookup failed', (err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -81,25 +88,27 @@ export default function TravelScreen() {
 
   const save = async () => {
     if (!user) return;
-    if (!city.trim()) return Alert.alert('Enter a city');
+    if (!city.trim()) return Alert.alert('enter a city');
     if (!DATE_RE.test(startDate) || !DATE_RE.test(endDate)) {
-      return Alert.alert('Dates must be YYYY-MM-DD');
+      return Alert.alert('dates must be YYYY-MM-DD');
     }
     if (endDate < startDate) {
-      return Alert.alert('End date must be on or after start date');
+      return Alert.alert('end date must be on or after start date');
     }
     if (endDate < todayIso()) {
-      return Alert.alert('End date must be today or later');
+      return Alert.alert('end date must be today or later');
     }
 
-    // If coords are missing (user edited the city but didn't tap Find), geocode now.
     let finalCoords = coords;
     if (!finalCoords || (session && session.city !== city.trim())) {
       const results = await Location.geocodeAsync(city.trim());
       if (results.length === 0) {
-        return Alert.alert("Couldn't find that city", 'Try a more specific name.');
+        return Alert.alert("couldn't find that city", 'try a more specific name.');
       }
-      finalCoords = { latitude: results[0].latitude, longitude: results[0].longitude };
+      finalCoords = {
+        latitude: results[0].latitude,
+        longitude: results[0].longitude,
+      };
     }
 
     setBusy(true);
@@ -115,7 +124,7 @@ export default function TravelScreen() {
       });
       router.back();
     } catch (err) {
-      Alert.alert('Could not save', (err as Error).message);
+      Alert.alert('could not save', (err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -123,145 +132,200 @@ export default function TravelScreen() {
 
   const endTravel = async () => {
     if (!session) return;
-    Alert.alert('End travel mode?', 'Discovery will use your home location again.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'End travel',
-        style: 'destructive',
-        onPress: async () => {
-          setBusy(true);
-          try {
-            await deleteTravelSession(session.id);
-            router.back();
-          } catch (err) {
-            Alert.alert('Could not end travel', (err as Error).message);
-          } finally {
-            setBusy(false);
-          }
+    Alert.alert(
+      'end travel mode?',
+      'discovery will use your home location again.',
+      [
+        { text: 'cancel', style: 'cancel' },
+        {
+          text: 'end travel',
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true);
+            try {
+              await deleteTravelSession(session.id);
+              router.back();
+            } catch (err) {
+              Alert.alert('could not end travel', (err as Error).message);
+            } finally {
+              setBusy(false);
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator color="#059669" />
+      <SafeAreaView
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.paper,
+        }}
+      >
+        <ActivityIndicator color={colors.ink} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top', 'bottom']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-row items-center justify-between px-6 pb-2 pt-2">
-          <Pressable onPress={() => router.back()} className="py-2 active:opacity-70">
-            <Text className="text-sm font-medium text-slate-500">Cancel</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.stroke,
+          }}
+        >
+          <Pressable onPress={() => router.back()} hitSlop={8}>
+            <Typography variant="caption" color="ink-soft">
+              cancel
+            </Typography>
           </Pressable>
-          <Text className="text-base font-semibold text-slate-900">Travel mode</Text>
-          <View style={{ width: 48 }} />
+          <Typography variant="caption" color="ink">
+            travel mode
+          </Typography>
+          <View style={{ minWidth: 48 }} />
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
           {session ? (
-            <View className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-              <Text className="text-xs font-semibold uppercase tracking-wider text-emerald-700">
-                Currently traveling
-              </Text>
-              <Text className="mt-1 text-lg font-semibold text-slate-900">
+            <View
+              style={{
+                marginBottom: 24,
+                padding: 16,
+                borderRadius: radii.md,
+                borderWidth: 1,
+                borderColor: colors['stroke-strong'],
+                backgroundColor: colors['paper-raised'],
+              }}
+            >
+              <Typography variant="caption" color="success">
+                currently traveling
+              </Typography>
+              <Typography variant="h2" style={{ marginTop: 4 }}>
                 {session.city}
-              </Text>
-              <Text className="mt-0.5 text-sm text-slate-600">
+              </Typography>
+              <Typography variant="body-sm" color="ink-soft" style={{ marginTop: 4 }}>
                 {session.start_date} to {session.end_date}
-              </Text>
+              </Typography>
             </View>
           ) : (
-            <Text className="mb-6 text-base text-slate-500">
-              Set a city and date range to discover players there instead of at
-              home.
-            </Text>
+            <Typography
+              variant="body-lg"
+              color="ink-soft"
+              style={{ marginBottom: 24 }}
+            >
+              set a city and date range to discover players there instead of at home.
+            </Typography>
           )}
 
-          <Text className="mb-1 text-sm font-medium text-slate-700">City</Text>
-          <View className="mb-1 flex-row gap-2">
-            <TextInput
-              value={city}
-              onChangeText={(t) => {
-                setCity(t);
-                setCoords(null);
-              }}
-              placeholder="Scottsdale, AZ"
-              placeholderTextColor="#94a3b8"
-              autoCapitalize="words"
-              className="flex-1 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900"
-            />
+          <Typography variant="caption" color="ink-soft" style={{ marginBottom: 6 }}>
+            City
+          </Typography>
+          <View
+            style={{ flexDirection: 'row', alignItems: 'stretch', gap: 10 }}
+          >
+            <View style={{ flex: 1 }}>
+              <Input
+                value={city}
+                onChangeText={(t) => {
+                  setCity(t);
+                  setCoords(null);
+                }}
+                placeholder="Scottsdale, AZ"
+                autoCapitalize="words"
+                containerStyle={{ marginBottom: 0 }}
+              />
+            </View>
             <Pressable
               onPress={lookupCity}
               disabled={busy}
-              className="items-center justify-center rounded-lg border border-slate-300 bg-white px-3 active:opacity-70"
+              style={{
+                paddingHorizontal: 16,
+                borderRadius: radii.md,
+                borderWidth: 1,
+                borderColor: colors['stroke-strong'],
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: colors['paper-high'],
+              }}
             >
-              <Text className="text-sm font-medium text-slate-700">Find</Text>
+              <Typography variant="caption" color="ink">
+                find
+              </Typography>
             </Pressable>
           </View>
           {coords ? (
-            <Text className="mb-4 text-xs text-emerald-600">
-              Located at {coords.latitude.toFixed(3)}, {coords.longitude.toFixed(3)}
-            </Text>
+            <Typography
+              variant="body-sm"
+              color="success"
+              style={{ marginTop: 4, marginBottom: 16 }}
+            >
+              located at {coords.latitude.toFixed(3)}, {coords.longitude.toFixed(3)}
+            </Typography>
           ) : (
-            <Text className="mb-4 text-xs text-slate-400">
-              Tap Find to geocode, or just tap Save and we'll look it up.
-            </Text>
+            <Typography
+              variant="body-sm"
+              color="ink-subtle"
+              style={{ marginTop: 4, marginBottom: 16 }}
+            >
+              tap find to geocode, or just tap save — we'll look it up.
+            </Typography>
           )}
 
-          <Text className="mb-1 text-sm font-medium text-slate-700">
-            Start date
-          </Text>
-          <TextInput
+          <Input
+            label="Start date"
             value={startDate}
             onChangeText={setStartDate}
             placeholder="YYYY-MM-DD"
-            placeholderTextColor="#94a3b8"
             autoCapitalize="none"
             autoCorrect={false}
-            className="mb-4 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900"
           />
-
-          <Text className="mb-1 text-sm font-medium text-slate-700">End date</Text>
-          <TextInput
+          <Input
+            label="End date"
             value={endDate}
             onChangeText={setEndDate}
             placeholder="YYYY-MM-DD"
-            placeholderTextColor="#94a3b8"
             autoCapitalize="none"
             autoCorrect={false}
-            className="mb-6 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900"
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={busy}
             onPress={save}
-            disabled={busy}
-            className={`items-center rounded-lg py-3 ${
-              busy ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {busy ? 'Saving…' : session ? 'Update travel' : 'Start travel'}
-            </Text>
-          </Pressable>
+            {session ? 'Update travel' : 'Start travel'}
+          </Button>
 
           {session ? (
-            <Pressable
+            <Button
+              variant="destructive"
+              size="lg"
+              fullWidth
               onPress={endTravel}
-              disabled={busy}
-              className="mt-4 items-center rounded-lg border border-red-200 py-3 active:opacity-70"
+              style={{ marginTop: 12 }}
             >
-              <Text className="text-base font-medium text-red-500">
-                End travel mode
-              </Text>
-            </Pressable>
+              End travel mode
+            </Button>
           ) : null}
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,21 +1,44 @@
 import { router } from 'expo-router';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Typography, useTheme } from '../../components/ui';
 import { CommunityGuidelinesBody } from '../(app)/guidelines';
 
 export default function AuthGuidelines() {
+  const { colors } = useTheme();
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="flex-row items-center border-b border-slate-100 px-4 py-2">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.stroke,
+        }}
+      >
         <Pressable
           onPress={() => router.back()}
-          className="mr-2 h-9 w-9 items-center justify-center active:opacity-70"
+          hitSlop={8}
+          style={{
+            height: 36,
+            width: 36,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
         >
-          <Text className="text-2xl text-slate-700">‹</Text>
+          <Typography variant="h2" color="ink">
+            ‹
+          </Typography>
         </Pressable>
-        <Text className="text-base font-semibold text-slate-900">
-          Community guidelines
-        </Text>
+        <Typography variant="caption" color="ink">
+          guidelines
+        </Typography>
       </View>
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
         <CommunityGuidelinesBody />

@@ -5,18 +5,67 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
-  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChipGroup } from '../../../components/form';
+import { ChipSelect, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { styleSchema, type StyleInput } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
+import { EditHeader } from './basics';
+
+type ChipGroupProps<T extends string> = {
+  label: string;
+  value: T | null | undefined;
+  onChange: (v: T) => void;
+  options: { value: T; label: string }[];
+  error?: string;
+};
+
+function ChipGroup<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+  error,
+}: ChipGroupProps<T>) {
+  return (
+    <View style={{ marginBottom: 24 }}>
+      <Typography
+        variant="caption"
+        color="ink-soft"
+        style={{ marginBottom: 10 }}
+      >
+        {label}
+      </Typography>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+        {options.map((opt) => (
+          <ChipSelect
+            key={opt.value}
+            selected={value === opt.value}
+            onPress={() => onChange(opt.value)}
+          >
+            {opt.label}
+          </ChipSelect>
+        ))}
+      </View>
+      {error ? (
+        <Typography
+          variant="body-sm"
+          color="burgundy"
+          style={{ marginTop: 6 }}
+        >
+          {error}
+        </Typography>
+      ) : null}
+    </View>
+  );
+}
 
 export default function EditStyle() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,
@@ -43,7 +92,7 @@ export default function EditStyle() {
       .update(values)
       .eq('user_id', user.id);
     if (error) {
-      Alert.alert('Could not save', error.message);
+      Alert.alert('could not save', error.message);
       return;
     }
     await refetchProfile();
@@ -51,19 +100,23 @@ export default function EditStyle() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
+        <EditHeader
+          title="edit how you play"
+          onSave={handleSubmit(onSubmit)}
+          saving={isSubmitting}
+        />
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text className="mb-6 text-3xl font-bold text-slate-900">
-            Edit play style
-          </Text>
-
           <Controller
             control={control}
             name="style_default"
@@ -81,7 +134,6 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="pace"
@@ -99,13 +151,12 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="walking_preference"
             render={({ field: { value, onChange } }) => (
               <ChipGroup
-                label="Walk or ride?"
+                label="Walk or ride"
                 value={value}
                 onChange={onChange}
                 error={errors.walking_preference?.message}
@@ -117,13 +168,12 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="holes_preference"
             render={({ field: { value, onChange } }) => (
               <ChipGroup
-                label="9, 18, or either?"
+                label="9, 18, or either"
                 value={value}
                 onChange={onChange}
                 error={errors.holes_preference?.message}
@@ -135,7 +185,6 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="teaching_mindset"
@@ -152,7 +201,6 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="betting"
@@ -170,7 +218,6 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="drinks"
@@ -188,7 +235,6 @@ export default function EditStyle() {
               />
             )}
           />
-
           <Controller
             control={control}
             name="post_round"
@@ -205,25 +251,6 @@ export default function EditStyle() {
               />
             )}
           />
-
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
-          >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Save'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.back()}
-            className="mt-4 items-center py-2 active:opacity-70"
-          >
-            <Text className="text-sm font-medium text-slate-500">Cancel</Text>
-          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

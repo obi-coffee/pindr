@@ -6,11 +6,16 @@ import {
   Pressable,
   ScrollView,
   Switch,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  Button,
+  ChipSelect,
+  Input,
+  Typography,
+  useTheme,
+} from '../../components/ui';
 import {
   DEFAULT_FILTERS,
   loadFilters,
@@ -28,6 +33,7 @@ const PLAY_STYLE_OPTIONS: { value: PlayStyleFilter; label: string }[] = [
 ];
 
 export default function FiltersScreen() {
+  const { colors } = useTheme();
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [ready, setReady] = useState(false);
 
@@ -75,140 +81,183 @@ export default function FiltersScreen() {
   if (!ready) return null;
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top', 'bottom']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-row items-center justify-between px-6 pb-2 pt-2">
-          <Pressable onPress={() => router.back()} className="py-2 active:opacity-70">
-            <Text className="text-sm font-medium text-slate-500">Cancel</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.stroke,
+          }}
+        >
+          <Pressable onPress={() => router.back()} hitSlop={8}>
+            <Typography variant="caption" color="ink-soft">
+              cancel
+            </Typography>
           </Pressable>
-          <Text className="text-base font-semibold text-slate-900">Filters</Text>
-          <Pressable onPress={reset} className="py-2 active:opacity-70">
-            <Text className="text-sm font-medium text-slate-500">Reset</Text>
+          <Typography variant="caption" color="ink">
+            filters
+          </Typography>
+          <Pressable onPress={reset} hitSlop={8}>
+            <Typography variant="caption" color="ink-soft">
+              reset
+            </Typography>
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
-          <Section title="Maximum distance">
-            <View className="flex-row flex-wrap gap-2">
-              {DISTANCE_OPTIONS.map((km) => {
-                const on = filters.maxDistanceKm === km;
-                return (
-                  <Pressable
-                    key={km}
-                    onPress={() => set('maxDistanceKm', km)}
-                    className={`rounded-full border px-4 py-2 active:opacity-80 ${
-                      on ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300 bg-white'
-                    }`}
-                  >
-                    <Text className={`text-sm font-medium ${on ? 'text-white' : 'text-slate-700'}`}>
-                      {km} km
-                    </Text>
-                  </Pressable>
-                );
-              })}
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Section title="distance">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {DISTANCE_OPTIONS.map((km) => (
+                <ChipSelect
+                  key={km}
+                  selected={filters.maxDistanceKm === km}
+                  onPress={() => set('maxDistanceKm', km)}
+                >
+                  {`${km} km`}
+                </ChipSelect>
+              ))}
             </View>
           </Section>
 
-          <Section title="Age range">
-            <View className="flex-row items-center gap-3">
-              <NumberField
-                label="Min"
-                value={filters.minAge}
-                onChange={(n) => set('minAge', n)}
-              />
-              <Text className="text-slate-400">to</Text>
-              <NumberField
-                label="Max"
-                value={filters.maxAge}
-                onChange={(n) => set('maxAge', n)}
-              />
+          <Section title="age">
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <NumberInput
+                  value={filters.minAge}
+                  onChange={(n) => set('minAge', n)}
+                  placeholder="Min"
+                />
+              </View>
+              <Typography variant="body-sm" color="ink-subtle">
+                to
+              </Typography>
+              <View style={{ flex: 1 }}>
+                <NumberInput
+                  value={filters.maxAge}
+                  onChange={(n) => set('maxAge', n)}
+                  placeholder="Max"
+                />
+              </View>
             </View>
           </Section>
 
-          <Section title="Handicap range">
-            <View className="flex-row items-center gap-3">
-              <NumberField
-                label="Min"
-                value={filters.minHandicap}
-                onChange={(n) => set('minHandicap', n)}
-                decimal
-              />
-              <Text className="text-slate-400">to</Text>
-              <NumberField
-                label="Max"
-                value={filters.maxHandicap}
-                onChange={(n) => set('maxHandicap', n)}
-                decimal
-              />
-            </View>
-            <Text className="mt-1 text-xs text-slate-400">
-              Excludes players without a handicap.
-            </Text>
-          </Section>
-
-          <Section title="Gender">
-            <View className="flex-row flex-wrap gap-2">
-              {GENDER_OPTIONS.map((g) => {
-                const on = filters.genders?.includes(g) ?? false;
-                return (
-                  <Pressable
-                    key={g}
-                    onPress={() => toggleGender(g)}
-                    className={`rounded-full border px-4 py-2 active:opacity-80 ${
-                      on ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300 bg-white'
-                    }`}
-                  >
-                    <Text className={`text-sm font-medium ${on ? 'text-white' : 'text-slate-700'}`}>
-                      {g}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+          <Section
+            title="handicap"
+            hint="excludes people without a handicap."
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+              }}
+            >
+              <View style={{ flex: 1 }}>
+                <NumberInput
+                  value={filters.minHandicap}
+                  onChange={(n) => set('minHandicap', n)}
+                  placeholder="Min"
+                  decimal
+                />
+              </View>
+              <Typography variant="body-sm" color="ink-subtle">
+                to
+              </Typography>
+              <View style={{ flex: 1 }}>
+                <NumberInput
+                  value={filters.maxHandicap}
+                  onChange={(n) => set('maxHandicap', n)}
+                  placeholder="Max"
+                  decimal
+                />
+              </View>
             </View>
           </Section>
 
-          <Section title="Play style">
-            <View className="flex-row flex-wrap gap-2">
-              {PLAY_STYLE_OPTIONS.map((opt) => {
-                const on = filters.playStyles?.includes(opt.value) ?? false;
-                return (
-                  <Pressable
-                    key={opt.value}
-                    onPress={() => togglePlayStyle(opt.value)}
-                    className={`rounded-full border px-4 py-2 active:opacity-80 ${
-                      on ? 'border-emerald-600 bg-emerald-600' : 'border-slate-300 bg-white'
-                    }`}
-                  >
-                    <Text className={`text-sm font-medium ${on ? 'text-white' : 'text-slate-700'}`}>
-                      {opt.label}
-                    </Text>
-                  </Pressable>
-                );
-              })}
+          <Section title="gender">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {GENDER_OPTIONS.map((g) => (
+                <ChipSelect
+                  key={g}
+                  selected={filters.genders?.includes(g) ?? false}
+                  onPress={() => toggleGender(g)}
+                >
+                  {g}
+                </ChipSelect>
+              ))}
             </View>
           </Section>
 
-          <Section title="Women-only">
-            <View className="flex-row items-center justify-between">
-              <Text className="flex-1 pr-4 text-sm text-slate-600">
-                Only show profiles that self-identify as women.
-              </Text>
+          <Section title="play style">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {PLAY_STYLE_OPTIONS.map((opt) => (
+                <ChipSelect
+                  key={opt.value}
+                  selected={filters.playStyles?.includes(opt.value) ?? false}
+                  onPress={() => togglePlayStyle(opt.value)}
+                >
+                  {opt.label}
+                </ChipSelect>
+              ))}
+            </View>
+          </Section>
+
+          <Section title="women only">
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingVertical: 4,
+              }}
+            >
+              <Typography
+                variant="body"
+                color="ink-soft"
+                style={{ flex: 1, paddingRight: 16 }}
+              >
+                only show people who self-identify as women.
+              </Typography>
               <Switch
                 value={filters.womenOnly}
                 onValueChange={(v) => set('womenOnly', v)}
+                trackColor={{
+                  false: colors['stroke-strong'],
+                  true: colors.ink,
+                }}
               />
             </View>
           </Section>
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
             onPress={apply}
-            className="mt-6 items-center rounded-lg bg-emerald-600 py-3 active:opacity-80"
+            style={{ marginTop: 12 }}
           >
-            <Text className="text-base font-semibold text-white">Apply</Text>
-          </Pressable>
+            Apply
+          </Button>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -217,46 +266,58 @@ export default function FiltersScreen() {
 
 function Section({
   title,
+  hint,
   children,
 }: {
   title: string;
+  hint?: string;
   children: React.ReactNode;
 }) {
   return (
-    <View className="mb-6">
-      <Text className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-500">
+    <View style={{ marginBottom: 28 }}>
+      <Typography
+        variant="caption"
+        color="ink-soft"
+        style={{ marginBottom: 12 }}
+      >
         {title}
-      </Text>
+      </Typography>
       {children}
+      {hint ? (
+        <Typography
+          variant="body-sm"
+          color="ink-subtle"
+          style={{ marginTop: 6 }}
+        >
+          {hint}
+        </Typography>
+      ) : null}
     </View>
   );
 }
 
-function NumberField({
-  label,
+function NumberInput({
   value,
   onChange,
+  placeholder,
   decimal,
 }: {
-  label: string;
   value: number | null;
   onChange: (n: number | null) => void;
+  placeholder: string;
   decimal?: boolean;
 }) {
   return (
-    <View className="flex-1">
-      <TextInput
-        value={value === null || Number.isNaN(value) ? '' : String(value)}
-        onChangeText={(t) => {
-          if (t === '') return onChange(null);
-          const n = Number(t);
-          onChange(Number.isNaN(n) ? null : n);
-        }}
-        keyboardType={decimal ? 'decimal-pad' : 'number-pad'}
-        placeholder={label}
-        placeholderTextColor="#94a3b8"
-        className="rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900"
-      />
-    </View>
+    <Input
+      value={value === null || Number.isNaN(value) ? '' : String(value)}
+      onChangeText={(t) => {
+        if (t === '') return onChange(null);
+        const n = Number(t);
+        onChange(Number.isNaN(n) ? null : n);
+      }}
+      keyboardType={decimal ? 'decimal-pad' : 'number-pad'}
+      placeholder={placeholder}
+      containerStyle={{ marginBottom: 0 }}
+    />
   );
 }

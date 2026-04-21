@@ -8,11 +8,10 @@ import {
   Pressable,
   ScrollView,
   Share,
-  Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Input, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchMatchDetails,
@@ -22,6 +21,7 @@ import {
 export default function SharePlan() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [details, setDetails] = useState<MatchDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [course, setCourse] = useState('');
@@ -35,7 +35,7 @@ export default function SharePlan() {
         const d = await fetchMatchDetails(matchId, user.id);
         setDetails(d);
       } catch (err) {
-        Alert.alert('Could not load match', (err as Error).message);
+        Alert.alert('could not load match', (err as Error).message);
       } finally {
         setLoading(false);
       }
@@ -47,18 +47,18 @@ export default function SharePlan() {
     setSharing(true);
     try {
       const lines: string[] = [
-        `Playing golf with ${details.other_display_name ?? 'a match'} from Pindr.`,
+        `playing with ${details.other_display_name ?? 'a match'} from pindr.`,
       ];
       if (course.trim()) lines.push(`📍 ${course.trim()}`);
       if (teeTime.trim()) lines.push(`🕐 ${teeTime.trim()}`);
       if (details.other_photo_url) lines.push(details.other_photo_url);
       lines.push(
-        "I'll check in after the round. Here's who I'm meeting in case you need it.",
+        "i'll check in after the round. here's who i'm meeting in case you need it.",
       );
       await Share.share({ message: lines.join('\n\n') });
       router.back();
     } catch (err) {
-      Alert.alert('Could not share', (err as Error).message);
+      Alert.alert('could not share', (err as Error).message);
     } finally {
       setSharing(false);
     }
@@ -66,75 +66,85 @@ export default function SharePlan() {
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator color="#059669" />
+      <SafeAreaView
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: colors.paper,
+        }}
+      >
+        <ActivityIndicator color={colors.ink} />
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top', 'bottom']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
-        <View className="flex-row items-center justify-between px-6 pb-2 pt-2">
-          <Pressable
-            onPress={() => router.back()}
-            className="py-2 active:opacity-70"
-          >
-            <Text className="text-sm font-medium text-slate-500">Cancel</Text>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.stroke,
+          }}
+        >
+          <Pressable onPress={() => router.back()} hitSlop={8}>
+            <Typography variant="caption" color="ink-soft">
+              cancel
+            </Typography>
           </Pressable>
-          <Text className="text-base font-semibold text-slate-900">
-            Share my plans
-          </Text>
-          <View style={{ width: 48 }} />
+          <Typography variant="caption" color="ink">
+            share my plans
+          </Typography>
+          <View style={{ minWidth: 48 }} />
         </View>
 
         <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
-          <Text className="mb-2 text-2xl font-bold text-slate-900">
-            Tell a friend where you'll be
-          </Text>
-          <Text className="mb-6 text-base text-slate-500">
-            Send {details?.other_display_name ?? 'your match'}'s name and photo
-            to someone you trust, along with the course and time. Takes ten
-            seconds and makes meeting up safer.
-          </Text>
+          <Typography variant="h1" style={{ marginBottom: 6 }}>
+            tell a friend where you'll be.
+          </Typography>
+          <Typography variant="body" color="ink-soft" style={{ marginBottom: 28 }}>
+            send {details?.other_display_name ?? 'your match'}'s name and photo
+            to someone you trust, along with the course and time. takes ten
+            seconds. makes meeting up safer.
+          </Typography>
 
-          <Text className="mb-1 text-sm font-medium text-slate-700">
-            Course (optional)
-          </Text>
-          <TextInput
+          <Input
+            label="Course (optional)"
             value={course}
             onChangeText={setCourse}
             placeholder="Bethpage Black"
-            placeholderTextColor="#94a3b8"
             autoCapitalize="words"
-            className="mb-4 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900"
           />
 
-          <Text className="mb-1 text-sm font-medium text-slate-700">
-            Tee time (optional)
-          </Text>
-          <TextInput
+          <Input
+            label="Tee time (optional)"
             value={teeTime}
             onChangeText={setTeeTime}
             placeholder="Sat 9:40 am"
-            placeholderTextColor="#94a3b8"
-            className="mb-6 rounded-lg border border-slate-300 bg-white px-3 py-3 text-base text-slate-900"
           />
 
-          <Pressable
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            loading={sharing}
             onPress={share}
-            disabled={sharing}
-            className={`items-center rounded-lg py-3 ${
-              sharing ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
+            style={{ marginTop: 8 }}
           >
-            <Text className="text-base font-semibold text-white">
-              {sharing ? 'Opening…' : 'Share with a friend'}
-            </Text>
-          </Pressable>
+            Share with a friend
+          </Button>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

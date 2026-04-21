@@ -7,16 +7,17 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Text,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Field } from '../../../components/form';
+import { Input, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { basicsSchema, type BasicsInput } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
 
 export default function EditBasics() {
   const { user, profile, refetchProfile } = useAuth();
+  const { colors } = useTheme();
 
   const {
     control,
@@ -46,7 +47,7 @@ export default function EditBasics() {
       })
       .eq('user_id', user.id);
     if (error) {
-      Alert.alert('Could not save', error.message);
+      Alert.alert('could not save', error.message);
       return;
     }
     await refetchProfile();
@@ -54,24 +55,29 @@ export default function EditBasics() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
+        <EditHeader
+          title="edit basics"
+          onSave={handleSubmit(onSubmit)}
+          saving={isSubmitting}
+        />
+
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text className="mb-6 text-3xl font-bold text-slate-900">
-            Edit basics
-          </Text>
-
           <Controller
             control={control}
             name="display_name"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="First name"
                 error={errors.display_name?.message}
                 value={value}
@@ -86,7 +92,7 @@ export default function EditBasics() {
             control={control}
             name="age"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Age"
                 error={errors.age?.message}
                 value={
@@ -107,7 +113,7 @@ export default function EditBasics() {
             control={control}
             name="gender"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Gender"
                 error={errors.gender?.message}
                 value={value ?? ''}
@@ -121,7 +127,7 @@ export default function EditBasics() {
             control={control}
             name="pronouns"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Pronouns"
                 error={errors.pronouns?.message}
                 value={value ?? ''}
@@ -135,7 +141,7 @@ export default function EditBasics() {
             control={control}
             name="bio"
             render={({ field: { onChange, onBlur, value } }) => (
-              <Field
+              <Input
                 label="Bio"
                 error={errors.bio?.message}
                 value={value ?? ''}
@@ -143,31 +149,65 @@ export default function EditBasics() {
                 onBlur={onBlur}
                 multiline
                 numberOfLines={4}
-                textAlignVertical="top"
               />
             )}
           />
-
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
-          >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Save'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.back()}
-            className="mt-4 items-center py-2 active:opacity-70"
-          >
-            <Text className="text-sm font-medium text-slate-500">Cancel</Text>
-          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
+  );
+}
+
+export function EditHeader({
+  title,
+  onSave,
+  saving,
+  saveLabel = 'save',
+}: {
+  title: string;
+  onSave?: () => void;
+  saving?: boolean;
+  saveLabel?: string;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.stroke,
+      }}
+    >
+      <Pressable
+        onPress={() => router.back()}
+        hitSlop={8}
+        style={{ minWidth: 48 }}
+      >
+        <Typography variant="caption" color="ink-soft">
+          cancel
+        </Typography>
+      </Pressable>
+      <Typography variant="caption" color="ink">
+        {title}
+      </Typography>
+      {onSave ? (
+        <Pressable
+          onPress={onSave}
+          disabled={saving}
+          hitSlop={8}
+          style={{ minWidth: 48, alignItems: 'flex-end' }}
+        >
+          <Typography variant="caption" color={saving ? 'ink-subtle' : 'ink'}>
+            {saving ? 'saving…' : saveLabel}
+          </Typography>
+        </Pressable>
+      ) : (
+        <View style={{ minWidth: 48 }} />
+      )}
+    </View>
   );
 }

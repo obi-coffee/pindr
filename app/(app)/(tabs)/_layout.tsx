@@ -139,6 +139,20 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="rounds"
+        options={{
+          title: 'rounds',
+          tabBarIcon: ({ focused }) => (
+            <PillLabel
+              label="Rounds"
+              focused={focused}
+              colors={colors}
+              isDark={isDark}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'profile',

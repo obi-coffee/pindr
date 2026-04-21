@@ -131,6 +131,45 @@ export async function getRound(id: string): Promise<RoundWithCourse> {
   return data as unknown as RoundWithCourse;
 }
 
+export type RoundListItem = {
+  id: string;
+  tee_time: string;
+  seats_open: number;
+  seats_total: number;
+  format: RoundFormat;
+  course_id: string;
+  course_name: string;
+  course_city: string | null;
+  course_state: string | null;
+  host_user_id: string;
+  host_display_name: string | null;
+  host_age: number | null;
+  host_handicap: number | null;
+  host_has_handicap: boolean;
+  host_photo_url: string | null;
+  distance_km: number | null;
+};
+
+export type ListOpenRoundsFilters = {
+  courseId?: string | null;
+  from?: Date;
+  to?: Date | null;
+  maxResults?: number;
+};
+
+export async function listOpenRounds(
+  filters: ListOpenRoundsFilters = {},
+): Promise<RoundListItem[]> {
+  const { data, error } = await supabase.rpc('list_open_rounds', {
+    p_course_id: filters.courseId ?? null,
+    p_from: (filters.from ?? new Date()).toISOString(),
+    p_to: filters.to ? filters.to.toISOString() : null,
+    p_max_results: filters.maxResults ?? 50,
+  });
+  if (error) throw error;
+  return (data ?? []) as RoundListItem[];
+}
+
 export async function listMyRounds(
   hostUserId: string,
 ): Promise<RoundWithCourse[]> {

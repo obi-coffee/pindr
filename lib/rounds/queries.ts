@@ -183,3 +183,94 @@ export async function listMyRounds(
   if (error) throw error;
   return (data ?? []) as unknown as RoundWithCourse[];
 }
+
+export type RoundRequestStatus =
+  | 'pending'
+  | 'accepted'
+  | 'declined'
+  | 'withdrawn';
+
+export type MyRoundRequest = {
+  id: string;
+  status: RoundRequestStatus;
+  created_at: string;
+  responded_at: string | null;
+};
+
+export type PendingRequest = {
+  id: string;
+  status: RoundRequestStatus;
+  created_at: string;
+  requesting_user_id: string;
+  requester_display_name: string | null;
+  requester_age: number | null;
+  requester_handicap: number | null;
+  requester_has_handicap: boolean;
+  requester_photo_url: string | null;
+};
+
+export async function requestToJoinRound(
+  round: Pick<Round, 'id' | 'source'>,
+  userId: string,
+): Promise<void> {
+  switch (round.source) {
+    case 'user_posted':
+      await createUserPostedRequest(round.id, userId);
+      return;
+    case 'golfnow':
+      throw new Error('partner-booked rounds will be available soon.');
+  }
+}
+
+export async function createUserPostedRequest(
+  roundId: string,
+  userId: string,
+): Promise<void> {
+  const { error } = await supabase.from('round_requests').insert({
+    round_id: roundId,
+    requesting_user_id: userId,
+  });
+  if (error) throw error;
+}
+
+export async function withdrawRequest(requestId: string): Promise<void> {
+  const { error } = await supabase.rpc('withdraw_round_request', {
+    p_request_id: requestId,
+  });
+  if (error) throw error;
+}
+
+export async function respondToRequest(
+  requestId: string,
+  accept: boolean,
+): Promise<void> {
+  const { error } = await supabase.rpc('respond_to_round_request', {
+    p_request_id: requestId,
+    p_accept: accept,
+  });
+  if (error) throw error;
+}
+
+export async function getMyRequestForRound(
+  roundId: string,
+  userId: string,
+): Promise<MyRoundRequest | null> {
+  const { data, error } = await supabase
+    .from('round_requests')
+    .select('id, status, created_at, responded_at')
+    .eq('round_id', roundId)
+    .eq('requesting_user_id', userId)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as MyRoundRequest | null) ?? null;
+}
+
+export async function listRequestsForRound(
+  roundId: string,
+): Promise<PendingRequest[]> {
+  const { data, error } = await supabase.rpc('list_round_requests', {
+    p_round_id: roundId,
+  });
+  if (error) throw error;
+  return (data ?? []) as PendingRequest[];
+}

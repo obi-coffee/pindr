@@ -23,6 +23,9 @@ export type Candidate = {
   style_default: string | null;
   photo_urls: string[];
   distance_km: number | null;
+  upcoming_round_id: string | null;
+  upcoming_round_tee_time: string | null;
+  upcoming_round_course_name: string | null;
 };
 
 export async function fetchCandidates(

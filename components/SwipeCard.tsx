@@ -1,6 +1,7 @@
+import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
-import { Button, Card, Tag, Typography, useTheme } from './ui';
+import { Button, Card, Tag, Typography, radii, useTheme } from './ui';
 
 export type SwipeCardProps = {
   candidate: Candidate;
@@ -145,6 +146,16 @@ export function SwipeCard({
           </View>
         ) : null}
 
+        {candidate.upcoming_round_id &&
+        candidate.upcoming_round_tee_time &&
+        candidate.upcoming_round_course_name ? (
+          <OpenRoundBadge
+            roundId={candidate.upcoming_round_id}
+            teeTime={candidate.upcoming_round_tee_time}
+            courseName={candidate.upcoming_round_course_name}
+          />
+        ) : null}
+
         {candidate.bio && candidate.bio.trim() ? (
           <View style={{ marginBottom: 14 }}>
             <Typography
@@ -207,6 +218,53 @@ export function SwipeCard({
 function titleCase(s: string | null | undefined): string | null {
   if (!s) return null;
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+}
+
+function OpenRoundBadge({
+  roundId,
+  teeTime,
+  courseName,
+}: {
+  roundId: string;
+  teeTime: string;
+  courseName: string;
+}) {
+  const { colors } = useTheme();
+  const tee = new Date(teeTime);
+  const day = tee
+    .toLocaleDateString(undefined, { weekday: 'short' })
+    .toUpperCase();
+  const time = tee.toLocaleTimeString(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+  const courseUpper = courseName.toUpperCase();
+
+  return (
+    <Pressable
+      onPress={() => router.push(`/rounds/${roundId}` as never)}
+      hitSlop={6}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'flex-start',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: radii.pill,
+        borderWidth: 1,
+        borderColor: colors['stroke-strong'],
+        marginBottom: 14,
+        gap: 6,
+      }}
+    >
+      <Typography variant="card-stat-label" color="ink" numberOfLines={1}>
+        OPEN ROUND · {day} {time} · {courseUpper}
+      </Typography>
+      <Typography variant="card-stat-label" color="ink-subtle">
+        ›
+      </Typography>
+    </Pressable>
+  );
 }
 
 function buildTags(c: Candidate): TagSpec[] {

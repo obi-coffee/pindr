@@ -6,12 +6,13 @@ import {
   Alert,
   Pressable,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Typography, colors, radii } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { supabase } from '../../../lib/supabase';
+import { EditHeader } from './basics';
 
 type Fix = {
   latitude: number;
@@ -32,8 +33,8 @@ export default function EditLocation() {
       const perm = await Location.requestForegroundPermissionsAsync();
       if (!perm.granted) {
         Alert.alert(
-          'Location access needed',
-          'Enable location for Pindr in Settings.',
+          'location access needed',
+          'enable location for pindr in settings.',
         );
         return;
       }
@@ -42,7 +43,7 @@ export default function EditLocation() {
       });
       const { latitude, longitude } = pos.coords;
 
-      let city = 'Unknown area';
+      let city = 'unknown area';
       try {
         const reverse = await Location.reverseGeocodeAsync({
           latitude,
@@ -52,11 +53,12 @@ export default function EditLocation() {
         if (first) {
           city = [first.city, first.region].filter(Boolean).join(', ');
         }
-      } catch {}
-
+      } catch {
+        // Non-fatal.
+      }
       setFix({ latitude, longitude, city });
     } catch (err) {
-      Alert.alert('Could not get your location', (err as Error).message);
+      Alert.alert('could not get your location', (err as Error).message);
     } finally {
       setBusy(false);
     }
@@ -78,84 +80,92 @@ export default function EditLocation() {
       await refetchProfile();
       router.back();
     } catch (err) {
-      Alert.alert('Could not save', (err as Error).message);
+      Alert.alert('could not save', (err as Error).message);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <EditHeader
+        title="edit location"
+        onSave={fix ? onSave : undefined}
+        saving={busy && Boolean(fix)}
+      />
+
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
-        <Text className="mb-2 text-3xl font-bold text-slate-900">
-          Edit location
-        </Text>
         {currentCity ? (
-          <Text className="mb-6 text-base text-slate-500">
-            Current: {currentCity}
-          </Text>
-        ) : (
-          <Text className="mb-6 text-base text-slate-500">
-            Set your city-level location.
-          </Text>
-        )}
+          <Typography
+            variant="body"
+            color="ink-soft"
+            style={{ marginBottom: 20 }}
+          >
+            currently in{' '}
+            <Typography variant="body" color="ink">
+              {currentCity}
+            </Typography>
+            .
+          </Typography>
+        ) : null}
 
         {fix ? (
-          <View className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 p-4">
-            <Text className="text-sm font-medium text-slate-500">
-              New location
-            </Text>
-            <Text className="mt-1 text-xl font-semibold text-slate-900">
+          <View
+            style={{
+              marginBottom: 20,
+              padding: 16,
+              borderRadius: radii.md,
+              borderWidth: 1,
+              borderColor: colors['stroke-strong'],
+              backgroundColor: colors['paper-raised'],
+            }}
+          >
+            <Typography variant="caption" color="success">
+              new location
+            </Typography>
+            <Typography variant="h2" style={{ marginTop: 4 }}>
               {fix.city}
-            </Text>
+            </Typography>
           </View>
         ) : (
           <Pressable
             onPress={getLocation}
             disabled={busy}
-            className="mb-4 items-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 py-6 active:opacity-70"
+            style={{
+              paddingVertical: 24,
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: radii.md,
+              borderWidth: 1,
+              borderStyle: 'dashed',
+              borderColor: colors['stroke-strong'],
+              backgroundColor: colors['paper-raised'],
+            }}
           >
             {busy ? (
-              <ActivityIndicator color="#059669" />
+              <ActivityIndicator color={colors.ink} />
             ) : (
-              <Text className="text-base font-semibold text-slate-700">
-                Use my current location
-              </Text>
+              <Typography variant="body-lg" style={{ fontWeight: '600' }}>
+                use my current location
+              </Typography>
             )}
           </Pressable>
         )}
 
-        <Pressable
-          onPress={onSave}
-          disabled={!fix || busy}
-          className={`mt-2 items-center rounded-lg py-3 ${
-            !fix || busy
-              ? 'bg-emerald-300'
-              : 'bg-emerald-600 active:opacity-80'
-          }`}
-        >
-          <Text className="text-base font-semibold text-white">
-            {busy ? 'Saving…' : 'Save'}
-          </Text>
-        </Pressable>
-
         {fix ? (
           <Pressable
             onPress={() => setFix(null)}
-            className="mt-4 items-center py-2 active:opacity-70"
+            hitSlop={8}
+            style={{ alignSelf: 'center', marginTop: 16, paddingVertical: 8 }}
           >
-            <Text className="text-sm font-medium text-slate-500">
-              Try again
-            </Text>
+            <Typography variant="caption" color="ink-subtle">
+              try again
+            </Typography>
           </Pressable>
         ) : null}
-
-        <Pressable
-          onPress={() => router.back()}
-          className="mt-4 items-center py-2 active:opacity-70"
-        >
-          <Text className="text-sm font-medium text-slate-500">Cancel</Text>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );

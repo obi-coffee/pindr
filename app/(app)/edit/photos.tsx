@@ -1,4 +1,3 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -6,16 +5,17 @@ import {
   Image,
   Pressable,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Typography, colors, radii } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   deletePhoto,
   pickAndUploadPhoto,
 } from '../../../lib/profile/photos';
 import { supabase } from '../../../lib/supabase';
+import { EditHeader } from './basics';
 
 const MAX_PHOTOS = 6;
 
@@ -46,24 +46,24 @@ export default function EditPhotos() {
         await savePhotoUrls([...urls, result.url]);
       } else if (result.status === 'permission_denied') {
         Alert.alert(
-          'Photo access needed',
-          'Enable Photos access for Pindr in Settings to add photos.',
+          'photo access needed',
+          'enable photos for pindr in settings to add them here.',
         );
       } else if (result.status === 'error') {
-        Alert.alert('Upload failed', result.message);
+        Alert.alert('upload failed', result.message);
       }
     } catch (err) {
-      Alert.alert('Upload failed', (err as Error).message);
+      Alert.alert('upload failed', (err as Error).message);
     } finally {
       setUploading(false);
     }
   };
 
   const removePhoto = (url: string) => {
-    Alert.alert('Remove photo?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert('remove photo?', undefined, [
+      { text: 'cancel', style: 'cancel' },
       {
-        text: 'Remove',
+        text: 'remove',
         style: 'destructive',
         onPress: async () => {
           try {
@@ -71,7 +71,7 @@ export default function EditPhotos() {
             await savePhotoUrls(next);
             await deletePhoto(url);
           } catch (err) {
-            Alert.alert('Could not remove', (err as Error).message);
+            Alert.alert('could not remove', (err as Error).message);
           }
         },
       },
@@ -79,16 +79,13 @@ export default function EditPhotos() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <EditHeader title="edit photos" />
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
-        <Text className="mb-2 text-3xl font-bold text-slate-900">
-          Edit photos
-        </Text>
-        <Text className="mb-6 text-base text-slate-500">
-          Add, remove, or reorder (coming soon). The first photo is your main.
-        </Text>
-
-        <View className="flex-row flex-wrap" style={{ gap: 12 }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
           {slots.map((url, index) => (
             <PhotoSlot
               key={`${url ?? 'empty'}-${index}`}
@@ -101,18 +98,29 @@ export default function EditPhotos() {
         </View>
 
         {uploading ? (
-          <View className="mt-6 flex-row items-center justify-center">
-            <ActivityIndicator color="#059669" />
-            <Text className="ml-2 text-sm text-slate-500">Uploading…</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: 18,
+              gap: 8,
+            }}
+          >
+            <ActivityIndicator color={colors.ink} />
+            <Typography variant="body-sm" color="ink-soft">
+              uploading…
+            </Typography>
           </View>
         ) : null}
 
-        <Pressable
-          onPress={() => router.back()}
-          className="mt-8 items-center rounded-lg bg-emerald-600 py-3 active:opacity-80"
+        <Typography
+          variant="body-sm"
+          color="ink-subtle"
+          style={{ textAlign: 'center', marginTop: 24 }}
         >
-          <Text className="text-base font-semibold text-white">Done</Text>
-        </Pressable>
+          photo changes save automatically.
+        </Typography>
       </ScrollView>
     </SafeAreaView>
   );
@@ -134,12 +142,32 @@ function PhotoSlot({
       <Pressable
         onPress={onRemove}
         disabled={disabled}
-        className="relative overflow-hidden rounded-lg bg-slate-100"
-        style={{ width: '31%', aspectRatio: 4 / 5 }}
+        style={{
+          width: '31%',
+          aspectRatio: 4 / 5,
+          borderRadius: radii.md,
+          overflow: 'hidden',
+          backgroundColor: colors['paper-raised'],
+          position: 'relative',
+        }}
       >
         <Image source={{ uri: url }} style={{ flex: 1 }} resizeMode="cover" />
-        <View className="absolute right-1 top-1 h-6 w-6 items-center justify-center rounded-full bg-black/60">
-          <Text className="text-white">×</Text>
+        <View
+          style={{
+            position: 'absolute',
+            top: 6,
+            right: 6,
+            width: 22,
+            height: 22,
+            borderRadius: 999,
+            backgroundColor: colors.ink,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="caption" color="paper-high">
+            ×
+          </Typography>
         </View>
       </Pressable>
     );
@@ -148,10 +176,21 @@ function PhotoSlot({
     <Pressable
       onPress={onAdd}
       disabled={disabled}
-      className="items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 active:opacity-70"
-      style={{ width: '31%', aspectRatio: 4 / 5 }}
+      style={{
+        width: '31%',
+        aspectRatio: 4 / 5,
+        borderRadius: radii.md,
+        borderWidth: 1,
+        borderStyle: 'dashed',
+        borderColor: colors['stroke-strong'],
+        backgroundColor: colors['paper-raised'],
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
     >
-      <Text className="text-3xl text-slate-400">+</Text>
+      <Typography variant="display-lg" color="ink-subtle">
+        +
+      </Typography>
     </Pressable>
   );
 }

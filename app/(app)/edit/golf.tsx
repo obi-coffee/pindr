@@ -5,17 +5,16 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   Switch,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Field } from '../../../components/form';
+import { Input, Typography, colors } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { golfSchema, type GolfInput } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
+import { EditHeader } from './basics';
 
 export default function EditGolf() {
   const { user, profile, refetchProfile } = useAuth();
@@ -50,7 +49,7 @@ export default function EditGolf() {
       })
       .eq('user_id', user.id);
     if (error) {
-      Alert.alert('Could not save', error.message);
+      Alert.alert('could not save', error.message);
       return;
     }
     await refetchProfile();
@@ -58,34 +57,51 @@ export default function EditGolf() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1"
+        style={{ flex: 1 }}
       >
+        <EditHeader
+          title="edit golf"
+          onSave={handleSubmit(onSubmit)}
+          saving={isSubmitting}
+        />
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Text className="mb-6 text-3xl font-bold text-slate-900">
-            Edit golf
-          </Text>
-
           <Controller
             control={control}
             name="has_handicap"
             render={({ field: { value, onChange } }) => (
-              <View className="mb-4 flex-row items-center justify-between">
-                <View className="flex-1 pr-4">
-                  <Text className="text-sm font-medium text-slate-700">
-                    I have a handicap
-                  </Text>
-                </View>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 14,
+                  borderTopWidth: 1,
+                  borderBottomWidth: 1,
+                  borderColor: colors.stroke,
+                  marginBottom: 16,
+                }}
+              >
+                <Typography variant="body-lg" style={{ flex: 1 }}>
+                  I have a handicap
+                </Typography>
                 <Switch
                   value={value}
                   onValueChange={(v) => {
                     onChange(v);
                     if (!v) setValue('handicap', undefined);
+                  }}
+                  trackColor={{
+                    false: colors['stroke-strong'],
+                    true: colors.ink,
                   }}
                 />
               </View>
@@ -97,11 +113,13 @@ export default function EditGolf() {
               control={control}
               name="handicap"
               render={({ field: { value, onChange, onBlur } }) => (
-                <Field
+                <Input
                   label="Handicap index"
                   error={errors.handicap?.message}
                   value={
-                    value === undefined || Number.isNaN(value) ? '' : String(value)
+                    value === undefined || Number.isNaN(value)
+                      ? ''
+                      : String(value)
                   }
                   onChangeText={(t) => {
                     if (t === '') return onChange(undefined);
@@ -119,11 +137,13 @@ export default function EditGolf() {
             control={control}
             name="years_playing"
             render={({ field: { value, onChange, onBlur } }) => (
-              <Field
+              <Input
                 label="Years playing"
                 error={errors.years_playing?.message}
                 value={
-                  value === undefined || Number.isNaN(value) ? '' : String(value)
+                  value === undefined || Number.isNaN(value)
+                    ? ''
+                    : String(value)
                 }
                 onChangeText={(t) => {
                   if (t === '') return onChange(undefined);
@@ -140,7 +160,7 @@ export default function EditGolf() {
             control={control}
             name="home_course_name"
             render={({ field: { value, onChange, onBlur } }) => (
-              <Field
+              <Input
                 label="Home course"
                 error={errors.home_course_name?.message}
                 value={value ?? ''}
@@ -149,25 +169,6 @@ export default function EditGolf() {
               />
             )}
           />
-
-          <Pressable
-            onPress={handleSubmit(onSubmit)}
-            disabled={isSubmitting}
-            className={`mt-2 items-center rounded-lg py-3 ${
-              isSubmitting ? 'bg-emerald-300' : 'bg-emerald-600 active:opacity-80'
-            }`}
-          >
-            <Text className="text-base font-semibold text-white">
-              {isSubmitting ? 'Saving…' : 'Save'}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => router.back()}
-            className="mt-4 items-center py-2 active:opacity-70"
-          >
-            <Text className="text-sm font-medium text-slate-500">Cancel</Text>
-          </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

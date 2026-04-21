@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import {
   Button,
   ChipSelect,
@@ -88,6 +89,7 @@ export default function Interests() {
       edges={['top']}
     >
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+        <BrandMark />
         <Typography
           variant="caption"
           color="ink-soft"

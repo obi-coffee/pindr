@@ -26,7 +26,7 @@ export function PindrLogo({ height = 32, withTagline = false }: PindrLogoProps) 
   const { colors } = useTheme();
   const width = height * (420 / 160);
   return (
-    <View style={{ alignItems: 'flex-start' }}>
+    <View style={{ alignItems: withTagline ? 'center' : 'flex-start' }}>
       <SvgXml
         xml={WORDMARK_SVG}
         width={width}
@@ -41,6 +41,7 @@ export function PindrLogo({ height = 32, withTagline = false }: PindrLogoProps) 
             fontFamily: fontFamilyFor('500'),
             fontSize: height * 0.32,
             letterSpacing: 0.5,
+            textAlign: 'center',
           }}
         >
           Match. Play.

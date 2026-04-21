@@ -48,12 +48,12 @@ export const darkColors: Record<keyof typeof lightColors, string> = {
   taupe: '#C2A090',
   clay: '#D68E77',
 
-  mustard: '#E8BE63',
+  mustard: '#B8984F',
   burgundy: '#D27179',
   stone: '#3A423B',
 
   success: '#7AB089',
-  warning: '#E8BE63',
+  warning: '#B8984F',
   danger: '#D27179',
 
   stroke: '#2E352F',

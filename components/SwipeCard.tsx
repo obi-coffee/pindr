@@ -1,7 +1,15 @@
 import { router } from 'expo-router';
 import { Pressable, View } from 'react-native';
 import type { Candidate } from '../lib/discover/queries';
-import { Button, Card, Tag, Typography, radii, useTheme } from './ui';
+import {
+  Button,
+  Card,
+  Tag,
+  Typography,
+  lightColors,
+  radii,
+  useTheme,
+} from './ui';
 
 export type SwipeCardProps = {
   candidate: Candidate;
@@ -251,16 +259,19 @@ function OpenRoundBadge({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: radii.pill,
-        borderWidth: 1,
-        borderColor: colors['stroke-strong'],
+        backgroundColor: colors.mustard,
         marginBottom: 14,
         gap: 6,
       }}
     >
-      <Typography variant="card-stat-label" color="ink" numberOfLines={1}>
+      <Typography
+        variant="card-stat-label"
+        numberOfLines={1}
+        style={{ color: lightColors.ink }}
+      >
         OPEN ROUND · {day} {time} · {courseUpper}
       </Typography>
-      <Typography variant="card-stat-label" color="ink-subtle">
+      <Typography variant="card-stat-label" style={{ color: lightColors.ink }}>
         ›
       </Typography>
     </Pressable>

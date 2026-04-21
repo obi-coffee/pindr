@@ -12,6 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { signUpSchema, type SignUpInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
@@ -64,22 +65,16 @@ export default function SignUp() {
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
-          <Typography
-            variant="caption"
-            color="ink-soft"
-            style={{ marginBottom: 10, marginTop: 12 }}
-          >
-            pindr
-          </Typography>
+          <BrandMark />
           <Typography variant="display-lg" style={{ marginBottom: 12 }}>
-            find your{'\n'}foursome.
+            find your four, or three, or one.
           </Typography>
           <Typography
             variant="body-lg"
             color="ink-soft"
             style={{ marginBottom: 28 }}
           >
-            first-timers to straight-up ringers. everyone belongs.
+            first time, just curious, caught the bug, or lifelong ringer — everyone is welcome.
           </Typography>
 
           <Controller

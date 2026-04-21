@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import { Button, PlusIcon, Typography, radii, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import { deletePhoto, pickAndUploadPhoto } from '../../lib/profile/photos';
@@ -93,6 +94,7 @@ export default function Photos() {
       edges={['top']}
     >
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+        <BrandMark />
         <Typography
           variant="caption"
           color="ink-soft"

@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BrandMark } from '../../components/BrandMark';
 import {
   Button,
   ChipSelect,
@@ -117,6 +118,7 @@ export default function Style() {
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
         >
+          <BrandMark />
           <Typography
             variant="caption"
             color="ink-soft"

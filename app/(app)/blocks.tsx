@@ -6,10 +6,10 @@ import {
   FlatList,
   Image,
   Pressable,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Button, Typography, colors } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import {
   fetchBlockedProfiles,
@@ -43,19 +43,19 @@ export default function Blocks() {
 
   const confirmUnblock = (target: BlockedProfile) => {
     Alert.alert(
-      `Unblock ${target.display_name ?? 'this user'}?`,
-      "They'll be able to see you in Discover again.",
+      `unblock ${target.display_name ?? 'this user'}?`,
+      "they'll be able to see you in discover again.",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: 'cancel', style: 'cancel' },
         {
-          text: 'Unblock',
+          text: 'unblock',
           onPress: async () => {
             if (!user) return;
             try {
               await unblockUser(user.id, target.blocked_id);
               await load();
             } catch (err) {
-              Alert.alert('Could not unblock', (err as Error).message);
+              Alert.alert('could not unblock', (err as Error).message);
             }
           },
         },
@@ -64,69 +64,145 @@ export default function Blocks() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="flex-row items-center border-b border-slate-100 px-4 py-2">
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 16,
+          paddingVertical: 10,
+          borderBottomWidth: 1,
+          borderBottomColor: colors.stroke,
+        }}
+      >
         <Pressable
           onPress={() => router.back()}
-          className="mr-2 h-9 w-9 items-center justify-center active:opacity-70"
+          hitSlop={8}
+          style={{
+            height: 36,
+            width: 36,
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
         >
-          <Text className="text-2xl text-slate-700">‹</Text>
+          <Typography variant="h2" color="ink">
+            ‹
+          </Typography>
         </Pressable>
-        <Text className="text-base font-semibold text-slate-900">
-          Blocked users
-        </Text>
+        <Typography variant="caption" color="ink">
+          blocked
+        </Typography>
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#059669" />
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <ActivityIndicator color={colors.ink} />
         </View>
       ) : error ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-center text-sm text-red-500">{error}</Text>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 32,
+          }}
+        >
+          <Typography
+            variant="body"
+            color="burgundy"
+            style={{ textAlign: 'center' }}
+          >
+            {error}
+          </Typography>
         </View>
       ) : (
         <FlatList
           data={blocks}
           keyExtractor={(b) => b.blocked_id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingBottom: 32 }}
           ListEmptyComponent={() => (
-            <View className="mt-24 items-center px-8">
-              <Text className="text-4xl">🌱</Text>
-              <Text className="mt-4 text-center text-base text-slate-600">
-                You haven't blocked anyone.
-              </Text>
+            <View
+              style={{
+                marginTop: 80,
+                alignItems: 'center',
+                paddingHorizontal: 32,
+              }}
+            >
+              <Typography
+                variant="display-lg"
+                style={{ textAlign: 'center' }}
+              >
+                nobody{'\n'}blocked.
+              </Typography>
+              <View style={{ height: 12 }} />
+              <Typography
+                variant="body"
+                color="ink-soft"
+                style={{ textAlign: 'center' }}
+              >
+                if anyone gets out of pocket, you can block from their card
+                or chat.
+              </Typography>
             </View>
           )}
           renderItem={({ item }) => (
-            <View className="flex-row items-center rounded-xl border border-slate-100 bg-white p-3">
-              <View className="mr-3 h-12 w-12 overflow-hidden rounded-full bg-slate-100">
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                paddingHorizontal: 20,
+                paddingVertical: 14,
+              }}
+            >
+              <View
+                style={{
+                  width: 48,
+                  height: 48,
+                  borderRadius: 999,
+                  overflow: 'hidden',
+                  backgroundColor: colors['paper-raised'],
+                  marginRight: 12,
+                }}
+              >
                 {item.photo_url ? (
                   <Image
                     source={{ uri: item.photo_url }}
                     style={{ flex: 1 }}
                     resizeMode="cover"
                   />
-                ) : (
-                  <View className="flex-1 items-center justify-center">
-                    <Text>⛳</Text>
-                  </View>
-                )}
+                ) : null}
               </View>
-              <Text className="flex-1 text-base font-medium text-slate-900">
-                {item.display_name ?? 'Blocked user'}
-              </Text>
-              <Pressable
-                onPress={() => confirmUnblock(item)}
-                className="rounded-lg border border-slate-300 px-3 py-1 active:opacity-70"
+              <Typography
+                variant="body-lg"
+                style={{ flex: 1, fontWeight: '500' }}
               >
-                <Text className="text-sm font-medium text-slate-700">
-                  Unblock
-                </Text>
-              </Pressable>
+                {item.display_name ?? 'Blocked user'}
+              </Typography>
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={() => confirmUnblock(item)}
+              >
+                Unblock
+              </Button>
             </View>
           )}
-          ItemSeparatorComponent={() => <View className="h-2" />}
+          ItemSeparatorComponent={() => (
+            <View
+              style={{
+                height: 1,
+                backgroundColor: colors.stroke,
+                marginLeft: 80,
+                marginRight: 20,
+              }}
+            />
+          )}
         />
       )}
     </SafeAreaView>

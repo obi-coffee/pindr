@@ -20,9 +20,9 @@ function PillLabel({
   return (
     <View
       style={{
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 16,
+        paddingHorizontal: 6,
+        paddingVertical: 6,
+        borderRadius: 12,
         backgroundColor: focused ? activeBg : 'transparent',
         alignSelf: 'center',
         shadowColor: colors.ink,
@@ -60,6 +60,7 @@ export default function TabsLayout() {
           height: 88,
           paddingTop: 0,
           paddingBottom: 0,
+          paddingHorizontal: 16,
           elevation: 0,
         },
         tabBarBackground: () => (

@@ -146,10 +146,10 @@ export const typography = {
     textTransform: 'uppercase',
   },
   h1: {
-    fontSize: 32,
-    lineHeight: 36,
+    fontSize: 30,
+    lineHeight: 34,
     fontWeight: '500',
-    letterSpacing: -0.32,
+    letterSpacing: -0.3,
   },
   h2: {
     fontSize: 24,

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
-import { ChipSelect, Typography, useTheme } from './ui';
+import { ChipSelect, Typography } from './ui';
 import { CoursePickerModal } from './CoursePickerModal';
 import type { CourseSummary } from '../lib/rounds/queries';
 
@@ -23,15 +23,13 @@ const PRESET_OPTIONS: { value: DatePreset; label: string }[] = [
 ];
 
 export function RoundsFilterBar({ value, onChange }: RoundsFilterBarProps) {
-  const { colors } = useTheme();
   const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <View
       style={{
+        paddingTop: 8,
         paddingBottom: 10,
-        borderBottomWidth: 1,
-        borderColor: colors.stroke,
       }}
     >
       <ScrollView

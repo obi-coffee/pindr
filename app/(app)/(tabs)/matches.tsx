@@ -6,13 +6,15 @@ import {
   Image,
   Pressable,
   RefreshControl,
-  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Typography, colors } from '../../../components/ui';
+import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
 
 export default function Matches() {
+  const { user } = useAuth();
   const [matches, setMatches] = useState<MatchSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -40,102 +42,202 @@ export default function Matches() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white" edges={['top']}>
-      <View className="px-6 pb-2 pt-2">
-        <Text className="text-3xl font-bold text-slate-900">Matches</Text>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: colors.paper }}
+      edges={['top']}
+    >
+      <View style={{ paddingHorizontal: 20, paddingTop: 6, paddingBottom: 12 }}>
+        <Typography variant="h1">matches</Typography>
       </View>
 
       {loading && !refreshing ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#059669" />
+        <View
+          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+        >
+          <ActivityIndicator color={colors.ink} />
         </View>
       ) : error ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <Text className="text-center text-sm text-red-500">{error}</Text>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 32,
+          }}
+        >
+          <Typography
+            variant="body"
+            color="burgundy"
+            style={{ textAlign: 'center' }}
+          >
+            couldn't load your matches. check your signal and try again?
+          </Typography>
         </View>
       ) : (
         <FlatList
           data={matches}
           keyExtractor={(item) => item.match_id}
-          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+          contentContainerStyle={{ paddingBottom: 32 }}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
               onRefresh={() => load(true)}
-              tintColor="#059669"
+              tintColor={colors.ink}
             />
           }
           ListEmptyComponent={() => (
-            <View className="mt-24 items-center px-8">
-              <Text className="text-5xl">💬</Text>
-              <Text className="mt-4 text-center text-base text-slate-600">
-                No matches yet.
-              </Text>
-              <Text className="mt-1 text-center text-sm text-slate-400">
-                Swipe right on Discover to build your list.
-              </Text>
+            <View
+              style={{
+                marginTop: 80,
+                alignItems: 'center',
+                paddingHorizontal: 32,
+              }}
+            >
+              <Typography
+                variant="display-lg"
+                style={{ textAlign: 'center' }}
+              >
+                nobody{'\n'}locked in yet.
+              </Typography>
+              <View style={{ height: 12 }} />
+              <Typography
+                variant="body"
+                color="ink-soft"
+                style={{ textAlign: 'center' }}
+              >
+                lock in on someone from discover and they'll land here.
+              </Typography>
             </View>
           )}
-          renderItem={({ item }) => <MatchRow match={item} />}
-          ItemSeparatorComponent={() => <View className="h-px bg-slate-100" />}
+          renderItem={({ item }) => (
+            <MatchRow match={item} myUserId={user?.id ?? null} />
+          )}
+          ItemSeparatorComponent={() => (
+            <View
+              style={{
+                height: 1,
+                backgroundColor: colors.stroke,
+                marginLeft: 90,
+                marginRight: 20,
+              }}
+            />
+          )}
         />
       )}
     </SafeAreaView>
   );
 }
 
-function MatchRow({ match }: { match: MatchSummary }) {
-  const preview = match.last_message
-    ? match.last_message
-    : 'Say hi to start the conversation.';
-
-  const previewStyle = match.last_message
-    ? 'text-sm text-slate-600'
-    : 'text-sm italic text-slate-400';
+function MatchRow({
+  match,
+  myUserId,
+}: {
+  match: MatchSummary;
+  myUserId: string | null;
+}) {
+  const hasMessage = Boolean(match.last_message);
+  const mine =
+    hasMessage && match.last_message_sender_id === myUserId;
+  const previewText = hasMessage
+    ? mine
+      ? `you: ${match.last_message}`
+      : match.last_message!
+    : 'say hi to start the conversation.';
 
   return (
     <Pressable
       onPress={() => router.push(`/chat/${match.match_id}` as never)}
-      className="flex-row items-center rounded-xl bg-white p-3 active:bg-slate-50"
+      android_ripple={{ color: colors['paper-raised'] }}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 14,
+      }}
     >
-      <View className="mr-3 h-14 w-14 overflow-hidden rounded-full bg-slate-100">
+      <View
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 999,
+          overflow: 'hidden',
+          backgroundColor: colors['paper-raised'],
+          marginRight: 14,
+        }}
+      >
         {match.other_photo_url ? (
           <Image
             source={{ uri: match.other_photo_url }}
             style={{ flex: 1 }}
             resizeMode="cover"
           />
-        ) : (
-          <View className="flex-1 items-center justify-center">
-            <Text className="text-xl">⛳</Text>
-          </View>
-        )}
+        ) : null}
       </View>
 
-      <View className="flex-1">
-        <Text className="text-base font-semibold text-slate-900">
-          {match.other_display_name ?? 'Unnamed'}
-        </Text>
-        <Text className={previewStyle} numberOfLines={1}>
-          {preview}
-        </Text>
-      </View>
+      <View style={{ flex: 1 }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'baseline',
+            justifyContent: 'space-between',
+            marginBottom: 3,
+          }}
+        >
+          <Typography variant="h3" style={{ flex: 1, marginRight: 8 }}>
+            {match.other_display_name ?? 'Unnamed'}
+          </Typography>
+          {match.last_message_at ? (
+            <Typography variant="caption" color="ink-subtle">
+              {formatRelative(match.last_message_at)}
+            </Typography>
+          ) : null}
+        </View>
 
-      <View className="ml-2 items-end">
-        {match.last_message_at ? (
-          <Text className="text-[11px] text-slate-400">
-            {formatRelative(match.last_message_at)}
-          </Text>
-        ) : null}
-        {match.unread_count > 0 ? (
-          <View className="mt-1 min-w-[20px] items-center rounded-full bg-emerald-600 px-2 py-0.5">
-            <Text className="text-[10px] font-bold text-white">
-              {match.unread_count}
-            </Text>
-          </View>
-        ) : null}
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Typography
+            variant="body"
+            color={hasMessage ? 'ink-soft' : 'ink-subtle'}
+            numberOfLines={1}
+            style={{
+              flex: 1,
+              marginRight: 8,
+              fontStyle: hasMessage ? 'normal' : 'normal',
+            }}
+          >
+            {previewText}
+          </Typography>
+          {match.unread_count > 0 ? (
+            <UnreadBadge count={match.unread_count} />
+          ) : null}
+        </View>
       </View>
     </Pressable>
+  );
+}
+
+function UnreadBadge({ count }: { count: number }) {
+  return (
+    <View
+      style={{
+        minWidth: 20,
+        height: 20,
+        paddingHorizontal: 6,
+        borderRadius: 999,
+        backgroundColor: colors.ink,
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Typography variant="caption" color="paper-high">
+        {count > 99 ? '99+' : String(count)}
+      </Typography>
+    </View>
   );
 }
 

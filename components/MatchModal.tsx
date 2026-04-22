@@ -214,12 +214,12 @@ export function MatchModal({
 
         <View style={{ gap: 12 }}>
           <Animated.View style={primaryStyle}>
-            <Button variant="primary" size="lg" fullWidth onPress={onSayHi}>
+            <Button variant="paper" size="lg" fullWidth onPress={onSayHi}>
               say hi
             </Button>
           </Animated.View>
           <Animated.View style={ghostStyle}>
-            <Button variant="ghost" size="lg" fullWidth onPress={onKeepSwiping}>
+            <Button variant="mustard" size="lg" fullWidth onPress={onKeepSwiping}>
               keep swiping
             </Button>
           </Animated.View>

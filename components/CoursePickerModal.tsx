@@ -71,16 +71,19 @@ export function CoursePickerModal({
             alignItems: 'center',
             justifyContent: 'space-between',
             paddingHorizontal: 20,
-            paddingTop: 6,
+            paddingTop: 28,
             paddingBottom: 12,
           }}
         >
-          <Typography variant="h2">pick a course</Typography>
-          <Pressable hitSlop={12} onPress={onClose}>
-            <Typography variant="caption" color="ink">
-              close
+          <Pressable hitSlop={8} onPress={onClose}>
+            <Typography variant="caption" color="ink-soft">
+              cancel
             </Typography>
           </Pressable>
+          <Typography variant="caption" color="ink">
+            pick a course
+          </Typography>
+          <View style={{ minWidth: 48 }} />
         </View>
 
         <View style={{ paddingHorizontal: 20, marginBottom: 12 }}>

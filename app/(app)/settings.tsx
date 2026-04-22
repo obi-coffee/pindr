@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { Pressable, ScrollView, Switch, View } from 'react-native';
+import { Pressable, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReducedMotion } from 'react-native-reanimated';
 import { Typography, useTheme } from '../../components/ui';
@@ -35,7 +35,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.paper }}
+      style={{ backgroundColor: colors.paper }}
       edges={['top', 'bottom']}
     >
       <View
@@ -59,7 +59,7 @@ export default function SettingsScreen() {
         <View style={{ minWidth: 48 }} />
       </View>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
+      <View style={{ paddingBottom: 24 }}>
         <SectionLabel>motion</SectionLabel>
         <SwitchRow
           label="haptics"
@@ -80,7 +80,7 @@ export default function SettingsScreen() {
         <Row label="community guidelines" href="/guidelines" />
         <Row label="blocked users" href="/blocks" />
         <Row label="sign out" onPress={handleSignOut} />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

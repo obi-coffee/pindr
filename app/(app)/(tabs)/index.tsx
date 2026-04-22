@@ -129,7 +129,14 @@ export default function Discover() {
         <PindrLogo height={35} />
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <HeaderPill
-            label={travel ? `✈ ${travel.city}` : 'Travel'}
+            label={
+              travel
+                ? // Use only the primary place name (before the first
+                  // comma) so pills like "Washington, District of Columbia"
+                  // don't push the Filters pill off-screen.
+                  `✈ ${travel.city.split(',')[0]}`
+                : 'Travel'
+            }
             highlighted={Boolean(travel)}
             onPress={() => router.push('/travel')}
           />

@@ -107,7 +107,7 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: colors.paper }}
+      style={{ backgroundColor: colors.paper }}
       edges={['top', 'bottom']}
     >
       <View

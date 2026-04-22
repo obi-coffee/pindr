@@ -1,6 +1,6 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useState } from 'react';
-import { Alert, Modal, Platform, Pressable, View } from 'react-native';
+import { Alert, Platform, Pressable, View } from 'react-native';
 import {
   Button,
   ChipSelect,
@@ -10,6 +10,7 @@ import {
   useTheme,
 } from './ui';
 import { CoursePickerModal } from './CoursePickerModal';
+import { DateTimeSheet } from './DateTimeSheet';
 import { dateToDisplay } from '../lib/format/date';
 import type {
   CourseSummary,
@@ -234,6 +235,7 @@ export function RoundForm({ initial, submitLabel, onSubmit }: RoundFormProps) {
           visible={dateOpen || timeOpen}
           mode={timeOpen ? 'time' : 'date'}
           value={teeTime}
+          minimumDate={timeOpen ? undefined : new Date()}
           onChange={(next) => {
             const merged = new Date(teeTime);
             if (timeOpen) {
@@ -292,68 +294,6 @@ export function RoundForm({ initial, submitLabel, onSubmit }: RoundFormProps) {
         </>
       )}
     </View>
-  );
-}
-
-function DateTimeSheet({
-  visible,
-  mode,
-  value,
-  onChange,
-  onClose,
-}: {
-  visible: boolean;
-  mode: 'date' | 'time';
-  value: Date;
-  onChange: (next: Date) => void;
-  onClose: () => void;
-}) {
-  const { colors, scheme } = useTheme();
-  return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <Pressable
-        onPress={onClose}
-        style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' }}
-      />
-      <View
-        style={{
-          backgroundColor: colors['paper-high'],
-          paddingHorizontal: 16,
-          paddingBottom: 28,
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'flex-end',
-            paddingVertical: 10,
-          }}
-        >
-          <Pressable hitSlop={12} onPress={onClose}>
-            <Typography variant="caption" color="ink">
-              done
-            </Typography>
-          </Pressable>
-        </View>
-        <DateTimePicker
-          mode={mode}
-          display={mode === 'date' ? 'inline' : 'spinner'}
-          value={value}
-          minimumDate={mode === 'date' ? new Date() : undefined}
-          onChange={(_, next) => {
-            if (next) onChange(next);
-          }}
-          themeVariant={scheme}
-        />
-      </View>
-    </Modal>
   );
 }
 

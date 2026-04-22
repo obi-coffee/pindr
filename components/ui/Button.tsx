@@ -9,7 +9,7 @@ import { PressableScale } from '../motion/PressableScale';
 import { useTheme } from './ThemeProvider';
 import { fontFamilyFor, lightColors, radii } from './theme';
 
-type Variant = 'primary' | 'ghost' | 'destructive' | 'mustard';
+type Variant = 'primary' | 'ghost' | 'destructive' | 'mustard' | 'paper';
 type Size = 'sm' | 'md' | 'lg';
 
 export type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -46,6 +46,7 @@ export function Button({
   const isDestructive = variant === 'destructive';
   const isGhost = variant === 'ghost';
   const isMustard = variant === 'mustard';
+  const isPaper = variant === 'paper';
 
   const background = isPrimary
     ? colors.ink
@@ -53,10 +54,12 @@ export function Button({
       ? colors.burgundy
       : isMustard
         ? colors.mustard
-        : 'transparent';
+        : isPaper
+          ? colors['paper-raised']
+          : 'transparent';
   const labelColor = isGhost
     ? colors.ink
-    : isMustard
+    : isMustard || isPaper
       ? lightColors.ink
       : colors['paper-high'];
   const borderWidth = isGhost ? 1 : 0;

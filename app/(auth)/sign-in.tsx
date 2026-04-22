@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, router } from 'expo-router';
+import { Link } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -105,16 +105,6 @@ export default function SignIn() {
           >
             Sign in
           </Button>
-
-          <Pressable
-            onPress={() => router.push('/phone' as never)}
-            hitSlop={8}
-            style={{ alignSelf: 'center', marginTop: 14, paddingVertical: 8 }}
-          >
-            <Typography variant="caption" color="ink-soft">
-              use phone instead
-            </Typography>
-          </Pressable>
 
           <View
             style={{

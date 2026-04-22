@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonChatList } from '../../../components/lists/SkeletonChatList';
+import { FadeIn } from '../../../components/motion/FadeIn';
 import {
   Typography,
   fontFamilyFor,
@@ -170,6 +171,7 @@ export default function ChatThread() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top', 'bottom']}
     >
+      <FadeIn style={{ flex: 1 }}>
       <View
         style={{
           flexDirection: 'row',
@@ -340,6 +342,7 @@ export default function ChatThread() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+      </FadeIn>
     </SafeAreaView>
   );
 }

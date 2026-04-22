@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonMatchesList } from '../../../components/lists/SkeletonMatchesList';
+import { FadeIn } from '../../../components/motion/FadeIn';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
@@ -81,6 +82,7 @@ export default function Matches() {
           </Typography>
         </View>
       ) : (
+        <FadeIn style={{ flex: 1 }}>
         <FlatList
           data={matches}
           keyExtractor={(item) => item.match_id}
@@ -130,6 +132,7 @@ export default function Matches() {
             />
           )}
         />
+        </FadeIn>
       )}
     </SafeAreaView>
   );

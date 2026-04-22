@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
 import { MatchModal } from '../../../components/MatchModal';
+import { FadeIn } from '../../../components/motion/FadeIn';
 import { SwipeCard } from '../../../components/SwipeCard';
 import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
@@ -183,7 +184,7 @@ export default function Discover() {
           </Typography>
         </View>
       ) : (
-        <View
+        <FadeIn
           style={{
             flex: 1,
             alignItems: 'center',
@@ -236,7 +237,7 @@ export default function Discover() {
               rotateOutputRange={[-Math.PI / 22.5, 0, Math.PI / 22.5]}
             />
           </View>
-        </View>
+        </FadeIn>
       )}
 
       <MatchModal

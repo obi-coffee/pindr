@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { FlatList, RefreshControl, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonRoundsList } from '../../../components/lists/SkeletonRoundsList';
+import { FadeIn } from '../../../components/motion/FadeIn';
 import { RoundListRow } from '../../../components/RoundListRow';
 import {
   RoundsFilterBar,
@@ -102,6 +103,7 @@ export default function Rounds() {
           </Typography>
         </View>
       ) : (
+        <FadeIn style={{ flex: 1 }}>
         <FlatList
           data={rounds}
           keyExtractor={(item) => item.id}
@@ -150,6 +152,7 @@ export default function Rounds() {
             />
           )}
         />
+        </FadeIn>
       )}
     </SafeAreaView>
   );

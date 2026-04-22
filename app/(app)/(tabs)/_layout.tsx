@@ -4,8 +4,10 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import {
   TabIcon,
@@ -13,7 +15,7 @@ import {
   type Palette,
   type TabIconName,
 } from '../../../components/ui';
-import { spring } from '../../../lib/motion';
+import { duration, spring } from '../../../lib/motion';
 
 // Focus-state transition lives here instead of the plan's 2px underline:
 // the floating pill tab bar from Phase 5b already is the active
@@ -35,11 +37,14 @@ function PillIcon({
   const activeBg = isDark
     ? 'rgba(245,239,226,0.14)'
     : 'rgba(251,249,243,0.9)';
+  const reduced = useReducedMotion();
   const progress = useSharedValue(focused ? 1 : 0);
 
   useEffect(() => {
-    progress.value = withSpring(focused ? 1 : 0, spring.settle);
-  }, [focused, progress]);
+    progress.value = reduced
+      ? withTiming(focused ? 1 : 0, { duration: duration.fast })
+      : withSpring(focused ? 1 : 0, spring.settle);
+  }, [focused, reduced, progress]);
 
   const pillStyle = useAnimatedStyle(() => ({
     opacity: progress.value,

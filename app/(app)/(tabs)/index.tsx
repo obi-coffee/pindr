@@ -6,6 +6,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useReducedMotion } from 'react-native-reanimated';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
 import { MatchModal } from '../../../components/MatchModal';
@@ -41,6 +42,7 @@ export default function Discover() {
   const swiperRef = useRef<SwiperCardRefType>(null);
   const haptics = useHaptics();
   const { show: showToast } = useToast();
+  const reducedMotion = useReducedMotion();
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [travel, setTravel] = useState<TravelSession | null>(null);
@@ -250,9 +252,15 @@ export default function Discover() {
               inputOverlayLabelLeftOpacityRange={[0, -cardWidth * 0.4]}
               outputOverlayLabelLeftOpacityRange={[0, 1]}
               // Library applies rotate in RADIANS, not degrees. Cap at ±8°
-              // at screen edges per plan §4.1. 8° ≈ Math.PI / 22.5.
+              // at screen edges per plan §4.1. 8° ≈ Math.PI / 22.5. When
+              // Reduce Motion is on, zero out rotation per plan §5 — the
+              // card still translates linearly with the finger.
               rotateInputRange={[-width, 0, width]}
-              rotateOutputRange={[-Math.PI / 22.5, 0, Math.PI / 22.5]}
+              rotateOutputRange={
+                reducedMotion
+                  ? [0, 0, 0]
+                  : [-Math.PI / 22.5, 0, Math.PI / 22.5]
+              }
             />
           </View>
         </FadeIn>

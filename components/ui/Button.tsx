@@ -1,10 +1,11 @@
 import {
   ActivityIndicator,
-  Pressable,
   Text,
   type PressableProps,
   type ViewStyle,
 } from 'react-native';
+import { PressableFade } from '../motion/PressableFade';
+import { PressableScale } from '../motion/PressableScale';
 import { useTheme } from './ThemeProvider';
 import { fontFamilyFor, lightColors, radii } from './theme';
 
@@ -85,17 +86,33 @@ export function Button({
     fontFamily: fontFamilyFor(LABEL_WEIGHT),
   };
 
+  const content = loading ? (
+    <ActivityIndicator color={labelColor} size="small" />
+  ) : (
+    <Text style={labelStyle}>{children}</Text>
+  );
+
+  // Ghost buttons get the opacity-only fade. Everything else (primary,
+  // destructive, mustard) gets the scale+opacity press + haptic.
+  if (isGhost) {
+    return (
+      <PressableFade
+        {...rest}
+        disabled={disabled || loading}
+        style={[containerStyle, style]}
+      >
+        {content}
+      </PressableFade>
+    );
+  }
+
   return (
-    <Pressable
+    <PressableScale
       {...rest}
       disabled={disabled || loading}
       style={[containerStyle, style]}
     >
-      {loading ? (
-        <ActivityIndicator color={labelColor} size="small" />
-      ) : (
-        <Text style={labelStyle}>{children}</Text>
-      )}
-    </Pressable>
+      {content}
+    </PressableScale>
   );
 }

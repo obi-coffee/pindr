@@ -1,13 +1,24 @@
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   TabIcon,
   useTheme,
   type Palette,
   type TabIconName,
 } from '../../../components/ui';
+import { duration } from '../../../lib/motion';
 
+// Focus-state transition lives here instead of the plan's 2px underline:
+// the floating pill tab bar from Phase 5b already is the active
+// indicator. All we change is how it *arrives* — background opacity +
+// icon color cross-fade over duration.fast when focus changes.
 function PillIcon({
   name,
   focused,
@@ -22,26 +33,58 @@ function PillIcon({
   const activeBg = isDark
     ? 'rgba(245,239,226,0.14)'
     : 'rgba(251,249,243,0.9)';
+  const progress = useSharedValue(focused ? 1 : 0);
+
+  useEffect(() => {
+    progress.value = withTiming(focused ? 1 : 0, { duration: duration.fast });
+  }, [focused, progress]);
+
+  const pillStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+
+  const iconStyle = useAnimatedStyle(() => ({
+    opacity: progress.value,
+  }));
+  const inactiveIconStyle = useAnimatedStyle(() => ({
+    opacity: 1 - progress.value,
+  }));
+
   return (
     <View
       style={{
         width: 44,
         height: 44,
         borderRadius: 22,
-        backgroundColor: focused ? activeBg : 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
-        shadowColor: colors.ink,
-        shadowOpacity: focused && !isDark ? 0.06 : 0,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 1 },
       }}
     >
-      <TabIcon
-        name={name}
-        color={focused ? colors.ink : colors['ink-soft']}
-        size={34}
+      <Animated.View
+        pointerEvents="none"
+        style={[
+          {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            borderRadius: 22,
+            backgroundColor: activeBg,
+            shadowColor: colors.ink,
+            shadowOpacity: isDark ? 0 : 0.06,
+            shadowRadius: 4,
+            shadowOffset: { width: 0, height: 1 },
+          },
+          pillStyle,
+        ]}
       />
+      <Animated.View style={[{ position: 'absolute' }, inactiveIconStyle]}>
+        <TabIcon name={name} color={colors['ink-soft']} size={34} />
+      </Animated.View>
+      <Animated.View style={iconStyle}>
+        <TabIcon name={name} color={colors.ink} size={34} />
+      </Animated.View>
     </View>
   );
 }

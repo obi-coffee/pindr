@@ -1,9 +1,5 @@
-import {
-  Pressable,
-  Text,
-  type PressableProps,
-  type ViewStyle,
-} from 'react-native';
+import { type PressableProps, type ViewStyle } from 'react-native';
+import { AnimatedChip } from '../motion/AnimatedChip';
 import { useTheme } from './ThemeProvider';
 import { fontFamilyFor, radii } from './theme';
 
@@ -29,35 +25,38 @@ export function ChipSelect({
 }: ChipSelectProps) {
   const { colors } = useTheme();
   const fontSize = FONT_SIZE[size];
+
   return (
-    <Pressable
+    <AnimatedChip
       {...rest}
-      style={[
+      selected={selected}
+      palette={{
+        unselectedBg: 'transparent',
+        unselectedBorder: colors['stroke-strong'],
+        unselectedText: colors.ink,
+        selectedBg: colors.ink,
+        selectedBorder: colors.ink,
+        selectedText: colors['paper-high'],
+      }}
+      containerStyle={[
         {
-          backgroundColor: selected ? colors.ink : 'transparent',
           borderRadius: radii.pill,
-          borderWidth: 1,
-          borderColor: selected ? colors.ink : colors['stroke-strong'],
           paddingHorizontal: PADDING_H[size],
           paddingVertical: PADDING_V[size],
           alignSelf: 'flex-start',
         },
         style,
       ]}
+      textStyle={{
+        fontSize,
+        lineHeight: fontSize * 1.2,
+        fontWeight: '600',
+        letterSpacing: fontSize * 0.08,
+        textTransform: 'uppercase',
+        fontFamily: fontFamilyFor('600'),
+      }}
     >
-      <Text
-        style={{
-          color: selected ? colors['paper-high'] : colors.ink,
-          fontSize,
-          lineHeight: fontSize * 1.2,
-          fontWeight: '600',
-          letterSpacing: fontSize * 0.08,
-          textTransform: 'uppercase',
-          fontFamily: fontFamilyFor('600'),
-        }}
-      >
-        {children}
-      </Text>
-    </Pressable>
+      {children}
+    </AnimatedChip>
   );
 }

@@ -8,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useToast } from '../../../components/motion/Toast';
 import { Button, PindrLogo, Tag, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
@@ -39,10 +40,16 @@ export default function RoundDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const { show: showToast } = useToast();
   const [round, setRound] = useState<RoundWithCourse | null>(null);
   const [myRequest, setMyRequest] = useState<MyRoundRequest | null>(null);
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const failToast = useCallback(
+    () => showToast("couldn't save that — mind trying again?", { variant: 'error' }),
+    [showToast],
+  );
 
   const load = useCallback(async () => {
     if (!id || !user) return;
@@ -68,6 +75,69 @@ export default function RoundDetail() {
     useCallback(() => {
       load();
     }, [load]),
+  );
+
+  // Optimistic request: flip myRequest to a synthetic pending row
+  // immediately. On success, onReload pulls the real row (which the
+  // server assigned a real id). On failure, revert + toast.
+  const handleRequest = useCallback(async () => {
+    if (!round || !user) return;
+    const prevMyRequest = myRequest;
+    const tempRequest: MyRoundRequest = {
+      id: `temp-${Date.now()}`,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      responded_at: null,
+    };
+    setMyRequest(tempRequest);
+    try {
+      await requestToJoinRound(round, user.id);
+      load();
+    } catch {
+      setMyRequest(prevMyRequest);
+      failToast();
+    }
+  }, [round, user, myRequest, load, failToast]);
+
+  // Optimistic withdraw: flip status locally, then reconcile via reload.
+  const handleWithdraw = useCallback(
+    async (requestId: string) => {
+      const prevMyRequest = myRequest;
+      setMyRequest((prev) =>
+        prev && prev.id === requestId ? { ...prev, status: 'withdrawn' } : prev,
+      );
+      try {
+        await withdrawRequest(requestId);
+        load();
+      } catch {
+        setMyRequest(prevMyRequest);
+        failToast();
+      }
+    },
+    [myRequest, load, failToast],
+  );
+
+  // Optimistic host response: update the request's status in the local
+  // list immediately. Reload reconciles; rollback on failure.
+  const handleRespond = useCallback(
+    async (requestId: string, accept: boolean) => {
+      const prevRequests = requests;
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === requestId
+            ? { ...r, status: accept ? 'accepted' : 'declined' }
+            : r,
+        ),
+      );
+      try {
+        await respondToRequest(requestId, accept);
+        load();
+      } catch {
+        setRequests(prevRequests);
+        failToast();
+      }
+    },
+    [requests, load, failToast],
   );
 
   if (loading) {
@@ -180,15 +250,15 @@ export default function RoundDetail() {
             round={round}
             pending={pendingRequests}
             other={otherRequests}
-            onReload={load}
+            onRespond={handleRespond}
             isCancellable={isCancellable}
           />
         ) : (
           <RequesterActions
             round={round}
             myRequest={myRequest}
-            userId={user.id}
-            onReload={load}
+            onRequest={handleRequest}
+            onWithdraw={handleWithdraw}
           />
         )}
       </ScrollView>
@@ -200,13 +270,13 @@ function HostActions({
   round,
   pending,
   other,
-  onReload,
+  onRespond,
   isCancellable,
 }: {
   round: RoundWithCourse;
   pending: PendingRequest[];
   other: PendingRequest[];
-  onReload: () => void;
+  onRespond: (requestId: string, accept: boolean) => void;
   isCancellable: boolean;
 }) {
   const { colors } = useTheme();
@@ -251,7 +321,7 @@ function HostActions({
           </Typography>
         ) : null}
         {pending.map((r) => (
-          <PendingRow key={r.id} req={r} onReload={onReload} />
+          <PendingRow key={r.id} req={r} onRespond={onRespond} />
         ))}
         {other.length > 0 ? (
           <View
@@ -275,10 +345,10 @@ function HostActions({
 
 function PendingRow({
   req,
-  onReload,
+  onRespond,
 }: {
   req: PendingRequest;
-  onReload: () => void;
+  onRespond: (requestId: string, accept: boolean) => void;
 }) {
   const { colors } = useTheme();
   const handicap =
@@ -327,14 +397,14 @@ function PendingRow({
         <Button
           variant="ghost"
           size="sm"
-          onPress={() => doRespond(req.id, false, onReload)}
+          onPress={() => onRespond(req.id, false)}
         >
           Pass
         </Button>
         <Button
           variant="primary"
           size="sm"
-          onPress={() => doRespond(req.id, true, onReload)}
+          onPress={() => onRespond(req.id, true)}
         >
           Accept
         </Button>
@@ -360,13 +430,13 @@ function ResolvedRow({ req }: { req: PendingRequest }) {
 function RequesterActions({
   round,
   myRequest,
-  userId,
-  onReload,
+  onRequest,
+  onWithdraw,
 }: {
   round: RoundWithCourse;
   myRequest: MyRoundRequest | null;
-  userId: string;
-  onReload: () => void;
+  onRequest: () => void;
+  onWithdraw: (requestId: string) => void;
 }) {
   if (round.status === 'cancelled') {
     return (
@@ -386,7 +456,7 @@ function RequesterActions({
         size="lg"
         fullWidth
         disabled={isFull}
-        onPress={() => doRequest(round, userId, onReload)}
+        onPress={onRequest}
       >
         {isFull ? 'Round is full.' : 'Request this round.'}
       </Button>
@@ -403,7 +473,7 @@ function RequesterActions({
           variant="ghost"
           size="lg"
           fullWidth
-          onPress={() => doWithdraw(myRequest.id, onReload)}
+          onPress={() => onWithdraw(myRequest.id)}
         >
           Withdraw request.
         </Button>
@@ -441,41 +511,6 @@ function Stat({ label, value }: { label: string; value: string }) {
       <Typography variant="card-stat-value">{value}</Typography>
     </View>
   );
-}
-
-async function doRequest(
-  round: RoundWithCourse,
-  userId: string,
-  onReload: () => void,
-) {
-  try {
-    await requestToJoinRound(round, userId);
-    onReload();
-  } catch (err) {
-    Alert.alert('could not send request', (err as Error).message);
-  }
-}
-
-async function doWithdraw(requestId: string, onReload: () => void) {
-  try {
-    await withdrawRequest(requestId);
-    onReload();
-  } catch (err) {
-    Alert.alert('could not withdraw', (err as Error).message);
-  }
-}
-
-async function doRespond(
-  requestId: string,
-  accept: boolean,
-  onReload: () => void,
-) {
-  try {
-    await respondToRequest(requestId, accept);
-    onReload();
-  } catch (err) {
-    Alert.alert('could not update request', (err as Error).message);
-  }
 }
 
 function confirmCancel(id: string) {

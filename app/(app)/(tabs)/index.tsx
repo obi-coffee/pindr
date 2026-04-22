@@ -26,6 +26,7 @@ import {
   type SwipeDirection,
 } from '../../../lib/discover/queries';
 import { useHaptics } from '../../../lib/haptics';
+import { useToast } from '../../../components/motion/Toast';
 import { maybePromptForPush } from '../../../lib/push/maybePrompt';
 import { openUserMenu } from '../../../lib/safety/menu';
 import {
@@ -39,6 +40,7 @@ export default function Discover() {
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
   const haptics = useHaptics();
+  const { show: showToast } = useToast();
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [travel, setTravel] = useState<TravelSession | null>(null);
@@ -89,11 +91,16 @@ export default function Discover() {
           setMatch({ candidate, matchId: result.matchId });
           void maybePromptForPush(user.id, 'first_match');
         }
-      } catch (err) {
-        setError((err as Error).message);
+      } catch {
+        // Swipe is already optimistic (card is off-screen). No rollback,
+        // just surface the failure. The missing swipes row will be retried
+        // if the user encounters the same candidate in a later session.
+        showToast("couldn't save that — mind trying again?", {
+          variant: 'error',
+        });
       }
     },
-    [candidates, user, haptics],
+    [candidates, user, haptics, showToast],
   );
 
   const cardWidth = width - 32;
@@ -206,10 +213,21 @@ export default function Discover() {
                       currentUserId: user.id,
                       targetUserId: item.user_id,
                       targetName: item.display_name,
+                      toast: showToast,
                       onBlocked: () => {
                         setCandidates((prev) =>
                           prev.filter((c) => c.user_id !== item.user_id),
                         );
+                      },
+                      onBlockFailed: () => {
+                        // Restore the card to the deck if the server
+                        // rejects the block.
+                        setCandidates((prev) => {
+                          if (prev.some((c) => c.user_id === item.user_id)) {
+                            return prev;
+                          }
+                          return [item, ...prev];
+                        });
                       },
                     });
                   }}

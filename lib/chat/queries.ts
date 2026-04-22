@@ -18,6 +18,10 @@ export type ChatMessage = {
   sender_id: string;
   body: string;
   created_at: string;
+  // UI-only marker set on client-side temp rows inserted before the
+  // server confirms the send. Never present on rows fetched or
+  // delivered via realtime.
+  _pending?: boolean;
 };
 
 export type MatchDetails = {

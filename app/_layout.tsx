@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../components/ui';
 import { AuthProvider, useAuth } from '../lib/auth/AuthProvider';
+import { HapticsProvider } from '../lib/haptics';
 import { usePushDeepLinking } from '../lib/push/deep-linking';
 
 Notifications.setNotificationHandler({
@@ -57,9 +58,11 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ThemeProvider>
-          <AuthProvider>
-            <RootSlot />
-          </AuthProvider>
+          <HapticsProvider>
+            <AuthProvider>
+              <RootSlot />
+            </AuthProvider>
+          </HapticsProvider>
         </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -14,8 +14,9 @@ export const duration = {
 export const spring = {
   // Card snap-back, button release. Brisk and decisive.
   snap: { damping: 22, stiffness: 260, mass: 0.6 },
-  // Most UI arrivals — chips, tabs, panels.
-  settle: { damping: 20, stiffness: 180, mass: 1 },
+  // Most UI arrivals — chips, tabs, panels. Tuned for a perceptible
+  // cross-fade (~400-500ms visual settle) rather than a snap.
+  settle: { damping: 22, stiffness: 100, mass: 1 },
   // Match moment, hero transitions — slower, meant to be felt.
   soft: { damping: 18, stiffness: 110, mass: 1 },
 } as const;

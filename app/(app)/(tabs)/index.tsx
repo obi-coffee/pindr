@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { MatchModal } from '../../../components/MatchModal';
 import { SwipeCard } from '../../../components/SwipeCard';
+import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
@@ -23,6 +24,7 @@ import {
   type Candidate,
   type SwipeDirection,
 } from '../../../lib/discover/queries';
+import { useHaptics } from '../../../lib/haptics';
 import { maybePromptForPush } from '../../../lib/push/maybePrompt';
 import { openUserMenu } from '../../../lib/safety/menu';
 import {
@@ -35,6 +37,7 @@ export default function Discover() {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
+  const haptics = useHaptics();
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [travel, setTravel] = useState<TravelSession | null>(null);
@@ -75,6 +78,7 @@ export default function Discover() {
       if (!user) return;
       const candidate = candidates[cardIndex];
       if (!candidate) return;
+      haptics.swipeRelease();
       try {
         const result = await recordSwipe(user.id, candidate.user_id, direction);
         if (result.matched) {
@@ -85,7 +89,7 @@ export default function Discover() {
         setError((err as Error).message);
       }
     },
-    [candidates, user],
+    [candidates, user, haptics],
   );
 
   const cardWidth = width - 32;
@@ -214,6 +218,17 @@ export default function Discover() {
               onSwipeTop={(i) => handleSwipe(i, 'super')}
               onSwipedAll={() => setCandidates([])}
               disableBottomSwipe
+              OverlayLabelRight={LockedInStamp}
+              OverlayLabelLeft={MaybeLaterStamp}
+              // Stamp fades in at 30% of card-width drag, fully opaque at
+              // 100% (plan §4.1). Library interpolates against drag pixels.
+              inputOverlayLabelRightOpacityRange={[0, cardWidth * 0.3, cardWidth]}
+              outputOverlayLabelRightOpacityRange={[0, 0, 1]}
+              inputOverlayLabelLeftOpacityRange={[0, -cardWidth * 0.3, -cardWidth]}
+              outputOverlayLabelLeftOpacityRange={[0, 0, 1]}
+              // Linear rotation with ±8° cap at screen edges (plan §4.1).
+              rotateInputRange={[-width, 0, width]}
+              rotateOutputRange={[-8, 0, 8]}
             />
           </View>
         </View>

@@ -1,9 +1,10 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonRoundsList } from '../../../components/lists/SkeletonRoundsList';
 import { FadeIn } from '../../../components/motion/FadeIn';
+import { PullRefresh } from '../../../components/motion/PullRefresh';
 import { RoundListRow } from '../../../components/RoundListRow';
 import {
   RoundsFilterBar,
@@ -104,17 +105,11 @@ export default function Rounds() {
         </View>
       ) : (
         <FadeIn style={{ flex: 1 }}>
+        <PullRefresh refreshing={refreshing} onRefresh={() => load(filters, true)}>
         <FlatList
           data={rounds}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 120 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => load(filters, true)}
-              tintColor={colors.ink}
-            />
-          }
           ItemSeparatorComponent={() => (
             <View
               style={{
@@ -152,6 +147,7 @@ export default function Rounds() {
             />
           )}
         />
+        </PullRefresh>
         </FadeIn>
       )}
     </SafeAreaView>

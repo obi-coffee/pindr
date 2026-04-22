@@ -1,15 +1,10 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  View,
-} from 'react-native';
+import { FlatList, Image, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonMatchesList } from '../../../components/lists/SkeletonMatchesList';
 import { FadeIn } from '../../../components/motion/FadeIn';
+import { PullRefresh } from '../../../components/motion/PullRefresh';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
@@ -83,17 +78,11 @@ export default function Matches() {
         </View>
       ) : (
         <FadeIn style={{ flex: 1 }}>
+        <PullRefresh refreshing={refreshing} onRefresh={() => load(true)}>
         <FlatList
           data={matches}
           keyExtractor={(item) => item.match_id}
           contentContainerStyle={{ paddingBottom: 32 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => load(true)}
-              tintColor={colors.ink}
-            />
-          }
           ListEmptyComponent={() => (
             <View
               style={{
@@ -132,6 +121,7 @@ export default function Matches() {
             />
           )}
         />
+        </PullRefresh>
         </FadeIn>
       )}
     </SafeAreaView>

@@ -33,9 +33,16 @@ a design decision.
 - react-hook-form + zod for forms
 - NativeWind for styling (Tailwind classes)
 - react-native-deck-swiper for the card stack
+- react-native-reanimated v3 + react-native-gesture-handler + expo-haptics
+  for all motion and haptics (Phase 5d). **No other animation libraries**
+  — no Moti, Lottie, or react-native-animatable.
 
 Supabase client is already initialized at `lib/supabase.ts`. Environment
 variables live in `.env` (gitignored) with the `EXPO_PUBLIC_` prefix.
+Motion tokens (durations, springs, easings) live in `lib/motion.ts` and
+are the single source of truth — no inline magic numbers anywhere else
+in the codebase. Haptics go through the `useHaptics()` hook in
+`lib/haptics.ts`.
 
 ## How we work
 - **One phase at a time.** Don't build ahead of what the user asked for.
@@ -82,21 +89,36 @@ pro/coach profile type, post-round reviews. Do not build these without
 explicit approval, even if they seem small. NOTE: user-posted "open
 rounds" are IN scope as of Phase 5b — see project plan §8. Push
 notifications are IN scope as of Phase 5c — see §8 and
-`../Pindr-Push-Notification-Plan.md`.
+`../Pindr-Push-Notification-Plan.md`. Micro-interactions and motion
+polish are IN scope as of Phase 5d — see §8 and
+`../Pindr-MicroInteractions-Plan.md`.
 
 ## Where we are right now
-Phases 0–5b are complete: Expo + TypeScript scaffold, Supabase client
+Phases 0–5c are complete: Expo + TypeScript scaffold, Supabase client
 wired, auth + app shell, profile creation, discovery & swipe, matches &
-chat, safety + polish, and user-posted open rounds. All features listed
-in §3 of the project plan are shipped, plus Phase 5b's rounds surface.
+chat, safety + polish, user-posted open rounds, and push notifications.
+Notifications are rate-limited, quiet-hour-aware, and delivered via
+Supabase Edge Functions + Expo Push; the Settings → Notifications group
+is live.
 
-## Your current task (Phase 5c — push notifications)
-Add push notifications for the few events that warrant interrupting the
-user — new match, new message, round requests and outcomes, round
-reminders — and nothing else. Tone, cadence, and copy rules live in
-`../Pindr-Push-Notification-Plan.md` and are authoritative: the plan
-controls, the implementation serves it. See §8 "Phase 5c" of
-`../Pindr-Project-Plan.md` for the seven-step build order. Follow the
-process rules in "How we work" above — propose each step in plain
-English first, wait for approval, then build with review pauses between
-each step.
+## Your current task (Phase 5d — micro-interactions & motion, "the perfect putt")
+Add a minimal, elegant motion layer across the existing app — swipe
+feel, match moment, tap feedback, screen transitions, skeleton loading,
+and optimistic UI. **No new screens, no new data model, no new routes.**
+Pure polish on top of Phases 0–5c.
+
+**`../Pindr-MicroInteractions-Plan.md` is the authoritative spec** —
+read it end-to-end before starting. Token values, gesture math, and
+behavior rules all come from it. The plan's non-negotiables (§5) are
+binding: animate `transform` and `opacity` only; all gesture animations
+run on the UI thread via Reanimated worklets; every animated component
+checks `useReducedMotion` and falls back; no new libraries beyond the
+three in the tech stack above.
+
+The seven-step build order lives in §8 "Phase 5d" of
+`../Pindr-Project-Plan.md`. Follow the process rules in "How we work"
+above — propose each step in plain English first, wait for approval,
+then build with review pauses between steps. Do not touch the data
+model, the existing card composition (beyond swapping in new motion
+primitives), the push notification system, or the open-rounds feature
+beyond swapping their buttons/chips/skeletons.

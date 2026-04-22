@@ -57,7 +57,8 @@ variables live in `.env` (gitignored) with the `EXPO_PUBLIC_` prefix.
 ## Data model (authoritative — update this section if it changes)
 Core tables: users, profiles, interests, profile_interests, courses, swipes,
 matches, messages, reports, travel_sessions. Phase 5b adds: rounds,
-round_requests, plus a `partner_refs` jsonb column on courses. See the
+round_requests, plus a `partner_refs` jsonb column on courses. Phase 5c
+adds: push_tokens, notification_preferences, notifications_log. See the
 project plan for full schema. Location columns use `geography(point, 4326)`
 with PostGIS. The `rounds.source`, `rounds.external_ref`,
 `rounds.price_cents`, and `courses.partner_refs` fields are V2-readiness
@@ -76,21 +77,26 @@ populate them in V2 without a schema change.
 
 ## What is explicitly out of scope for MVP
 Swing video uploads, tee-time booking integration (V2 — GolfNow affiliate),
-GHIN handicap verification, photo/selfie verification, push notifications,
-subscriptions, pro/coach profile type, post-round reviews. Do not build
-these without explicit approval, even if they seem small. NOTE: user-posted
-"open rounds" are IN scope as of Phase 5b — see project plan §8.
+GHIN handicap verification, photo/selfie verification, subscriptions,
+pro/coach profile type, post-round reviews. Do not build these without
+explicit approval, even if they seem small. NOTE: user-posted "open
+rounds" are IN scope as of Phase 5b — see project plan §8. Push
+notifications are IN scope as of Phase 5c — see §8 and
+`../Pindr-Push-Notification-Plan.md`.
 
 ## Where we are right now
-Phases 0–5 are complete: Expo + TypeScript scaffold, Supabase client wired,
-auth + app shell, profile creation, discovery & swipe, matches & chat, and
-safety + polish. All features listed in §3 of the project plan are shipped.
+Phases 0–5b are complete: Expo + TypeScript scaffold, Supabase client
+wired, auth + app shell, profile creation, discovery & swipe, matches &
+chat, safety + polish, and user-posted open rounds. All features listed
+in §3 of the project plan are shipped, plus Phase 5b's rounds surface.
 
-## Your current task (Phase 5b — user-posted rounds)
-Add an open-rounds feature alongside the existing swipe/matching loop. See
-§8 "Phase 5b" of `../Pindr-Project-Plan.md` for full scope, V2-readiness
-rules, and the five-step build order. Do **not** touch the existing swipe
-deck, card composition (beyond the small "OPEN ROUND" badge), or visual
-system. Follow the process rules in "How we work" above — propose the
-plan in plain English first, wait for approval, then build step by step
-with review pauses between each step.
+## Your current task (Phase 5c — push notifications)
+Add push notifications for the few events that warrant interrupting the
+user — new match, new message, round requests and outcomes, round
+reminders — and nothing else. Tone, cadence, and copy rules live in
+`../Pindr-Push-Notification-Plan.md` and are authoritative: the plan
+controls, the implementation serves it. See §8 "Phase 5c" of
+`../Pindr-Project-Plan.md` for the seven-step build order. Follow the
+process rules in "How we work" above — propose each step in plain
+English first, wait for approval, then build with review pauses between
+each step.

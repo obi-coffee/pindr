@@ -52,6 +52,13 @@
           "locationAlwaysAndWhenInUsePermission": "Pindr uses your location to find players nearby."
         }
       ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/adaptive-icon.png",
+          "color": "#ffffff"
+        }
+      ],
       "@react-native-community/datetimepicker"
     ],
     "experiments": {

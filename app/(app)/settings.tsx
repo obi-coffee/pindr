@@ -49,7 +49,7 @@ export default function SettingsScreen() {
       </View>
 
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }}>
-        <Row label="notifications" trailing="coming soon" disabled />
+        <Row label="notifications" href="/notifications" />
         <Row
           label="appearance"
           trailing={APPEARANCE_LABEL[mode]}

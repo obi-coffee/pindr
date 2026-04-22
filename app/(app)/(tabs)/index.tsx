@@ -23,6 +23,7 @@ import {
   type Candidate,
   type SwipeDirection,
 } from '../../../lib/discover/queries';
+import { maybePromptForPush } from '../../../lib/push/maybePrompt';
 import { openUserMenu } from '../../../lib/safety/menu';
 import {
   fetchActiveOrUpcomingSession,
@@ -76,7 +77,10 @@ export default function Discover() {
       if (!candidate) return;
       try {
         const result = await recordSwipe(user.id, candidate.user_id, direction);
-        if (result.matched) setMatch(candidate);
+        if (result.matched) {
+          setMatch(candidate);
+          void maybePromptForPush(user.id, 'first_match');
+        }
       } catch (err) {
         setError((err as Error).message);
       }

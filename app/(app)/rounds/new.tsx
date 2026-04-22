@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { RoundForm } from '../../../components/RoundForm';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
+import { maybePromptForPush } from '../../../lib/push/maybePrompt';
 import { createRound } from '../../../lib/rounds/queries';
 
 export default function NewRound() {
@@ -39,6 +40,7 @@ export default function NewRound() {
                 format: values.format,
                 notes: values.notes.trim() || null,
               });
+              void maybePromptForPush(user.id, 'first_round_post');
               router.replace('/rounds/mine');
             }}
           />

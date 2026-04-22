@@ -220,15 +220,17 @@ export default function Discover() {
               disableBottomSwipe
               OverlayLabelRight={LockedInStamp}
               OverlayLabelLeft={MaybeLaterStamp}
-              // Stamp fades in at 30% of card-width drag, fully opaque at
-              // 100% (plan §4.1). Library interpolates against drag pixels.
-              inputOverlayLabelRightOpacityRange={[0, cardWidth * 0.3, cardWidth]}
-              outputOverlayLabelRightOpacityRange={[0, 0, 1]}
-              inputOverlayLabelLeftOpacityRange={[0, -cardWidth * 0.3, -cardWidth]}
-              outputOverlayLabelLeftOpacityRange={[0, 0, 1]}
-              // Linear rotation with ±8° cap at screen edges (plan §4.1).
+              // Stamp fully opaque once drag reaches 40% of card-width
+              // (plan §4.1 spec is 30-100%; two-point range matches the
+              // library's default shape which 3 points sometimes broke).
+              inputOverlayLabelRightOpacityRange={[0, cardWidth * 0.4]}
+              outputOverlayLabelRightOpacityRange={[0, 1]}
+              inputOverlayLabelLeftOpacityRange={[0, -cardWidth * 0.4]}
+              outputOverlayLabelLeftOpacityRange={[0, 1]}
+              // Library applies rotate in RADIANS, not degrees. Cap at ±8°
+              // at screen edges per plan §4.1. 8° ≈ Math.PI / 22.5.
               rotateInputRange={[-width, 0, width]}
-              rotateOutputRange={[-8, 0, 8]}
+              rotateOutputRange={[-Math.PI / 22.5, 0, Math.PI / 22.5]}
             />
           </View>
         </View>

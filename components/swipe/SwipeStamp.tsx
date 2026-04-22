@@ -38,6 +38,10 @@ function Stamp({
         paddingVertical: 8,
         paddingHorizontal: 16,
         backgroundColor: 'transparent',
+        // Above the card's overflow menu (also zIndex 3) and any other
+        // in-card elements. 10 is overkill but harmless.
+        zIndex: 10,
+        elevation: 10,
         ...positionStyle,
       }}
     >

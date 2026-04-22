@@ -16,6 +16,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider, useTheme } from '../components/ui';
 import { AuthProvider, useAuth } from '../lib/auth/AuthProvider';
+import { usePushDeepLinking } from '../lib/push/deep-linking';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -29,6 +30,7 @@ Notifications.setNotificationHandler({
 function RootSlot() {
   const { loading } = useAuth();
   const { colors, scheme } = useTheme();
+  usePushDeepLinking();
   if (loading)
     return <View style={{ flex: 1, backgroundColor: colors.paper }} />;
   return (

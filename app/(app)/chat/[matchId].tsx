@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -11,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SkeletonChatList } from '../../../components/lists/SkeletonChatList';
 import {
   Typography,
   fontFamilyFor,
@@ -126,12 +126,10 @@ export default function ChatThread() {
       <SafeAreaView
         style={{
           flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
           backgroundColor: colors.paper,
         }}
       >
-        <ActivityIndicator color={colors.ink} />
+        <SkeletonChatList />
       </SafeAreaView>
     );
   }

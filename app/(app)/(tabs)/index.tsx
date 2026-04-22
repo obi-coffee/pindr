@@ -1,13 +1,13 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   View,
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
+import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
 import { MatchModal } from '../../../components/MatchModal';
 import { SwipeCard } from '../../../components/SwipeCard';
 import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
@@ -133,7 +133,7 @@ export default function Discover() {
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={colors.ink} />
+          <SkeletonDeck width={cardWidth} height={cardHeight} />
         </View>
       ) : error ? (
         <View

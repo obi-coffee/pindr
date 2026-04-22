@@ -1,7 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   Pressable,
@@ -9,6 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SkeletonMatchesList } from '../../../components/lists/SkeletonMatchesList';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
@@ -62,11 +62,7 @@ export default function Matches() {
       </View>
 
       {loading && !refreshing ? (
-        <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <ActivityIndicator color={colors.ink} />
-        </View>
+        <SkeletonMatchesList />
       ) : error ? (
         <View
           style={{

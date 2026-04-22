@@ -1,7 +1,8 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, RefreshControl, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SkeletonRoundsList } from '../../../components/lists/SkeletonRoundsList';
 import { RoundListRow } from '../../../components/RoundListRow';
 import {
   RoundsFilterBar,
@@ -82,9 +83,7 @@ export default function Rounds() {
       <RoundsFilterBar value={filters} onChange={setFilters} />
 
       {loading && !refreshing ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={colors.ink} />
-        </View>
+        <SkeletonRoundsList />
       ) : error ? (
         <View
           style={{

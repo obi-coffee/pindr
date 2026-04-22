@@ -14,6 +14,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ToastProvider } from '../components/motion/Toast';
 import { ThemeProvider, useTheme } from '../components/ui';
 import { AuthProvider, useAuth } from '../lib/auth/AuthProvider';
 import { HapticsProvider } from '../lib/haptics';
@@ -59,9 +60,11 @@ export default function RootLayout() {
       <SafeAreaProvider>
         <ThemeProvider>
           <HapticsProvider>
-            <AuthProvider>
-              <RootSlot />
-            </AuthProvider>
+            <ToastProvider>
+              <AuthProvider>
+                <RootSlot />
+              </AuthProvider>
+            </ToastProvider>
           </HapticsProvider>
         </ThemeProvider>
       </SafeAreaProvider>

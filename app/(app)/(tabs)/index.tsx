@@ -206,6 +206,7 @@ export default function Discover() {
               ref={swiperRef}
               data={candidates}
               cardStyle={{ width: cardWidth, height: cardHeight }}
+              prerenderItems={1}
               renderCard={(item) => (
                 <SwipeCard
                   candidate={item}

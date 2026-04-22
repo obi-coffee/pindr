@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
+  withSpring,
 } from 'react-native-reanimated';
 import {
   TabIcon,
@@ -13,12 +13,14 @@ import {
   type Palette,
   type TabIconName,
 } from '../../../components/ui';
-import { duration } from '../../../lib/motion';
+import { spring } from '../../../lib/motion';
 
 // Focus-state transition lives here instead of the plan's 2px underline:
 // the floating pill tab bar from Phase 5b already is the active
-// indicator. All we change is how it *arrives* — background opacity +
-// icon color cross-fade over duration.fast when focus changes.
+// indicator. What we animate is its arrival — background opacity + icon
+// color cross-fade with spring.settle per plan §4.3. Both icons are
+// absolutely centered so they cross-fade in place rather than swap
+// layout positions.
 function PillIcon({
   name,
   focused,
@@ -36,30 +38,32 @@ function PillIcon({
   const progress = useSharedValue(focused ? 1 : 0);
 
   useEffect(() => {
-    progress.value = withTiming(focused ? 1 : 0, { duration: duration.fast });
+    progress.value = withSpring(focused ? 1 : 0, spring.settle);
   }, [focused, progress]);
 
   const pillStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
   }));
 
-  const iconStyle = useAnimatedStyle(() => ({
+  const activeIconStyle = useAnimatedStyle(() => ({
     opacity: progress.value,
   }));
   const inactiveIconStyle = useAnimatedStyle(() => ({
     opacity: 1 - progress.value,
   }));
 
+  const iconFillStyle = {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
+
   return (
-    <View
-      style={{
-        width: 44,
-        height: 44,
-        borderRadius: 22,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
+    <View style={{ width: 44, height: 44 }}>
       <Animated.View
         pointerEvents="none"
         style={[
@@ -79,10 +83,10 @@ function PillIcon({
           pillStyle,
         ]}
       />
-      <Animated.View style={[{ position: 'absolute' }, inactiveIconStyle]}>
+      <Animated.View style={[iconFillStyle, inactiveIconStyle]}>
         <TabIcon name={name} color={colors['ink-soft']} size={34} />
       </Animated.View>
-      <Animated.View style={iconStyle}>
+      <Animated.View style={[iconFillStyle, activeIconStyle]}>
         <TabIcon name={name} color={colors.ink} size={34} />
       </Animated.View>
     </View>

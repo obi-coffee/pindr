@@ -55,14 +55,15 @@ variables live in `.env` (gitignored) with the `EXPO_PUBLIC_` prefix.
   specific multiple-choice question rather than guessing.
 
 ## Data model (authoritative — update this section if it changes)
-Core tables: users, profiles, interests, profile_interests, courses, swipes,
-matches, messages, reports, travel_sessions. Phase 5b adds: rounds,
-round_requests, plus a `partner_refs` jsonb column on courses. See the
-project plan for full schema. Location columns use `geography(point, 4326)`
-with PostGIS. The `rounds.source`, `rounds.external_ref`,
-`rounds.price_cents`, and `courses.partner_refs` fields are V2-readiness
-slots — present in V1 but unused/null; partner inventory (GolfNow) will
-populate them in V2 without a schema change.
+Core tables: users, profiles, interests, profile_interests, courses,
+swipes, matches, messages, reports, travel_sessions, rounds,
+round_requests (the last two from Phase 5b), plus a `partner_refs` jsonb
+column on courses. Phase 5c adds: push_tokens, notification_preferences,
+notifications_log. See the project plan for full schema. Location
+columns use `geography(point, 4326)` with PostGIS. The `rounds.source`,
+`rounds.external_ref`, `rounds.price_cents`, and `courses.partner_refs`
+fields are V2-readiness slots — present in V1 but unused/null; partner
+inventory (GolfNow) will populate them in V2 without a schema change.
 
 ## Safety requirements that must ship in MVP
 - Phone + email verification at signup
@@ -76,21 +77,38 @@ populate them in V2 without a schema change.
 
 ## What is explicitly out of scope for MVP
 Swing video uploads, tee-time booking integration (V2 — GolfNow affiliate),
-GHIN handicap verification, photo/selfie verification, push notifications,
-subscriptions, pro/coach profile type, post-round reviews. Do not build
-these without explicit approval, even if they seem small. NOTE: user-posted
-"open rounds" are IN scope as of Phase 5b — see project plan §8.
+GHIN handicap verification, photo/selfie verification, subscriptions,
+pro/coach profile type, post-round reviews. Do not build these without
+explicit approval, even if they seem small. NOTE: user-posted "open
+rounds" are IN scope as of Phase 5b. Push notifications are IN scope as
+of Phase 5c. Micro-interactions and motion polish are IN scope as of
+Phase 5d. See project plan §8.
 
 ## Where we are right now
-Phases 0–5 are complete: Expo + TypeScript scaffold, Supabase client wired,
-auth + app shell, profile creation, discovery & swipe, matches & chat, and
-safety + polish. All features listed in §3 of the project plan are shipped.
+Phases 0–5b are complete: Expo + TypeScript scaffold, Supabase client
+wired, auth + app shell, profile creation, discovery & swipe, matches &
+chat, safety + polish, and user-posted rounds. The open-rounds feature
+(rounds + round_requests tables, posting composer, rounds list, round
+requests inbox, discovery-card "OPEN ROUND" badge) is shipped.
 
-## Your current task (Phase 5b — user-posted rounds)
-Add an open-rounds feature alongside the existing swipe/matching loop. See
-§8 "Phase 5b" of `../Pindr-Project-Plan.md` for full scope, V2-readiness
-rules, and the five-step build order. Do **not** touch the existing swipe
-deck, card composition (beyond the small "OPEN ROUND" badge), or visual
-system. Follow the process rules in "How we work" above — propose the
-plan in plain English first, wait for approval, then build step by step
-with review pauses between each step.
+## Your current task (Phase 5c — push notifications, quiet curator register)
+Add push notifications for the narrow set of moments that warrant
+interrupting the user — new match, new message, round requests and
+their outcomes, round reminders. The voice and cadence are the point,
+not the delivery mechanism.
+
+**`../Pindr-Push-Notification-Plan.md` is the authoritative spec** —
+read it end-to-end before starting. Scope in/out, the full notification
+inventory, rate-limit + quiet-hour rules, and the technical foundation
+all live there. All notification copy comes from that doc's §5 copy
+library — **do not write new notification strings inline in code**.
+If a new notification type seems needed, add it to the plan first and
+then implement.
+
+The seven-step build order lives in §8 "Phase 5c" of
+`../Pindr-Project-Plan.md`. Follow the process rules in "How we work"
+above — propose the plan in plain English first, wait for approval,
+then build step by step with review pauses between each step. Do not
+touch the swipe deck, card composition, open-rounds feature, or visual
+system beyond what's strictly required to wire pushes into existing
+flows.

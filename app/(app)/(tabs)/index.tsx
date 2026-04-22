@@ -44,7 +44,10 @@ export default function Discover() {
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [match, setMatch] = useState<Candidate | null>(null);
+  const [match, setMatch] = useState<{
+    candidate: Candidate;
+    matchId: string;
+  } | null>(null);
 
   const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
@@ -82,7 +85,7 @@ export default function Discover() {
       try {
         const result = await recordSwipe(user.id, candidate.user_id, direction);
         if (result.matched) {
-          setMatch(candidate);
+          setMatch({ candidate, matchId: result.matchId });
           void maybePromptForPush(user.id, 'first_match');
         }
       } catch (err) {
@@ -237,9 +240,15 @@ export default function Discover() {
       )}
 
       <MatchModal
-        match={match}
+        match={match?.candidate ?? null}
         myPhotoUrl={profile?.photo_urls?.[0] ?? null}
         onKeepSwiping={() => setMatch(null)}
+        onSayHi={() => {
+          if (!match) return;
+          const { matchId } = match;
+          setMatch(null);
+          router.push(`/chat/${matchId}` as never);
+        }}
       />
     </SafeAreaView>
   );

@@ -47,11 +47,15 @@ export async function fetchCandidates(
 
 export type SwipeDirection = 'right' | 'left' | 'super';
 
+export type SwipeResult =
+  | { matched: false }
+  | { matched: true; matchId: string };
+
 export async function recordSwipe(
   swiperId: string,
   swipeeId: string,
   direction: SwipeDirection,
-): Promise<{ matched: boolean }> {
+): Promise<SwipeResult> {
   const { error: insertError } = await supabase.from('swipes').insert({
     swiper_id: swiperId,
     swipee_id: swipeeId,
@@ -70,5 +74,6 @@ export async function recordSwipe(
     .eq('user_b_id', hi)
     .maybeSingle();
   if (error) throw error;
-  return { matched: Boolean(data) };
+  if (!data) return { matched: false };
+  return { matched: true, matchId: data.id as string };
 }

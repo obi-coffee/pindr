@@ -94,31 +94,27 @@ polish are IN scope as of Phase 5d — see §8 and
 `../Pindr-MicroInteractions-Plan.md`.
 
 ## Where we are right now
-Phases 0–5c are complete: Expo + TypeScript scaffold, Supabase client
+Phases 0–5d are complete: Expo + TypeScript scaffold, Supabase client
 wired, auth + app shell, profile creation, discovery & swipe, matches &
-chat, safety + polish, user-posted open rounds, and push notifications.
-Notifications are rate-limited, quiet-hour-aware, and delivered via
-Supabase Edge Functions + Expo Push; the Settings → Notifications group
-is live.
+chat, safety + polish, user-posted open rounds, push notifications, and
+the motion layer. Notifications are rate-limited, quiet-hour-aware, and
+delivered via Supabase Edge Functions + Expo Push. The motion system —
+tokens in `lib/motion.ts`, haptics in `lib/haptics.ts`, skeletons,
+fade-ins, toasts, optimistic updates, match-moment overlay, swipe
+stamps, Reduce Motion fallbacks — is live across the app.
 
-## Your current task (Phase 5d — micro-interactions & motion, "the perfect putt")
-Add a minimal, elegant motion layer across the existing app — swipe
-feel, match moment, tap feedback, screen transitions, skeleton loading,
-and optimistic UI. **No new screens, no new data model, no new routes.**
-Pure polish on top of Phases 0–5c.
+Phase 5d deferrals (documented in commits):
+- Shared-element hero transitions — Reanimated v4 removed the
+  `sharedTransitionTag` API; the replacement isn't shipped yet.
+- Custom pull-to-refresh indicator shape — iOS Fabric's
+  `UIRefreshControl` doesn't honor `tintColor='transparent'`; shipped a
+  mustard-tinted native spinner via a prop-flicker workaround.
+- Dynamic low-end-Android perf degradation — current animations are
+  transform/opacity-only on the UI thread, which holds 60fps on
+  reasonable devices without explicit gating.
 
-**`../Pindr-MicroInteractions-Plan.md` is the authoritative spec** —
-read it end-to-end before starting. Token values, gesture math, and
-behavior rules all come from it. The plan's non-negotiables (§5) are
-binding: animate `transform` and `opacity` only; all gesture animations
-run on the UI thread via Reanimated worklets; every animated component
-checks `useReducedMotion` and falls back; no new libraries beyond the
-three in the tech stack above.
-
-The seven-step build order lives in §8 "Phase 5d" of
-`../Pindr-Project-Plan.md`. Follow the process rules in "How we work"
-above — propose each step in plain English first, wait for approval,
-then build with review pauses between steps. Do not touch the data
-model, the existing card composition (beyond swapping in new motion
-primitives), the push notification system, or the open-rounds feature
-beyond swapping their buttons/chips/skeletons.
+## Your current task (Phase 6 — testing & first real users)
+MVP feature scope is complete. Invite a small cohort via Expo Go /
+TestFlight, seed 50–100 mock profiles in target cities so early users
+see cards, and iterate on what breaks. No new features without explicit
+approval — bug fixes and polish only.

@@ -1,15 +1,18 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   View,
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useReducedMotion } from 'react-native-reanimated';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
+import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
 import { MatchModal } from '../../../components/MatchModal';
+import { FadeIn } from '../../../components/motion/FadeIn';
 import { SwipeCard } from '../../../components/SwipeCard';
+import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
@@ -23,6 +26,8 @@ import {
   type Candidate,
   type SwipeDirection,
 } from '../../../lib/discover/queries';
+import { useHaptics } from '../../../lib/haptics';
+import { useToast } from '../../../components/motion/Toast';
 import { maybePromptForPush } from '../../../lib/push/maybePrompt';
 import { openUserMenu } from '../../../lib/safety/menu';
 import {
@@ -35,13 +40,19 @@ export default function Discover() {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
+  const haptics = useHaptics();
+  const { show: showToast } = useToast();
+  const reducedMotion = useReducedMotion();
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [travel, setTravel] = useState<TravelSession | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [match, setMatch] = useState<Candidate | null>(null);
+  const [match, setMatch] = useState<{
+    candidate: Candidate;
+    matchId: string;
+  } | null>(null);
 
   const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
@@ -75,17 +86,23 @@ export default function Discover() {
       if (!user) return;
       const candidate = candidates[cardIndex];
       if (!candidate) return;
+      haptics.swipeRelease();
       try {
         const result = await recordSwipe(user.id, candidate.user_id, direction);
         if (result.matched) {
-          setMatch(candidate);
+          setMatch({ candidate, matchId: result.matchId });
           void maybePromptForPush(user.id, 'first_match');
         }
-      } catch (err) {
-        setError((err as Error).message);
+      } catch {
+        // Swipe is already optimistic (card is off-screen). No rollback,
+        // just surface the failure. The missing swipes row will be retried
+        // if the user encounters the same candidate in a later session.
+        showToast("couldn't save that — mind trying again?", {
+          variant: 'error',
+        });
       }
     },
-    [candidates, user],
+    [candidates, user, haptics, showToast],
   );
 
   const cardWidth = width - 32;
@@ -126,7 +143,7 @@ export default function Discover() {
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={colors.ink} />
+          <SkeletonDeck width={cardWidth} height={cardHeight} />
         </View>
       ) : error ? (
         <View
@@ -176,7 +193,7 @@ export default function Discover() {
           </Typography>
         </View>
       ) : (
-        <View
+        <FadeIn
           style={{
             flex: 1,
             alignItems: 'center',
@@ -198,10 +215,21 @@ export default function Discover() {
                       currentUserId: user.id,
                       targetUserId: item.user_id,
                       targetName: item.display_name,
+                      toast: showToast,
                       onBlocked: () => {
                         setCandidates((prev) =>
                           prev.filter((c) => c.user_id !== item.user_id),
                         );
+                      },
+                      onBlockFailed: () => {
+                        // Restore the card to the deck if the server
+                        // rejects the block.
+                        setCandidates((prev) => {
+                          if (prev.some((c) => c.user_id === item.user_id)) {
+                            return prev;
+                          }
+                          return [item, ...prev];
+                        });
                       },
                     });
                   }}
@@ -214,15 +242,40 @@ export default function Discover() {
               onSwipeTop={(i) => handleSwipe(i, 'super')}
               onSwipedAll={() => setCandidates([])}
               disableBottomSwipe
+              OverlayLabelRight={LockedInStamp}
+              OverlayLabelLeft={MaybeLaterStamp}
+              // Stamp fully opaque once drag reaches 40% of card-width
+              // (plan §4.1 spec is 30-100%; two-point range matches the
+              // library's default shape which 3 points sometimes broke).
+              inputOverlayLabelRightOpacityRange={[0, cardWidth * 0.4]}
+              outputOverlayLabelRightOpacityRange={[0, 1]}
+              inputOverlayLabelLeftOpacityRange={[0, -cardWidth * 0.4]}
+              outputOverlayLabelLeftOpacityRange={[0, 1]}
+              // Library applies rotate in RADIANS, not degrees. Cap at ±8°
+              // at screen edges per plan §4.1. 8° ≈ Math.PI / 22.5. When
+              // Reduce Motion is on, zero out rotation per plan §5 — the
+              // card still translates linearly with the finger.
+              rotateInputRange={[-width, 0, width]}
+              rotateOutputRange={
+                reducedMotion
+                  ? [0, 0, 0]
+                  : [-Math.PI / 22.5, 0, Math.PI / 22.5]
+              }
             />
           </View>
-        </View>
+        </FadeIn>
       )}
 
       <MatchModal
-        match={match}
+        match={match?.candidate ?? null}
         myPhotoUrl={profile?.photo_urls?.[0] ?? null}
         onKeepSwiping={() => setMatch(null)}
+        onSayHi={() => {
+          if (!match) return;
+          const { matchId } = match;
+          setMatch(null);
+          router.push(`/chat/${matchId}` as never);
+        }}
       />
     </SafeAreaView>
   );

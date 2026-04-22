@@ -1,7 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   FlatList,
   Image,
   KeyboardAvoidingView,
@@ -11,6 +10,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SkeletonChatList } from '../../../components/lists/SkeletonChatList';
+import { FadeIn } from '../../../components/motion/FadeIn';
+import { useToast } from '../../../components/motion/Toast';
 import {
   Typography,
   fontFamilyFor,
@@ -33,6 +35,7 @@ export default function ChatThread() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const { show: showToast } = useToast();
 
   const [details, setDetails] = useState<MatchDetails | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -107,31 +110,48 @@ export default function ChatThread() {
     if (!body || sending) return;
     setSending(true);
     setDraft('');
+
+    // Optimistic: show the bubble at 0.6 opacity immediately, then
+    // reconcile once the server confirms. Temp id is client-only and
+    // gets swapped for the server id on success.
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const tempMessage: ChatMessage = {
+      id: tempId,
+      match_id: matchId,
+      sender_id: user.id,
+      body,
+      created_at: new Date().toISOString(),
+      _pending: true,
+    };
+    setMessages((prev) => [...prev, tempMessage]);
+
     try {
       const sent = await sendMessage(matchId, user.id, body);
       setMessages((prev) => {
-        if (prev.some((m) => m.id === sent.id)) return prev;
-        return [...prev, sent];
+        const withoutTemp = prev.filter((m) => m.id !== tempId);
+        if (withoutTemp.some((m) => m.id === sent.id)) return withoutTemp;
+        return [...withoutTemp, sent];
       });
-    } catch (err) {
-      setError((err as Error).message);
+    } catch {
+      setMessages((prev) => prev.filter((m) => m.id !== tempId));
       setDraft(body);
+      showToast("couldn't save that — mind trying again?", {
+        variant: 'error',
+      });
     } finally {
       setSending(false);
     }
-  }, [draft, matchId, sending, user]);
+  }, [draft, matchId, sending, user, showToast]);
 
   if (loading) {
     return (
       <SafeAreaView
         style={{
           flex: 1,
-          alignItems: 'center',
-          justifyContent: 'center',
           backgroundColor: colors.paper,
         }}
       >
-        <ActivityIndicator color={colors.ink} />
+        <SkeletonChatList />
       </SafeAreaView>
     );
   }
@@ -172,6 +192,7 @@ export default function ChatThread() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top', 'bottom']}
     >
+      <FadeIn style={{ flex: 1 }}>
       <View
         style={{
           flexDirection: 'row',
@@ -226,7 +247,11 @@ export default function ChatThread() {
                 targetUserId: details.other_user_id,
                 targetName: details.other_display_name,
                 matchId: details.match_id,
+                toast: showToast,
                 onBlocked: () => router.replace('/matches'),
+                // Thread is already dismissed optimistically; on
+                // server failure there's no UI to restore here. Toast
+                // still fires from the menu.
               })
             }
             hitSlop={8}
@@ -342,6 +367,7 @@ export default function ChatThread() {
           </Pressable>
         </View>
       </KeyboardAvoidingView>
+      </FadeIn>
     </SafeAreaView>
   );
 }
@@ -360,6 +386,7 @@ function MessageBubble({
         marginBottom: 8,
         maxWidth: '80%',
         alignSelf: mine ? 'flex-end' : 'flex-start',
+        opacity: message._pending ? 0.6 : 1,
       }}
     >
       <View

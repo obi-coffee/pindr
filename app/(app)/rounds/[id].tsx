@@ -122,7 +122,7 @@ export default function RoundDetail() {
           paddingBottom: 10,
         }}
       >
-        <PindrLogo height={32} />
+        <PindrLogo height={35} />
         <Typography variant="h1">the round</Typography>
       </View>
 

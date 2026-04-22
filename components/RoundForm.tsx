@@ -10,6 +10,7 @@ import {
   useTheme,
 } from './ui';
 import { CoursePickerModal } from './CoursePickerModal';
+import { dateToDisplay } from '../lib/format/date';
 import type {
   CourseSummary,
   MatchType,
@@ -75,11 +76,7 @@ export function RoundForm({ initial, submitLabel, onSubmit }: RoundFormProps) {
   const [timeOpen, setTimeOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  const dateLabel = teeTime.toLocaleDateString(undefined, {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
+  const dateLabel = dateToDisplay(teeTime);
   const timeLabel = teeTime.toLocaleTimeString(undefined, {
     hour: 'numeric',
     minute: '2-digit',

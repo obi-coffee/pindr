@@ -105,7 +105,7 @@ export default function Discover() {
           paddingBottom: 10,
         }}
       >
-        <PindrLogo height={32} />
+        <PindrLogo height={35} />
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <HeaderPill
             label={travel ? `✈ ${travel.city}` : 'Travel'}

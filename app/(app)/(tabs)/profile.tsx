@@ -1,4 +1,4 @@
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   Image,
@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
+  Button,
+  GearIcon,
   PindrLogo,
   PlusIcon,
   Tag,
@@ -23,6 +25,13 @@ import {
   type Interest,
 } from '../../../lib/profile/interests';
 
+const GENDER_LABEL: Record<string, string> = {
+  woman: 'Woman',
+  man: 'Man',
+  nonbinary: 'Non-binary/non-conforming',
+  another: 'Another identity',
+  prefer_not_to_say: 'Prefer not to say',
+};
 const STYLE_LABEL: Record<string, string> = {
   relaxed: 'Relaxed',
   improvement: 'Improvement',
@@ -63,7 +72,7 @@ const TEACHING_LABEL: Record<string, string> = {
 };
 
 export default function Profile() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
   const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [interests, setInterests] = useState<Interest[]>([]);
@@ -121,7 +130,7 @@ export default function Profile() {
             paddingBottom: 10,
           }}
         >
-          <PindrLogo height={32} />
+          <PindrLogo height={35} />
           <Typography variant="h1">profile</Typography>
         </View>
 
@@ -196,10 +205,26 @@ export default function Profile() {
         )}
 
         <View style={{ paddingHorizontal: 20, marginTop: 24 }}>
-          <Typography variant="h1">
-            {profile?.display_name ?? 'your profile'}
-            {profile?.age ? `, ${profile.age}` : ''}
-          </Typography>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <Typography variant="h1" style={{ flex: 1 }}>
+              {profile?.display_name ?? 'your profile'}
+              {profile?.age ? `, ${profile.age}` : ''}
+            </Typography>
+            <Pressable
+              onPress={() => router.push('/settings')}
+              hitSlop={12}
+              accessibilityLabel="settings"
+            >
+              <GearIcon size={24} color="ink-soft" />
+            </Pressable>
+          </View>
           {subtitleParts.length > 0 ? (
             <Typography
               variant="body-sm"
@@ -209,6 +234,24 @@ export default function Profile() {
               {subtitleParts.join(' · ')}
             </Typography>
           ) : null}
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+            <Button
+              variant="primary"
+              size="md"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/rounds/new')}
+            >
+              post a round
+            </Button>
+            <Button
+              variant="mustard"
+              size="md"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/rounds/mine')}
+            >
+              your rounds
+            </Button>
+          </View>
         </View>
 
         <Section title="basics" editHref="/edit/basics">
@@ -225,7 +268,7 @@ export default function Profile() {
               color="ink-soft"
               style={{ marginTop: 8 }}
             >
-              {profile.gender}
+              {GENDER_LABEL[profile.gender] ?? profile.gender}
             </Typography>
           ) : null}
         </Section>
@@ -326,15 +369,11 @@ export default function Profile() {
           )}
         </Section>
 
-        <View style={{ marginTop: 40 }}>
-          <Row label="post a round" href="/rounds/new" />
-          <Row label="your rounds" href="/rounds/mine" />
-          <AppearanceRow />
-          <Row label="community guidelines" href="/guidelines" />
-          <Row label="blocked users" href="/blocks" />
-          <Row label="sign out" onPress={signOut} />
-          {__DEV__ ? <Row label="UI kit (dev)" href="/dev/ui-kit" /> : null}
-        </View>
+        {__DEV__ ? (
+          <View style={{ marginTop: 40 }}>
+            <Row label="UI kit (dev)" href="/dev/ui-kit" />
+          </View>
+        ) : null}
       </ScrollView>
     </SafeAreaView>
   );
@@ -385,38 +424,6 @@ function Stat({ label, value }: { label: string; value: string }) {
       </Typography>
       <Typography variant="card-stat-value">{value}</Typography>
     </View>
-  );
-}
-
-const APPEARANCE_LABEL = {
-  system: 'system',
-  light: 'light',
-  dark: 'dark',
-} as const;
-
-function AppearanceRow() {
-  const { colors, mode, setMode } = useTheme();
-  const next =
-    mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system';
-  return (
-    <Pressable onPress={() => setMode(next)}>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          borderTopWidth: 1,
-          borderColor: colors.stroke,
-        }}
-      >
-        <Typography variant="body">appearance</Typography>
-        <Typography variant="body" color="ink-subtle">
-          {APPEARANCE_LABEL[mode]} ›
-        </Typography>
-      </View>
-    </Pressable>
   );
 }
 

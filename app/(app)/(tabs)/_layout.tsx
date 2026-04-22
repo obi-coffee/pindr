@@ -1,15 +1,20 @@
 import { BlurView } from 'expo-blur';
 import { Tabs } from 'expo-router';
-import { StyleSheet, Text, View } from 'react-native';
-import { fontFamilyFor, useTheme, type Palette } from '../../../components/ui';
+import { StyleSheet, View } from 'react-native';
+import {
+  TabIcon,
+  useTheme,
+  type Palette,
+  type TabIconName,
+} from '../../../components/ui';
 
-function PillLabel({
-  label,
+function PillIcon({
+  name,
   focused,
   colors,
   isDark,
 }: {
-  label: string;
+  name: TabIconName;
   focused: boolean;
   colors: Palette;
   isDark: boolean;
@@ -20,27 +25,23 @@ function PillLabel({
   return (
     <View
       style={{
-        paddingHorizontal: 6,
-        paddingVertical: 6,
-        borderRadius: 12,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: focused ? activeBg : 'transparent',
-        alignSelf: 'center',
+        alignItems: 'center',
+        justifyContent: 'center',
         shadowColor: colors.ink,
         shadowOpacity: focused && !isDark ? 0.06 : 0,
         shadowRadius: 4,
         shadowOffset: { width: 0, height: 1 },
       }}
     >
-      <Text
-        numberOfLines={1}
-        style={{
-          color: focused ? colors.ink : colors['ink-soft'],
-          fontFamily: fontFamilyFor(focused ? '600' : '500'),
-          fontSize: 13,
-        }}
-      >
-        {label}
-      </Text>
+      <TabIcon
+        name={name}
+        color={focused ? colors.ink : colors['ink-soft']}
+        size={34}
+      />
     </View>
   );
 }
@@ -116,8 +117,8 @@ export default function TabsLayout() {
         options={{
           title: 'discover',
           tabBarIcon: ({ focused }) => (
-            <PillLabel
-              label="Discover"
+            <PillIcon
+              name="discover"
               focused={focused}
               colors={colors}
               isDark={isDark}
@@ -130,8 +131,8 @@ export default function TabsLayout() {
         options={{
           title: 'matches',
           tabBarIcon: ({ focused }) => (
-            <PillLabel
-              label="Matches"
+            <PillIcon
+              name="matches"
               focused={focused}
               colors={colors}
               isDark={isDark}
@@ -144,8 +145,8 @@ export default function TabsLayout() {
         options={{
           title: 'rounds',
           tabBarIcon: ({ focused }) => (
-            <PillLabel
-              label="Rounds"
+            <PillIcon
+              name="rounds"
               focused={focused}
               colors={colors}
               isDark={isDark}
@@ -158,8 +159,8 @@ export default function TabsLayout() {
         options={{
           title: 'profile',
           tabBarIcon: ({ focused }) => (
-            <PillLabel
-              label="Profile"
+            <PillIcon
+              name="profile"
               focused={focused}
               colors={colors}
               isDark={isDark}

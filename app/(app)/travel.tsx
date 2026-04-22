@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CityPickerInput } from '../../components/CityPickerInput';
 import {
   Button,
   Input,
@@ -20,17 +21,17 @@ import {
 } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
 import {
+  dateToDisplay,
+  displayToIso,
+  isoToDisplay,
+  maskDateInput,
+} from '../../lib/format/date';
+import {
   deleteTravelSession,
   fetchActiveOrUpcomingSession,
   saveTravelSession,
   type TravelSession,
 } from '../../lib/travel/queries';
-
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 export default function TravelScreen() {
   const { user } = useAuth();
@@ -39,8 +40,8 @@ export default function TravelScreen() {
   const [busy, setBusy] = useState(false);
   const [session, setSession] = useState<TravelSession | null>(null);
   const [city, setCity] = useState('');
-  const [startDate, setStartDate] = useState(todayIso());
-  const [endDate, setEndDate] = useState(todayIso());
+  const [startDate, setStartDate] = useState(dateToDisplay(new Date()));
+  const [endDate, setEndDate] = useState(dateToDisplay(new Date()));
   const [coords, setCoords] = useState<{
     latitude: number;
     longitude: number;
@@ -54,8 +55,8 @@ export default function TravelScreen() {
         if (s) {
           setSession(s);
           setCity(s.city);
-          setStartDate(s.start_date);
-          setEndDate(s.end_date);
+          setStartDate(isoToDisplay(s.start_date));
+          setEndDate(isoToDisplay(s.end_date));
         }
       } catch (err) {
         Alert.alert('could not load travel', (err as Error).message);
@@ -65,37 +66,19 @@ export default function TravelScreen() {
     })();
   }, [user]);
 
-  const lookupCity = async () => {
-    if (!city.trim()) {
-      Alert.alert('enter a city first');
-      return;
-    }
-    setBusy(true);
-    try {
-      const results = await Location.geocodeAsync(city.trim());
-      if (results.length === 0) {
-        Alert.alert("couldn't find that city", 'try a more specific name.');
-        return;
-      }
-      const first = results[0];
-      setCoords({ latitude: first.latitude, longitude: first.longitude });
-    } catch (err) {
-      Alert.alert('lookup failed', (err as Error).message);
-    } finally {
-      setBusy(false);
-    }
-  };
-
   const save = async () => {
     if (!user) return;
     if (!city.trim()) return Alert.alert('enter a city');
-    if (!DATE_RE.test(startDate) || !DATE_RE.test(endDate)) {
-      return Alert.alert('dates must be YYYY-MM-DD');
+    const startIso = displayToIso(startDate);
+    const endIso = displayToIso(endDate);
+    if (!startIso || !endIso) {
+      return Alert.alert('dates must be MM-DD-YYYY');
     }
-    if (endDate < startDate) {
+    if (endIso < startIso) {
       return Alert.alert('end date must be on or after start date');
     }
-    if (endDate < todayIso()) {
+    const todayIso = new Date().toISOString().slice(0, 10);
+    if (endIso < todayIso) {
       return Alert.alert('end date must be today or later');
     }
 
@@ -103,7 +86,10 @@ export default function TravelScreen() {
     if (!finalCoords || (session && session.city !== city.trim())) {
       const results = await Location.geocodeAsync(city.trim());
       if (results.length === 0) {
-        return Alert.alert("couldn't find that city", 'try a more specific name.');
+        return Alert.alert(
+          "couldn't find that city",
+          'try picking one from the list.',
+        );
       }
       finalCoords = {
         latitude: results[0].latitude,
@@ -119,8 +105,8 @@ export default function TravelScreen() {
         city: city.trim(),
         latitude: finalCoords.latitude,
         longitude: finalCoords.longitude,
-        startDate,
-        endDate,
+        startDate: startIso,
+        endDate: endIso,
       });
       router.back();
     } catch (err) {
@@ -201,7 +187,10 @@ export default function TravelScreen() {
           <View style={{ minWidth: 48 }} />
         </View>
 
-        <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 40 }}>
+        <ScrollView
+          contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
+          keyboardShouldPersistTaps="handled"
+        >
           {session ? (
             <View
               style={{
@@ -219,8 +208,13 @@ export default function TravelScreen() {
               <Typography variant="h2" style={{ marginTop: 4 }}>
                 {session.city}
               </Typography>
-              <Typography variant="body-sm" color="ink-soft" style={{ marginTop: 4 }}>
-                {session.start_date} to {session.end_date}
+              <Typography
+                variant="body-sm"
+                color="ink-soft"
+                style={{ marginTop: 4 }}
+              >
+                {isoToDisplay(session.start_date)} to{' '}
+                {isoToDisplay(session.end_date)}
               </Typography>
             </View>
           ) : (
@@ -233,73 +227,39 @@ export default function TravelScreen() {
             </Typography>
           )}
 
-          <Typography variant="caption" color="ink-soft" style={{ marginBottom: 6 }}>
-            City
-          </Typography>
-          <View
-            style={{ flexDirection: 'row', alignItems: 'stretch', gap: 10 }}
-          >
-            <View style={{ flex: 1 }}>
-              <Input
-                value={city}
-                onChangeText={(t) => {
-                  setCity(t);
-                  setCoords(null);
-                }}
-                placeholder="Scottsdale, AZ"
-                autoCapitalize="words"
-                containerStyle={{ marginBottom: 0 }}
-              />
-            </View>
-            <Pressable
-              onPress={lookupCity}
-              disabled={busy}
-              style={{
-                paddingHorizontal: 16,
-                borderRadius: radii.md,
-                borderWidth: 1,
-                borderColor: colors['stroke-strong'],
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: colors['paper-high'],
-              }}
-            >
-              <Typography variant="caption" color="ink">
-                find
-              </Typography>
-            </Pressable>
-          </View>
-          {coords ? (
-            <Typography
-              variant="body-sm"
-              color="success"
-              style={{ marginTop: 4, marginBottom: 16 }}
-            >
-              located at {coords.latitude.toFixed(3)}, {coords.longitude.toFixed(3)}
-            </Typography>
-          ) : (
-            <Typography
-              variant="body-sm"
-              color="ink-subtle"
-              style={{ marginTop: 4, marginBottom: 16 }}
-            >
-              tap find to geocode, or just tap save — we'll look it up.
-            </Typography>
-          )}
+          <CityPickerInput
+            label="City"
+            value={city}
+            onChangeText={(t) => {
+              setCity(t);
+              setCoords(null);
+            }}
+            onSelect={(r) => {
+              setCity(r.city);
+              setCoords({ latitude: r.latitude, longitude: r.longitude });
+            }}
+            placeholder="Scottsdale, AZ"
+            autoCapitalize="words"
+            autoCorrect={false}
+          />
 
           <Input
             label="Start date"
             value={startDate}
-            onChangeText={setStartDate}
-            placeholder="YYYY-MM-DD"
+            onChangeText={(t) => setStartDate(maskDateInput(t))}
+            placeholder="MM-DD-YYYY"
+            keyboardType="number-pad"
+            maxLength={10}
             autoCapitalize="none"
             autoCorrect={false}
           />
           <Input
             label="End date"
             value={endDate}
-            onChangeText={setEndDate}
-            placeholder="YYYY-MM-DD"
+            onChangeText={(t) => setEndDate(maskDateInput(t))}
+            placeholder="MM-DD-YYYY"
+            keyboardType="number-pad"
+            maxLength={10}
             autoCapitalize="none"
             autoCorrect={false}
           />

@@ -10,9 +10,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandMark } from '../../components/BrandMark';
-import { Button, Input, Typography, useTheme } from '../../components/ui';
+import { Button, Input, Select, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
-import { basicsSchema, type BasicsInput } from '../../lib/profile/schemas';
+import {
+  basicsSchema,
+  GENDER_OPTIONS,
+  type BasicsInput,
+} from '../../lib/profile/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function Basics() {
@@ -127,14 +131,14 @@ export default function Basics() {
           <Controller
             control={control}
             name="gender"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
+            render={({ field: { onChange, value } }) => (
+              <Select
                 label="Gender (optional)"
                 error={errors.gender?.message}
-                value={value ?? ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                placeholder="woman, man, non-binary…"
+                value={value ?? null}
+                options={[...GENDER_OPTIONS]}
+                onChange={onChange}
+                placeholder="select"
               />
             )}
           />

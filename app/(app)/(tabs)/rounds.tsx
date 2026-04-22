@@ -75,7 +75,7 @@ export default function Rounds() {
           paddingBottom: 10,
         }}
       >
-        <PindrLogo height={32} />
+        <PindrLogo height={35} />
         <Typography variant="h1">rounds</Typography>
       </View>
 

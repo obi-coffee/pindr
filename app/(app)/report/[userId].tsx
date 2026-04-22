@@ -43,7 +43,7 @@ export default function ReportScreen() {
       await submitReport(user.id, userId, reason, details);
       Alert.alert(
         'report submitted',
-        "thanks for letting us know. our team will review this profile.",
+        "thanks for letting us know. we've hidden this profile from your discovery while our team reviews it.",
         [{ text: 'ok', onPress: () => router.back() }],
       );
     } catch (err) {

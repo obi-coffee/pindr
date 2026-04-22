@@ -10,6 +10,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CoursePickerInput } from '../../../components/CoursePickerInput';
+import { HandicapInput } from '../../../components/HandicapInput';
 import { Input, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { golfSchema, type GolfInput } from '../../../lib/profile/schemas';
@@ -114,21 +116,11 @@ export default function EditGolf() {
               control={control}
               name="handicap"
               render={({ field: { value, onChange, onBlur } }) => (
-                <Input
-                  label="Handicap index"
-                  error={errors.handicap?.message}
-                  value={
-                    value === undefined || Number.isNaN(value)
-                      ? ''
-                      : String(value)
-                  }
-                  onChangeText={(t) => {
-                    if (t === '') return onChange(undefined);
-                    const n = Number(t);
-                    onChange(Number.isNaN(n) ? undefined : n);
-                  }}
+                <HandicapInput
+                  value={value}
+                  onChange={onChange}
                   onBlur={onBlur}
-                  keyboardType="decimal-pad"
+                  error={errors.handicap?.message}
                 />
               )}
             />
@@ -161,12 +153,13 @@ export default function EditGolf() {
             control={control}
             name="home_course_name"
             render={({ field: { value, onChange, onBlur } }) => (
-              <Input
+              <CoursePickerInput
                 label="Home course"
                 error={errors.home_course_name?.message}
                 value={value ?? ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
+                autoCorrect={false}
               />
             )}
           />

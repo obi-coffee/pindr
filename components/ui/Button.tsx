@@ -6,9 +6,9 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { useTheme } from './ThemeProvider';
-import { fontFamilyFor, radii } from './theme';
+import { fontFamilyFor, lightColors, radii } from './theme';
 
-type Variant = 'primary' | 'ghost' | 'destructive';
+type Variant = 'primary' | 'ghost' | 'destructive' | 'mustard';
 type Size = 'sm' | 'md' | 'lg';
 
 export type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -44,13 +44,20 @@ export function Button({
   const isPrimary = variant === 'primary';
   const isDestructive = variant === 'destructive';
   const isGhost = variant === 'ghost';
+  const isMustard = variant === 'mustard';
 
   const background = isPrimary
     ? colors.ink
     : isDestructive
       ? colors.burgundy
-      : 'transparent';
-  const labelColor = isGhost ? colors.ink : colors['paper-high'];
+      : isMustard
+        ? colors.mustard
+        : 'transparent';
+  const labelColor = isGhost
+    ? colors.ink
+    : isMustard
+      ? lightColors.ink
+      : colors['paper-high'];
   const borderWidth = isGhost ? 1 : 0;
   const borderColor = colors['stroke-strong'];
 

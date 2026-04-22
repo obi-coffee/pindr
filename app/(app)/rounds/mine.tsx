@@ -51,7 +51,7 @@ export default function MyRounds() {
           paddingBottom: 10,
         }}
       >
-        <PindrLogo height={32} />
+        <PindrLogo height={35} />
         <Typography variant="h1">your rounds</Typography>
       </View>
 

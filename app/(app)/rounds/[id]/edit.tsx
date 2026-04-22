@@ -77,7 +77,7 @@ export default function EditRound() {
             paddingBottom: 10,
           }}
         >
-          <PindrLogo height={32} />
+          <PindrLogo height={35} />
           <Typography variant="h1">edit round</Typography>
         </View>
 

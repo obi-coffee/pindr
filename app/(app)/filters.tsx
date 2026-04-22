@@ -16,6 +16,7 @@ import {
   Typography,
   useTheme,
 } from '../../components/ui';
+import { useAuth } from '../../lib/auth/AuthProvider';
 import {
   DEFAULT_FILTERS,
   loadFilters,
@@ -23,9 +24,12 @@ import {
   type DiscoverFilters,
   type PlayStyleFilter,
 } from '../../lib/discover/filters';
+import { GENDER_OPTIONS } from '../../lib/profile/schemas';
 
 const DISTANCE_OPTIONS = [10, 25, 50, 100, 200];
-const GENDER_OPTIONS = ['Woman', 'Man', 'Non-binary'];
+const GENDER_FILTER_OPTIONS = GENDER_OPTIONS.filter(
+  (g) => g.value !== 'prefer_not_to_say',
+);
 const PLAY_STYLE_OPTIONS: { value: PlayStyleFilter; label: string }[] = [
   { value: 'relaxed', label: 'Relaxed' },
   { value: 'improvement', label: 'Improvement' },
@@ -34,15 +38,17 @@ const PLAY_STYLE_OPTIONS: { value: PlayStyleFilter; label: string }[] = [
 
 export default function FiltersScreen() {
   const { colors } = useTheme();
+  const { profile } = useAuth();
+  const canUseWomenOnly = profile?.gender === 'woman';
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     loadFilters().then((f) => {
-      setFilters(f);
+      setFilters(canUseWomenOnly ? f : { ...f, womenOnly: false });
       setReady(true);
     });
-  }, []);
+  }, [canUseWomenOnly]);
 
   const set = <K extends keyof DiscoverFilters>(
     key: K,
@@ -195,13 +201,13 @@ export default function FiltersScreen() {
 
           <Section title="gender">
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {GENDER_OPTIONS.map((g) => (
+              {GENDER_FILTER_OPTIONS.map((g) => (
                 <ChipSelect
-                  key={g}
-                  selected={filters.genders?.includes(g) ?? false}
-                  onPress={() => toggleGender(g)}
+                  key={g.value}
+                  selected={filters.genders?.includes(g.value) ?? false}
+                  onPress={() => toggleGender(g.value)}
                 >
-                  {g}
+                  {g.label}
                 </ChipSelect>
               ))}
             </View>
@@ -221,32 +227,34 @@ export default function FiltersScreen() {
             </View>
           </Section>
 
-          <Section title="women only">
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingVertical: 4,
-              }}
-            >
-              <Typography
-                variant="body"
-                color="ink-soft"
-                style={{ flex: 1, paddingRight: 16 }}
-              >
-                only show people who self-identify as women.
-              </Typography>
-              <Switch
-                value={filters.womenOnly}
-                onValueChange={(v) => set('womenOnly', v)}
-                trackColor={{
-                  false: colors['stroke-strong'],
-                  true: colors.ink,
+          {canUseWomenOnly ? (
+            <Section title="women only">
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingVertical: 4,
                 }}
-              />
-            </View>
-          </Section>
+              >
+                <Typography
+                  variant="body"
+                  color="ink-soft"
+                  style={{ flex: 1, paddingRight: 16 }}
+                >
+                  only show people who self-identify as women.
+                </Typography>
+                <Switch
+                  value={filters.womenOnly}
+                  onValueChange={(v) => set('womenOnly', v)}
+                  trackColor={{
+                    false: colors['stroke-strong'],
+                    true: colors.ink,
+                  }}
+                />
+              </View>
+            </Section>
+          ) : null}
 
           <Button
             variant="primary"

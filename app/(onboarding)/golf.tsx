@@ -1,6 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
+import { CoursePickerInput } from '../../components/CoursePickerInput';
+import { HandicapInput } from '../../components/HandicapInput';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -136,22 +138,11 @@ export default function Golf() {
               control={control}
               name="handicap"
               render={({ field: { value, onChange, onBlur } }) => (
-                <Input
-                  label="Handicap index"
-                  error={errors.handicap?.message}
-                  value={
-                    value === undefined || Number.isNaN(value)
-                      ? ''
-                      : String(value)
-                  }
-                  onChangeText={(t) => {
-                    if (t === '') return onChange(undefined);
-                    const n = Number(t);
-                    onChange(Number.isNaN(n) ? undefined : n);
-                  }}
+                <HandicapInput
+                  value={value}
+                  onChange={onChange}
                   onBlur={onBlur}
-                  keyboardType="decimal-pad"
-                  placeholder="e.g. 14.2"
+                  error={errors.handicap?.message}
                 />
               )}
             />
@@ -185,14 +176,14 @@ export default function Golf() {
             control={control}
             name="home_course_name"
             render={({ field: { value, onChange, onBlur } }) => (
-              <Input
+              <CoursePickerInput
                 label="Home course (optional)"
                 error={errors.home_course_name?.message}
                 value={value ?? ''}
                 onChangeText={onChange}
                 onBlur={onBlur}
                 placeholder="Bethpage Black"
-                hint="free text for now. course picker lands later."
+                autoCorrect={false}
               />
             )}
           />
@@ -222,3 +213,4 @@ export default function Golf() {
     </SafeAreaView>
   );
 }
+

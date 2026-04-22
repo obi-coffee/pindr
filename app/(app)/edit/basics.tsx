@@ -10,9 +10,13 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Input, Typography, useTheme } from '../../../components/ui';
+import { Input, Select, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
-import { basicsSchema, type BasicsInput } from '../../../lib/profile/schemas';
+import {
+  basicsSchema,
+  GENDER_OPTIONS,
+  type BasicsInput,
+} from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
 
 export default function EditBasics() {
@@ -112,13 +116,14 @@ export default function EditBasics() {
           <Controller
             control={control}
             name="gender"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <Input
+            render={({ field: { onChange, value } }) => (
+              <Select
                 label="Gender"
                 error={errors.gender?.message}
-                value={value ?? ''}
-                onChangeText={onChange}
-                onBlur={onBlur}
+                value={value ?? null}
+                options={[...GENDER_OPTIONS]}
+                onChange={onChange}
+                placeholder="select"
               />
             )}
           />

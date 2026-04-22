@@ -60,7 +60,7 @@ function Header() {
         paddingBottom: 10,
       }}
     >
-      <PindrLogo height={32} />
+      <PindrLogo height={35} />
       <Typography variant="h1">post a round</Typography>
     </View>
   );

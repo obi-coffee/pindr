@@ -28,6 +28,14 @@ export async function submitReport(
     details: details && details.trim() ? details.trim() : null,
   });
   if (error) throw error;
+  // Reporting implies blocking: hide the reported user from discovery
+  // both ways. Idempotent — safe if the reporter already blocked them.
+  await supabase
+    .from('blocks')
+    .upsert(
+      { blocker_id: reporterId, blocked_id: reportedId },
+      { onConflict: 'blocker_id,blocked_id', ignoreDuplicates: true },
+    );
 }
 
 export type BlockedProfile = {

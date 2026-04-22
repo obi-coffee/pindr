@@ -5,6 +5,7 @@ import {
   Image,
   Pressable,
   ScrollView,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -12,7 +13,7 @@ import { PlusIcon, Typography, radii, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   deletePhoto,
-  pickAndUploadPhoto,
+  pickAndUploadPhotos,
 } from '../../../lib/profile/photos';
 import { supabase } from '../../../lib/supabase';
 import { EditHeader } from './basics';
@@ -22,11 +23,15 @@ const MAX_PHOTOS = 6;
 export default function EditPhotos() {
   const { user, profile, refetchProfile } = useAuth();
   const { colors } = useTheme();
+  const { width: windowWidth } = useWindowDimensions();
   const [uploading, setUploading] = useState(false);
 
   const urls = profile?.photo_urls ?? [];
   const slots: (string | null)[] = [...urls];
   while (slots.length < MAX_PHOTOS) slots.push(null);
+
+  const slotWidth = (windowWidth - 48 - 24) / 3;
+  const slotHeight = (slotWidth * 5) / 4;
 
   const savePhotoUrls = async (next: string[]) => {
     if (!user) return;
@@ -40,11 +45,13 @@ export default function EditPhotos() {
 
   const addPhoto = async () => {
     if (!user || uploading) return;
+    const remaining = MAX_PHOTOS - urls.length;
+    if (remaining <= 0) return;
     setUploading(true);
     try {
-      const result = await pickAndUploadPhoto(user.id);
-      if (result.status === 'uploaded') {
-        await savePhotoUrls([...urls, result.url]);
+      const result = await pickAndUploadPhotos(user.id, remaining);
+      if (result.status === 'uploaded' && result.urls.length > 0) {
+        await savePhotoUrls([...urls, ...result.urls]);
       } else if (result.status === 'permission_denied') {
         Alert.alert(
           'photo access needed',
@@ -94,6 +101,8 @@ export default function EditPhotos() {
               onAdd={addPhoto}
               onRemove={url ? () => removePhoto(url) : undefined}
               disabled={uploading}
+              width={slotWidth}
+              height={slotHeight}
             />
           ))}
         </View>
@@ -132,11 +141,15 @@ function PhotoSlot({
   onAdd,
   onRemove,
   disabled,
+  width,
+  height,
 }: {
   url: string | null;
   onAdd: () => void;
   onRemove?: () => void;
   disabled: boolean;
+  width: number;
+  height: number;
 }) {
   const { colors } = useTheme();
   if (url) {
@@ -145,8 +158,8 @@ function PhotoSlot({
         onPress={onRemove}
         disabled={disabled}
         style={{
-          width: '31%',
-          aspectRatio: 4 / 5,
+          width,
+          height,
           borderRadius: radii.md,
           overflow: 'hidden',
           backgroundColor: colors['paper-raised'],
@@ -179,8 +192,8 @@ function PhotoSlot({
       onPress={onAdd}
       disabled={disabled}
       style={{
-        width: '31%',
-        aspectRatio: 4 / 5,
+        width,
+        height,
         borderRadius: radii.md,
         borderWidth: 1,
         borderStyle: 'dashed',

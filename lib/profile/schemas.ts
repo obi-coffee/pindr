@@ -1,5 +1,13 @@
 import { z } from 'zod';
 
+export const GENDER_OPTIONS = [
+  { value: 'woman', label: 'Woman' },
+  { value: 'man', label: 'Man' },
+  { value: 'nonbinary', label: 'Non-binary/non-conforming' },
+  { value: 'another', label: 'Another identity' },
+  { value: 'prefer_not_to_say', label: 'Prefer not to say' },
+] as const;
+
 export const basicsSchema = z.object({
   display_name: z
     .string()

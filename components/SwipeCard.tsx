@@ -141,12 +141,13 @@ export function SwipeCard({
           <View
             style={{
               flexDirection: 'row',
-              flexWrap: 'wrap',
+              flexWrap: 'nowrap',
               gap: 6,
               marginBottom: 12,
+              overflow: 'hidden',
             }}
           >
-            {tags.map((tag) => (
+            {tags.slice(0, 3).map((tag) => (
               <Tag key={tag.label} variant={tag.variant} size="sm">
                 {tag.label}
               </Tag>
@@ -305,14 +306,14 @@ function buildTags(c: Candidate): TagSpec[] {
       break;
   }
 
-  if (c.post_round === 'hangout') {
-    tags.push({ label: 'Post-round hang', variant: 'outline' });
-  }
-
   if (c.teaching_mindset === 'open_to_tips') {
     tags.push({ label: 'Open to tips', variant: 'solid' });
   } else if (c.teaching_mindset === 'just_play') {
     tags.push({ label: 'Just play', variant: 'solid' });
+  }
+
+  if (c.post_round === 'hangout') {
+    tags.push({ label: 'Post-round hang', variant: 'outline' });
   }
 
   return tags;

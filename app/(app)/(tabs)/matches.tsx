@@ -57,7 +57,7 @@ export default function Matches() {
           paddingBottom: 10,
         }}
       >
-        <PindrLogo height={32} />
+        <PindrLogo height={35} />
         <Typography variant="h1">matches</Typography>
       </View>
 

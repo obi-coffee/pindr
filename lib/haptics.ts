@@ -101,14 +101,28 @@ export function useHaptics(): UseHaptics {
     if (active) void Haptics.selectionAsync();
   }, [active]);
 
-  return {
-    enabled,
-    setEnabled,
-    swipeRelease,
-    match,
-    primaryTap,
-    destructiveConfirm,
-    error,
-    toggle,
-  };
+  // Memoize the returned shape so consumers who list `haptics` as a
+  // useEffect dep don't re-fire on every parent render.
+  return useMemo(
+    () => ({
+      enabled,
+      setEnabled,
+      swipeRelease,
+      match,
+      primaryTap,
+      destructiveConfirm,
+      error,
+      toggle,
+    }),
+    [
+      enabled,
+      setEnabled,
+      swipeRelease,
+      match,
+      primaryTap,
+      destructiveConfirm,
+      error,
+      toggle,
+    ],
+  );
 }

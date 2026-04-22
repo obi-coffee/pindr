@@ -32,8 +32,10 @@ a design decision.
 - Zustand for UI state, TanStack Query for server data
 - react-hook-form + zod for forms
 - NativeWind for styling (Tailwind classes)
-- react-native-deck-swiper for the card stack
-- react-native-reanimated v3 + react-native-gesture-handler + expo-haptics
+- rn-swiper-list for the card stack (Reanimated-backed; plan originally
+  called for react-native-deck-swiper, but the existing swiper is
+  rn-swiper-list — keep this in mind when referencing the plan)
+- react-native-reanimated v4 + react-native-gesture-handler + expo-haptics
   for all motion and haptics (Phase 5d). **No other animation libraries**
   — no Moti, Lottie, or react-native-animatable.
 

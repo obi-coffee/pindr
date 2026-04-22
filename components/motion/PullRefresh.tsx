@@ -79,16 +79,18 @@ export function PullRefresh({ refreshing, onRefresh, children }: PullRefreshProp
   }));
 
   // Inject the RefreshControl into the wrapped scrollable. tintColor is
-  // transparent so the platform spinner never shows; our indicator takes
-  // its place.
+  // matched to the paper background so the platform spinner visually
+  // dissolves into the backdrop; our mustard indicator takes its place
+  // on top. ("transparent" string is unreliable — iOS sometimes renders
+  // the spinner at full opacity regardless.)
   const withRefresh = cloneElement(children, {
     refreshControl: (
       <RefreshControl
         refreshing={refreshing}
         onRefresh={onRefresh}
-        tintColor="transparent"
-        colors={['transparent']}
-        progressBackgroundColor="transparent"
+        tintColor={colors.paper}
+        colors={[colors.paper]}
+        progressBackgroundColor={colors.paper}
       />
     ),
   });

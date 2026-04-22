@@ -1,19 +1,19 @@
-// FadeIn — wraps its children in an opacity transition from 0 to 1 on
-// mount. Used to soften the skeleton → real-content swap (plan §4.4:
-// "replace with real content via a 120ms fade when data arrives").
+// FadeIn — wraps children with Reanimated's `entering` mount animation
+// (the canonical approach on new architecture + Reanimated v4, where
+// useSharedValue + useEffect can race the first paint and make the
+// fade look like a snap).
 //
-// The fade happens on first render each time this component mounts, so
-// parents that toggle between a skeleton and real content (e.g.
-// `loading ? <Skeleton/> : <FadeIn>{content}</FadeIn>`) get the fade
-// every time the real content remounts.
+// Plan §4.4 specifies "120ms fade when data arrives" but 120ms reads
+// as near-instant in practice. Defaulting to duration.base (220ms) so
+// the ease is actually perceptible without feeling sluggish.
+//
+// Reduced Motion: skip the entering animation entirely.
 
-import { ReactNode, useEffect } from 'react';
+import { ReactNode } from 'react';
 import { type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
-  useAnimatedStyle,
+  FadeIn as ReanimatedFadeIn,
   useReducedMotion,
-  useSharedValue,
-  withTiming,
 } from 'react-native-reanimated';
 import { duration as motionDuration } from '../../lib/motion';
 
@@ -26,20 +26,18 @@ export type FadeInProps = {
 export function FadeIn({
   children,
   style,
-  durationMs = motionDuration.fast,
+  durationMs = motionDuration.slow,
 }: FadeInProps) {
   const reduced = useReducedMotion();
-  const opacity = useSharedValue(reduced ? 1 : 0);
-
-  useEffect(() => {
-    if (reduced) {
-      opacity.value = 1;
-      return;
-    }
-    opacity.value = withTiming(1, { duration: durationMs });
-  }, [opacity, durationMs, reduced]);
-
-  const animatedStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
-
-  return <Animated.View style={[style, animatedStyle]}>{children}</Animated.View>;
+  if (reduced) {
+    return <Animated.View style={style}>{children}</Animated.View>;
+  }
+  return (
+    <Animated.View
+      entering={ReanimatedFadeIn.duration(durationMs)}
+      style={style}
+    >
+      {children}
+    </Animated.View>
+  );
 }

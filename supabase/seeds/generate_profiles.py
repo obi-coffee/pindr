@@ -37,22 +37,30 @@ random.seed(RANDOM_SEED)
 
 OUTPUT = Path(__file__).resolve().parent.parent / "seed.sql"
 
-PHOTO_QUERIES = [
-    # Majority of queries are weighted toward groups Pindr's target
-    # audience (CLAUDE.md §2) explicitly prioritizes — women and
-    # underrepresented golfers — since default "golfer" queries on
-    # Unsplash skew heavily white and male.
-    "woman golfer",
-    "black golfer",
-    "asian golfer",
-    "latina golfer",
-    "black woman golfer",
-    "diverse golfers",
-    "women golf tournament",
-    "golfer portrait",
-    "golf player",
-    "playing golf",
-]
+PHOTO_QUERIES_BY_GENDER = {
+    # Separate query sets per gender so the photo pool for a Woman
+    # profile is drawn only from woman-biased searches, preventing
+    # disorienting name/photo mismatches like "Farah" assigned a
+    # photo of a white man. Unsplash's query matching is imperfect
+    # (some man-photos leak into woman queries and vice versa) but
+    # it's dramatically better than no correlation.
+    "Woman": [
+        "woman golfer",
+        "black woman golfer",
+        "asian woman golfer",
+        "latina golfer",
+        "women golf tournament",
+        "woman golf player",
+    ],
+    "Man": [
+        "man golfer",
+        "black man golfer",
+        "golfer portrait man",
+    ],
+}
+# Non-binary profiles get a pool combined from both — unisex by
+# construction. Pronouns on the profile are they/them regardless.
+
 
 # ---------------------------------------------------------------------------
 # Profile pool
@@ -123,23 +131,30 @@ OTHER_COURSES = [
     "Griffith Park", "Penmar", "Brookside", "Rancho Park",
 ]
 
-FIRST_NAMES = [
-    # Intentionally skewed toward names that read as women and/or
-    # people of color to match the gender + photo-query rebalance.
-    # Includes a healthy set of unisex names (Alex, Sam, Jordan, etc.)
-    # for non-binary and ambiguous profiles. See CLAUDE.md §2 for
-    # target-audience rationale.
-    "Priya", "Maya", "Aisha", "Imani", "Adaora", "Layla", "Farah",
-    "Tyra", "Yara", "Selena", "Carmen", "Gia", "Nina", "Zoey",
-    "Kira", "Esther", "Talia", "Asha", "Devi", "Sophia", "Mia",
-    "Harper", "Dana", "Kenji", "Lin", "Amara", "Nia", "Camila",
-    "Janelle", "Simone", "Zuri", "Keisha", "Jada", "Malaika",
-    "Inez", "Yasmin", "Noor", "Anika", "Sana", "Leilani",
-    "Marcus", "Malik", "Xavier", "Darius", "Isaiah", "Jaden",
-    "Omar", "Raj", "Arjun", "Ravi", "Diego", "Luis", "Tomas",
-    "Alex", "Sam", "Jordan", "Casey", "Riley", "Morgan", "Quinn",
-    "Taylor", "Jamie", "Sasha",
-]
+# Names pooled by the gender they most strongly signal. Non-binary
+# profiles draw from the unisex list so the name + they/them pronouns
+# land consistently. Over-indexed on names that read as women of
+# color to match Pindr's target audience (CLAUDE.md §2).
+NAMES_BY_GENDER = {
+    "Woman": [
+        "Priya", "Maya", "Aisha", "Imani", "Adaora", "Layla", "Farah",
+        "Tyra", "Yara", "Selena", "Carmen", "Gia", "Nina", "Zoey",
+        "Kira", "Esther", "Talia", "Asha", "Devi", "Sophia", "Mia",
+        "Amara", "Nia", "Camila", "Janelle", "Simone", "Zuri",
+        "Keisha", "Jada", "Malaika", "Inez", "Yasmin", "Noor",
+        "Anika", "Sana", "Leilani",
+    ],
+    "Man": [
+        "Marcus", "Malik", "Xavier", "Darius", "Isaiah", "Jaden",
+        "Omar", "Raj", "Arjun", "Ravi", "Diego", "Luis", "Tomas",
+        "Kenji", "Andre", "Eli", "Theo", "Noah",
+    ],
+    "Non-binary": [
+        "Alex", "Sam", "Jordan", "Casey", "Riley", "Morgan", "Quinn",
+        "Taylor", "Jamie", "Sasha", "Harper", "Dana", "Lin", "Avery",
+        "Rowan",
+    ],
+}
 
 DC_BIOS = [
     "Hill staffer. Weekend rounds only. Hains Point my happy place.",
@@ -209,21 +224,28 @@ def fetch_unsplash_urls(query: str, per_page: int = 30) -> list[str]:
     return urls
 
 
-def build_photo_pool() -> list[str]:
-    pool: list[str] = []
-    seen: set[str] = set()
-    for q in PHOTO_QUERIES:
-        for u in fetch_unsplash_urls(q, per_page=30):
-            if u not in seen:
-                pool.append(u)
-                seen.add(u)
-    if len(pool) < 60:
+def build_photo_pools() -> dict[str, list[str]]:
+    """Returns {gender: [urls]}. Non-binary is the union of the others
+    so it's guaranteed non-empty even if one side's queries return
+    sparse results."""
+    pools: dict[str, list[str]] = {"Woman": [], "Man": []}
+    global_seen: set[str] = set()
+    for gender, queries in PHOTO_QUERIES_BY_GENDER.items():
+        for q in queries:
+            for u in fetch_unsplash_urls(q, per_page=30):
+                if u in global_seen:
+                    continue
+                pools[gender].append(u)
+                global_seen.add(u)
+    if len(pools["Woman"]) < 30 or len(pools["Man"]) < 15:
         sys.exit(
-            f"Only {len(pool)} unique photos — Unsplash returned fewer than "
-            "expected. Tweak PHOTO_QUERIES or try again."
+            f"Photo pool too small (Woman={len(pools['Woman'])}, "
+            f"Man={len(pools['Man'])}). Tweak queries or rerun."
         )
-    random.shuffle(pool)
-    return pool
+    pools["Non-binary"] = pools["Woman"] + pools["Man"]
+    for v in pools.values():
+        random.shuffle(v)
+    return pools
 
 
 # ---------------------------------------------------------------------------
@@ -238,11 +260,8 @@ def jitter(coord: float, amount: float = 0.01) -> float:
     return round(coord + random.uniform(-amount, amount), 5)
 
 
-def make_profile(index: int, pool: list[str]) -> dict:
+def make_profile(index: int, pools: dict[str, list[str]]) -> dict:
     is_dc = index < int(TOTAL_PROFILES * DC_RATIO)
-    first = FIRST_NAMES[index % len(FIRST_NAMES)]
-    # slug from first name + index for email uniqueness
-    email = f"{first.lower()}{index + 1}.seed@pindr.test"
 
     if is_dc:
         city, lat, lon = random.choice(DC_METRO)
@@ -252,12 +271,6 @@ def make_profile(index: int, pool: list[str]) -> dict:
         city, lat, lon = random.choice(ELSEWHERE)
         home_course = random.choice(OTHER_COURSES)
         bio = random.choice(OTHER_BIOS)
-
-    # Pick 2-3 photos from the shared pool. Fallback cycles the pool if we
-    # run out (shouldn't happen at 60 profiles × 3 photos = 180 needs vs 120+
-    # in pool).
-    n_photos = random.choice([2, 2, 3])
-    photos = [pool[(index * 3 + k) % len(pool)] for k in range(n_photos)]
 
     age = random.choice([23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 42, 44])
     # Weighted toward women + non-binary per Pindr's target audience
@@ -271,6 +284,18 @@ def make_profile(index: int, pool: list[str]) -> dict:
         "Woman": "she/her",
         "Non-binary": "they/them",
     }[gender]
+
+    # Name and photos pulled from the gender-matching pool so Farah
+    # doesn't end up with a photo of a white man, etc.
+    name_pool = NAMES_BY_GENDER[gender]
+    first = name_pool[index % len(name_pool)]
+    email = f"{first.lower()}{index + 1}.seed@pindr.test"
+
+    photo_pool = pools[gender]
+    n_photos = random.choice([2, 2, 3])
+    photos = [
+        photo_pool[(index * 3 + k) % len(photo_pool)] for k in range(n_photos)
+    ]
 
     has_handicap = random.random() < 0.65
     handicap = round(random.uniform(3.0, 28.0), 1) if has_handicap else None
@@ -418,13 +443,26 @@ end $$;
 
 
 def main():
-    print(f"Fetching Unsplash photo pool ({len(PHOTO_QUERIES)} queries)…")
-    pool = build_photo_pool()
-    print(f"  → {len(pool)} unique photos in pool.")
+    total_queries = sum(len(q) for q in PHOTO_QUERIES_BY_GENDER.values())
+    print(f"Fetching Unsplash photo pools ({total_queries} queries)…")
+    pools = build_photo_pools()
+    print(
+        f"  → Woman pool: {len(pools['Woman'])}, "
+        f"Man pool: {len(pools['Man'])}, "
+        f"Non-binary (combined): {len(pools['Non-binary'])}"
+    )
 
-    profiles = [make_profile(i, pool) for i in range(TOTAL_PROFILES)]
-    dc_count = sum(1 for p in profiles if "DC" in p["city"] or "MD" in p["city"] or "VA" in p["city"])
-    print(f"Generated {len(profiles)} profiles ({dc_count} DC metro).")
+    profiles = [make_profile(i, pools) for i in range(TOTAL_PROFILES)]
+    dc_count = sum(
+        1 for p in profiles if p["city"].endswith(("DC", "MD", "VA"))
+    )
+    gender_counts = {}
+    for p in profiles:
+        gender_counts[p["gender"]] = gender_counts.get(p["gender"], 0) + 1
+    print(
+        f"Generated {len(profiles)} profiles ({dc_count} DC metro). "
+        f"By gender: {gender_counts}"
+    )
 
     sql = render_sql(profiles)
     OUTPUT.write_text(sql)

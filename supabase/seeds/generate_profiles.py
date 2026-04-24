@@ -38,12 +38,20 @@ random.seed(RANDOM_SEED)
 OUTPUT = Path(__file__).resolve().parent.parent / "seed.sql"
 
 PHOTO_QUERIES = [
-    "golfer",
-    "golf player",
+    # Majority of queries are weighted toward groups Pindr's target
+    # audience (CLAUDE.md §2) explicitly prioritizes — women and
+    # underrepresented golfers — since default "golfer" queries on
+    # Unsplash skew heavily white and male.
     "woman golfer",
-    "man golfing",
+    "black golfer",
+    "asian golfer",
+    "latina golfer",
+    "black woman golfer",
+    "diverse golfers",
+    "women golf tournament",
+    "golfer portrait",
+    "golf player",
     "playing golf",
-    "golf course person",
 ]
 
 # ---------------------------------------------------------------------------
@@ -116,14 +124,21 @@ OTHER_COURSES = [
 ]
 
 FIRST_NAMES = [
-    "Alex", "Sam", "Jordan", "Casey", "Riley", "Morgan", "Quinn", "Taylor",
-    "Priya", "Marcus", "Jamie", "Devi", "Eli", "Sophia", "Noah", "Maya",
-    "Chris", "Dana", "Kyle", "Laila", "Tomas", "Asha", "Ben", "Harper",
-    "Zoey", "Leo", "Nina", "Omar", "Carmen", "Isaiah", "Mia", "Raj",
-    "Sasha", "Theo", "Aisha", "Jaden", "Farah", "Luis", "Adaora", "Cole",
-    "Tyra", "Simon", "Esther", "Malik", "Lin", "Darius", "Kira", "Xavier",
-    "Layla", "Nico", "Imani", "Arjun", "Talia", "Beau", "Gia", "Kenji",
-    "Selena", "Ravi", "Diego", "Yara",
+    # Intentionally skewed toward names that read as women and/or
+    # people of color to match the gender + photo-query rebalance.
+    # Includes a healthy set of unisex names (Alex, Sam, Jordan, etc.)
+    # for non-binary and ambiguous profiles. See CLAUDE.md §2 for
+    # target-audience rationale.
+    "Priya", "Maya", "Aisha", "Imani", "Adaora", "Layla", "Farah",
+    "Tyra", "Yara", "Selena", "Carmen", "Gia", "Nina", "Zoey",
+    "Kira", "Esther", "Talia", "Asha", "Devi", "Sophia", "Mia",
+    "Harper", "Dana", "Kenji", "Lin", "Amara", "Nia", "Camila",
+    "Janelle", "Simone", "Zuri", "Keisha", "Jada", "Malaika",
+    "Inez", "Yasmin", "Noor", "Anika", "Sana", "Leilani",
+    "Marcus", "Malik", "Xavier", "Darius", "Isaiah", "Jaden",
+    "Omar", "Raj", "Arjun", "Ravi", "Diego", "Luis", "Tomas",
+    "Alex", "Sam", "Jordan", "Casey", "Riley", "Morgan", "Quinn",
+    "Taylor", "Jamie", "Sasha",
 ]
 
 DC_BIOS = [
@@ -245,9 +260,11 @@ def make_profile(index: int, pool: list[str]) -> dict:
     photos = [pool[(index * 3 + k) % len(pool)] for k in range(n_photos)]
 
     age = random.choice([23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 40, 42, 44])
+    # Weighted toward women + non-binary per Pindr's target audience
+    # (CLAUDE.md §2: women and underrepresented golfers).
     gender = random.choices(
-        ["Man", "Woman", "Non-binary"],
-        weights=[0.55, 0.40, 0.05],
+        ["Woman", "Man", "Non-binary"],
+        weights=[0.55, 0.37, 0.08],
     )[0]
     pronouns = {
         "Man": "he/him",

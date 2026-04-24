@@ -33,7 +33,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'alex1.seed@pindr.test',
+    'priya1.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -43,271 +43,26 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Alex',
-    age = 38,
+    display_name = 'Priya',
+    age = 28,
     gender = 'Woman',
     pronouns = 'she/her',
     bio = 'Moved here from NYC. Learning the DMV scene.',
-    home_city = 'Alexandria, VA',
-    home_course_name = 'Langston Golf Course',
-    home_location = ST_SetSRID(ST_MakePoint(-77.09128, 38.83275), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 25,
-    walking_preference = 'ride',
-    holes_preference = 'either',
-    pace = 'chill',
-    betting = 'small',
-    drinks = 'no',
-    post_round = 'just_round',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1609218188048-fb3ba479a70f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1632347639583-b77941b7282a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1494249120761-ea1225b46c05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'sam2.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Sam',
-    age = 34,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Walking-only. Usually at Sligo Creek or Northwest Park.',
-    home_city = 'Alexandria, VA',
-    home_course_name = 'Redgate Golf Course',
-    home_location = ST_SetSRID(ST_MakePoint(-77.05014, 38.79929), 4326)::geography,
-    has_handicap = true,
-    handicap = 6.0,
-    years_playing = 20,
-    walking_preference = 'either',
-    holes_preference = '9',
-    pace = 'ready',
-    betting = 'yes',
-    drinks = 'yes',
-    post_round = 'hangout',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1627955806241-a7cf94780b1a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1591491680738-eae9159fced6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'jordan3.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Jordan',
-    age = 40,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Swing coach on the side. Open to tips or just play.',
     home_city = 'Washington, DC',
-    home_course_name = 'Rock Creek Park Golf Course',
-    home_location = ST_SetSRID(ST_MakePoint(-77.07855, 38.90118), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 20,
-    walking_preference = 'either',
+    home_course_name = 'East Potomac Golf Links',
+    home_location = ST_SetSRID(ST_MakePoint(-77.03451, 38.93615), 4326)::geography,
+    has_handicap = true,
+    handicap = 24.6,
+    years_playing = 2,
+    walking_preference = 'ride',
     holes_preference = '18',
-    pace = 'chill',
+    pace = 'moderate',
     betting = 'small',
     drinks = 'sometimes',
-    post_round = 'hangout',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1686605972745-619c86a6d1f2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1694636507260-8b2428e3b738?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'casey4.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Casey',
-    age = 36,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Crown Golf in Rockville is underrated. Fight me.',
-    home_city = 'Reston, VA',
-    home_course_name = 'Manassas Park GC',
-    home_location = ST_SetSRID(ST_MakePoint(-77.34732, 38.96207), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 3,
-    walking_preference = 'walk',
-    holes_preference = '18',
-    pace = 'ready',
-    betting = 'small',
-    drinks = 'yes',
-    post_round = 'hangout',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1701428180979-67cf3a5c6ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1692195400719-81a66b4fde89?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'riley5.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Riley',
-    age = 28,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'East Potomac three times a week in summer. Say hi.',
-    home_city = 'Fairfax, VA',
-    home_course_name = 'Trump National DC',
-    home_location = ST_SetSRID(ST_MakePoint(-77.29917, 38.84506), 4326)::geography,
-    has_handicap = true,
-    handicap = 26.1,
-    years_playing = 18,
-    walking_preference = 'walk',
-    holes_preference = '9',
-    pace = 'ready',
-    betting = 'no',
-    drinks = 'yes',
-    post_round = 'hangout',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1602162055452-798cd485f5df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1535131749006-b7f58c99034b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'morgan6.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Morgan',
-    age = 35,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Got into golf during COVID. Playing catch-up.',
-    home_city = 'Rockville, MD',
-    home_course_name = 'Congressional Country Club',
-    home_location = ST_SetSRID(ST_MakePoint(-77.14427, 39.08181), 4326)::geography,
-    has_handicap = true,
-    handicap = 3.1,
-    years_playing = 15,
-    walking_preference = 'ride',
-    holes_preference = '18',
-    pace = 'ready',
-    betting = 'no',
-    drinks = 'no',
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1693163640190-f9dd38a88940?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163493266-8c533349a560?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1623592291219-633d49f67131?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1692195400719-81a66b4fde89?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzN8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -327,7 +82,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'quinn7.seed@pindr.test',
+    'maya2.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -337,10 +92,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Quinn',
+    display_name = 'Maya',
     age = 42,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Rock Creek on lunch breaks. Slow and steady.',
     home_city = 'Bethesda, MD',
     home_course_name = 'Northwest Park Golf Course',
@@ -356,7 +111,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1612983870308-e09bf83c0eeb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1668176886027-16de2f31e354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1686605972975-ba593944f828?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1753191505332-d16f6773d08c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1672936830498-3e07f1ed3c02?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1773338395745-a2459971e12a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxibGFjayUyMHdvbWFuJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -376,7 +131,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'taylor8.seed@pindr.test',
+    'aisha3.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -386,10 +141,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Taylor',
+    display_name = 'Aisha',
     age = 30,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Army Navy member. Down for guest rounds on weekends.',
     home_city = 'Alexandria, VA',
     home_course_name = 'Fairfax National',
@@ -405,7 +160,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1775326452588-b8bd6f991968?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1662224107406-cfbd51edd90c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNnx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1686605972972-d7b17f7ebc7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1534477200024-a3149001056a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1655161905949-3b5410c00e99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1668176886027-16de2f31e354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzN8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -425,7 +180,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'priya9.seed@pindr.test',
+    'imani4.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -435,10 +190,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Priya',
+    display_name = 'Imani',
     age = 25,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Single-digit, looking for a regular game.',
     home_city = 'Arlington, VA',
     home_course_name = 'Redgate Golf Course',
@@ -454,7 +209,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1535132011086-b8818f016104?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163637018-cec278130a11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1629673335499-fee8aa739ca0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673337572-bf43e6306694?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -474,7 +229,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'marcus10.seed@pindr.test',
+    'adaora5.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -484,10 +239,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Marcus',
+    display_name = 'Adaora',
     age = 40,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Corporate tournaments got me hooked. Now I play every weekend.',
     home_city = 'Takoma Park, MD',
     home_course_name = 'Redgate Golf Course',
@@ -503,7 +258,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1675106644887-b1b150df1bb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163526219-699e747511fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163532134-5ea6c80b58a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1526166941536-79e86f5bbe5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106645749-be234c7a2aa7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1701428180906-fe71a1fe8cd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -523,7 +278,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'jamie11.seed@pindr.test',
+    'layla6.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -533,10 +288,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Jamie',
+    display_name = 'Layla',
     age = 31,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Swing coach on the side. Open to tips or just play.',
     home_city = 'Vienna, VA',
     home_course_name = 'Northwest Park Golf Course',
@@ -552,7 +307,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1509586721451-a990371f8243?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711380-041e1ce2997c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1677174501959-198c8aa76314?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106645743-1e47fd7206a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -572,7 +327,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'devi12.seed@pindr.test',
+    'farah7.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -582,10 +337,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Devi',
+    display_name = 'Farah',
     age = 26,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Bethesda regular. Falls Road is home.',
     home_city = 'Takoma Park, MD',
     home_course_name = 'Manassas Park GC',
@@ -601,7 +356,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1696476523595-a7d488c4b196?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1705783501055-f109f2f9cfb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1649906447281-fb2fa744a900?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1698692338188-0ec3ab1ac9b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -621,7 +376,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'eli13.seed@pindr.test',
+    'tyra8.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -631,10 +386,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Eli',
+    display_name = 'Tyra',
     age = 30,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Been on 16th hole at Langston most weekends since 2019.',
     home_city = 'Washington, DC',
     home_course_name = 'University of Maryland GC',
@@ -650,7 +405,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1655161905949-3b5410c00e99?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106642555-e1061595e894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1730372609361-0049718f5957?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1675106642555-e1061595e894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1595133013391-78efd68f3354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1760253488581-f77fe3a6e479?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -670,7 +425,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'sophia14.seed@pindr.test',
+    'yara9.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -680,10 +435,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Sophia',
+    display_name = 'Yara',
     age = 26,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'NoVa mom. Reston National with the kids when they''re free.',
     home_city = 'Reston, VA',
     home_course_name = 'Falls Road Golf Course',
@@ -699,7 +454,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1591491640784-3232eb748d4b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163630525-526459aaa2d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1677174501603-2371ee3a4a0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673335562-7ca83773d894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -719,7 +474,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'noah15.seed@pindr.test',
+    'selena10.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -729,10 +484,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Noah',
+    display_name = 'Selena',
     age = 40,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'NoVa mom. Reston National with the kids when they''re free.',
     home_city = 'Bethesda, MD',
     home_course_name = 'Langston Golf Course',
@@ -748,7 +503,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1693163613081-ad955609fec7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163615287-132b2cd0aa47?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1695751278996-8c7d659f4d6d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1650836150125-62cc258f9fd7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHx3b21lbiUyMGdvbGYlMjB0b3VybmFtZW50fGVufDB8fHx8MTc3Njk5Njc3Nnww&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -768,7 +523,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'maya16.seed@pindr.test',
+    'carmen11.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -778,10 +533,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Maya',
+    display_name = 'Carmen',
     age = 26,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Corporate tournaments got me hooked. Now I play every weekend.',
     home_city = 'Silver Spring, MD',
     home_course_name = 'Manassas Park GC',
@@ -797,7 +552,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1601479693683-d4d129e528eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163522830-dd2e1ecd4943?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1701428180906-fe71a1fe8cd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1494249120761-ea1225b46c05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1593282153762-a41e3cceb06c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673333167-2d2cece2ac8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -817,7 +572,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'chris17.seed@pindr.test',
+    'gia12.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -827,10 +582,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Chris',
+    display_name = 'Gia',
     age = 26,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Corporate tournaments got me hooked. Now I play every weekend.',
     home_city = 'Washington, DC',
     home_course_name = 'Reston National GC',
@@ -846,7 +601,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1591491667453-4b2066e58b6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163501669-2ec849659537?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1773338395745-a2459971e12a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxsYXRpbmElMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1735147733594-dc863cada51a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -866,7 +621,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'dana18.seed@pindr.test',
+    'nina13.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -876,10 +631,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Dana',
+    display_name = 'Nina',
     age = 23,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Walking-only. Usually at Sligo Creek or Northwest Park.',
     home_city = 'McLean, VA',
     home_course_name = 'Redgate Golf Course',
@@ -895,7 +650,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1568229654980-91010242b5e6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1701428180979-67cf3a5c6ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106645743-1e47fd7206a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1633597468433-fdb200b73f62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1677174503006-f13225e869db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1658751155771-a490ce65bd86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxhc2lhbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzR8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -915,7 +670,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'kyle19.seed@pindr.test',
+    'zoey14.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -925,10 +680,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Kyle',
+    display_name = 'Zoey',
     age = 32,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Moved here from NYC. Learning the DMV scene.',
     home_city = 'Falls Church, VA',
     home_course_name = 'Reston National GC',
@@ -944,7 +699,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1686605973108-e71985f06ce8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1730372609330-1811686f885d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1591491672853-2210e08a15f5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1662224107406-cfbd51edd90c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -964,7 +719,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'laila20.seed@pindr.test',
+    'kira15.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -974,10 +729,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Laila',
+    display_name = 'Kira',
     age = 23,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Morning person. 6am tee times or bust.',
     home_city = 'Alexandria, VA',
     home_course_name = 'Army Navy Country Club',
@@ -993,7 +748,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1535132011086-b8818f016104?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163543487-31a76c914b26?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1592919505780-303950717480?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1693163609196-a2422d850e3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1622819219010-7721328f050b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxhc2lhbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzR8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1553301174-5dffa1736f61?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1013,7 +768,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'tomas21.seed@pindr.test',
+    'esther16.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1023,10 +778,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Tomas',
+    display_name = 'Esther',
     age = 42,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'DC native. Watched the Langston renovation happen.',
     home_city = 'Arlington, VA',
     home_course_name = 'Trump National DC',
@@ -1042,7 +797,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1620578885174-0c3fc8ada7e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633597468456-d11ea13ede88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1737372502443-d5dee5b54d62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1649001711408-66df9c8c5998?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1627955741033-773d0ad5bb32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163630525-526459aaa2d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1062,7 +817,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'asha22.seed@pindr.test',
+    'talia17.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1072,10 +827,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Asha',
+    display_name = 'Talia',
     age = 30,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Softball in summer, golf the rest of the year.',
     home_city = 'Alexandria, VA',
     home_course_name = 'Needwood Golf Course',
@@ -1091,7 +846,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1560161525-4f9756157863?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163622610-1deb45f77d90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1633597468019-023c3434e138?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1696104470342-b1ed3afe8381?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzN8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1111,7 +866,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'ben23.seed@pindr.test',
+    'asha18.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1121,10 +876,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Ben',
+    display_name = 'Asha',
     age = 37,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Swing coach on the side. Open to tips or just play.',
     home_city = 'Rockville, MD',
     home_course_name = 'Manassas Park GC',
@@ -1140,7 +895,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1629673333167-2d2cece2ac8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1776660244774-eabab8cd1ae3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163622610-1deb45f77d90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1677174502881-d197c868c0f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1620578885174-0c3fc8ada7e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1723717729877-6a0bb3095c30?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1160,7 +915,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'harper24.seed@pindr.test',
+    'devi19.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1170,10 +925,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Harper',
+    display_name = 'Devi',
     age = 31,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Got into golf during COVID. Playing catch-up.',
     home_city = 'Fairfax, VA',
     home_course_name = 'Falls Road Golf Course',
@@ -1189,7 +944,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1693163586600-e5d595896ec6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633597468433-fdb200b73f62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1773338410633-7ba377b2a401?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHxsYXRpbmElMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673120178-53a664eec9e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxkaXZlcnNlJTIwZ29sZmVyc3xlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1209,7 +964,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'zoey25.seed@pindr.test',
+    'sophia20.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1219,10 +974,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Zoey',
+    display_name = 'Sophia',
     age = 28,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'East Potomac three times a week in summer. Say hi.',
     home_city = 'Herndon, VA',
     home_course_name = 'Manassas Park GC',
@@ -1238,7 +993,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1693163582877-0c68c316adf3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNnx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1730372645289-7f26ac10fcdf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1701428180979-67cf3a5c6ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711408-66df9c8c5998?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1258,7 +1013,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'leo26.seed@pindr.test',
+    'mia21.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1268,10 +1023,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Leo',
+    display_name = 'Mia',
     age = 23,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Non-binary',
+    pronouns = 'they/them',
     bio = 'Morning person. 6am tee times or bust.',
     home_city = 'Alexandria, VA',
     home_course_name = 'Langston Golf Course',
@@ -1287,7 +1042,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1737372393719-2699e69d47e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1686605972946-ec3d971f93ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1775326439213-d25fca2b807d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1601479693683-d4d129e528eb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzN8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1307,7 +1062,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'nina27.seed@pindr.test',
+    'harper22.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1317,10 +1072,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Nina',
+    display_name = 'Harper',
     age = 26,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Grad student at Georgetown. Cheap tee times, late afternoons.',
     home_city = 'Vienna, VA',
     home_course_name = 'Fort Belvoir GC',
@@ -1336,7 +1091,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1658751155771-a490ce65bd86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1773338407750-a9538cdb5ded?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1693163586600-e5d595896ec6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163575378-ac9f465ce03c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1356,7 +1111,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'omar28.seed@pindr.test',
+    'dana23.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1366,10 +1121,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Omar',
+    display_name = 'Dana',
     age = 34,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Left-handed. Tournament curious. Let''s build something.',
     home_city = 'Bethesda, MD',
     home_course_name = 'Fort Belvoir GC',
@@ -1385,7 +1140,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1526166941536-79e86f5bbe5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1775144581077-ef2b00f156e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1593540537882-45954d30ec19?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1770445912388-5ed7a2b87e89?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1405,7 +1160,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'carmen29.seed@pindr.test',
+    'kenji24.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1415,10 +1170,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Carmen',
+    display_name = 'Kenji',
     age = 42,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Morning person. 6am tee times or bust.',
     home_city = 'Arlington, VA',
     home_course_name = 'Chevy Chase Club',
@@ -1434,7 +1189,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1611374243147-44a702c2d44c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1719931102125-d808566fa070?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1693163563861-d83eeef22678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711435-941fb329ba3d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1454,7 +1209,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'isaiah30.seed@pindr.test',
+    'lin25.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1464,10 +1219,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Isaiah',
+    display_name = 'Lin',
     age = 29,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Grad student at Georgetown. Cheap tee times, late afternoons.',
     home_city = 'Hyattsville, MD',
     home_course_name = 'Reston National GC',
@@ -1483,7 +1238,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1631034527597-2d46ad65e09c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1690019496967-cd32616d8c55?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1680157593732-85a3887a4a28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1653836137460-5a78ff432126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1503,7 +1258,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'mia31.seed@pindr.test',
+    'amara26.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1513,10 +1268,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Mia',
+    display_name = 'Amara',
     age = 38,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Morning person. 6am tee times or bust.',
     home_city = 'Alexandria, VA',
     home_course_name = 'Congressional Country Club',
@@ -1532,7 +1287,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1693163515281-2f7e99af4bc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1696476522029-fe1fc28a5641?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163609196-a2422d850e3f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1728932976150-7e81ef17e734?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1651719902665-f3b35fde005b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1680157593693-4cb30c748c4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxsYXRpbmElMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc1fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1552,7 +1307,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'raj32.seed@pindr.test',
+    'nia27.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1562,10 +1317,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Raj',
+    display_name = 'Nia',
     age = 37,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Crown Golf in Rockville is underrated. Fight me.',
     home_city = 'Fairfax, VA',
     home_course_name = 'Reston National GC',
@@ -1581,7 +1336,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1693163493266-8c533349a560?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1758551932752-a9c603e25146?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163586600-e5d595896ec6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1675106644533-135b0599552d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1697448524595-8f3a1fe39bc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1697448524595-8f3a1fe39bc9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1601,7 +1356,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'sasha33.seed@pindr.test',
+    'camila28.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1611,10 +1366,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Sasha',
+    display_name = 'Camila',
     age = 26,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Corporate tournaments got me hooked. Now I play every weekend.',
     home_city = 'McLean, VA',
     home_course_name = 'Chevy Chase Club',
@@ -1630,7 +1385,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1693163566538-84e27705e651?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/flagged/photo-1558759103-88e62f9438f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1616993022789-04416cf4f645?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxkaXZlcnNlJTIwZ29sZmVyc3xlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1737372393719-2699e69d47e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1650,7 +1405,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'theo34.seed@pindr.test',
+    'janelle29.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1660,10 +1415,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Theo',
+    display_name = 'Janelle',
     age = 37,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Got into golf during COVID. Playing catch-up.',
     home_city = 'Washington, DC',
     home_course_name = 'Redgate Golf Course',
@@ -1679,7 +1434,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1593282153762-a41e3cceb06c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1730372609505-2d1d75e300aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1649001711404-02638ccee318?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1677764374909-e92e564d29c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1699,7 +1454,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'aisha35.seed@pindr.test',
+    'simone30.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1709,10 +1464,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Aisha',
+    display_name = 'Simone',
     age = 26,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Moved here from NYC. Learning the DMV scene.',
     home_city = 'McLean, VA',
     home_course_name = 'Redgate Golf Course',
@@ -1728,7 +1483,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1597368629379-64c0c151431b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1509586721451-a990371f8243?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1692195400719-81a66b4fde89?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1773338395745-a2459971e12a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzN8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1748,7 +1503,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'jaden36.seed@pindr.test',
+    'zuri31.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1758,10 +1513,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Jaden',
+    display_name = 'Zuri',
     age = 31,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Morning person. 6am tee times or bust.',
     home_city = 'Washington, DC',
     home_course_name = 'Northwest Park Golf Course',
@@ -1777,7 +1532,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1650836150259-517d6c33b806?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1671081904436-56b1b5c87f62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1723717729724-db37e3240cfe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1622819218398-cca8ef13aed6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1797,7 +1552,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'farah37.seed@pindr.test',
+    'keisha32.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1807,10 +1562,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Farah',
+    display_name = 'Keisha',
     age = 30,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Non-binary',
+    pronouns = 'they/them',
     bio = 'Moved here from NYC. Learning the DMV scene.',
     home_city = 'Bethesda, MD',
     home_course_name = 'Trump National DC',
@@ -1826,7 +1581,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1730372610389-addd187a9979?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1627955741033-773d0ad5bb32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711408-66df9c8c5998?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1675106643320-ed77324b2201?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1697448524689-8dfd3d11071e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163637018-cec278130a11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1846,7 +1601,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'luis38.seed@pindr.test',
+    'jada33.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1856,10 +1611,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Luis',
+    display_name = 'Jada',
     age = 44,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Non-binary',
+    pronouns = 'they/them',
     bio = 'Grad student at Georgetown. Cheap tee times, late afternoons.',
     home_city = 'Washington, DC',
     home_course_name = 'Rock Creek Park Golf Course',
@@ -1875,7 +1630,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1693163582877-0c68c316adf3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711411-c35d4f4b559a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1568229654980-91010242b5e6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1621369132713-4cfdb898dfcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwZ29sZmVyc3xlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1895,7 +1650,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'adaora39.seed@pindr.test',
+    'malaika34.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1905,7 +1660,7 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Adaora',
+    display_name = 'Malaika',
     age = 30,
     gender = 'Non-binary',
     pronouns = 'they/them',
@@ -1924,7 +1679,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1651719902665-f3b35fde005b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673546715-706ae1cdef86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1773338440553-5daceb7f141d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxibGFjayUyMHdvbWFuJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1701428180979-67cf3a5c6ad1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1944,7 +1699,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'cole40.seed@pindr.test',
+    'inez35.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -1954,10 +1709,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Cole',
+    display_name = 'Inez',
     age = 25,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Morning person. 6am tee times or bust.',
     home_city = 'McLean, VA',
     home_course_name = 'Manassas Park GC',
@@ -1973,7 +1728,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1629673337572-bf43e6306694?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1631294949134-ecd4ecd5f4b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1642795752867-37df82428008?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163526219-699e747511fb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -1993,7 +1748,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'tyra41.seed@pindr.test',
+    'yasmin36.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2003,10 +1758,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Tyra',
+    display_name = 'Yasmin',
     age = 35,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Swing coach on the side. Open to tips or just play.',
     home_city = 'Silver Spring, MD',
     home_course_name = 'Needwood Golf Course',
@@ -2022,7 +1777,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1693163563861-d83eeef22678?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163619389-d604ba46b523?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1637346405165-1bb3e84c332b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711380-041e1ce2997c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2042,7 +1797,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'simon42.seed@pindr.test',
+    'noor37.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2052,10 +1807,10 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Simon',
+    display_name = 'Noor',
     age = 32,
-    gender = 'Man',
-    pronouns = 'he/him',
+    gender = 'Woman',
+    pronouns = 'she/her',
     bio = 'Bethesda regular. Falls Road is home.',
     home_city = 'Alexandria, VA',
     home_course_name = 'Needwood Golf Course',
@@ -2071,7 +1826,7 @@ begin
     post_round = 'hangout',
     teaching_mindset = 'just_play',
     style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1593282153762-a41e3cceb06c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1762777182073-1ff97fc01a1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1620578986840-7d2e90fac0e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1627934147169-854be8cb7e0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2091,7 +1846,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'esther43.seed@pindr.test',
+    'anika38.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2101,14 +1856,14 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Esther',
+    display_name = 'Anika',
     age = 27,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Rediscovering the game after ten years off.',
-    home_city = 'Jersey City, NJ',
-    home_course_name = 'Van Cortlandt Park',
-    home_location = ST_SetSRID(ST_MakePoint(-74.04763, 40.71798), 4326)::geography,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Single-digit, looking for a regular game.',
+    home_city = 'Alexandria, VA',
+    home_course_name = 'Fort Belvoir GC',
+    home_location = ST_SetSRID(ST_MakePoint(-77.08833, 38.83228), 4326)::geography,
     has_handicap = false,
     handicap = null,
     years_playing = 15,
@@ -2120,7 +1875,7 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1687250438622-3277483121e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163575378-ac9f465ce03c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1675106645210-c86647118fee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNnx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163566538-84e27705e651?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2140,7 +1895,154 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'malik44.seed@pindr.test',
+    'sana39.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Sana',
+    age = 36,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Moved here from NYC. Learning the DMV scene.',
+    home_city = 'Falls Church, VA',
+    home_course_name = 'Army Navy Country Club',
+    home_location = ST_SetSRID(ST_MakePoint(-77.18105, 38.87764), 4326)::geography,
+    has_handicap = false,
+    handicap = null,
+    years_playing = 8,
+    walking_preference = 'either',
+    holes_preference = 'either',
+    pace = 'ready',
+    betting = 'small',
+    drinks = 'yes',
+    post_round = 'just_round',
+    teaching_mindset = 'just_play',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1650836150125-374d83bebf82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHx3b21lbiUyMGdvbGYlMjB0b3VybmFtZW50fGVufDB8fHx8MTc3Njk5Njc3Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1509586721451-a990371f8243?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'leilani40.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Leilani',
+    age = 29,
+    gender = 'Non-binary',
+    pronouns = 'they/them',
+    bio = 'Single-digit, looking for a regular game.',
+    home_city = 'Silver Spring, MD',
+    home_course_name = 'Fairfax National',
+    home_location = ST_SetSRID(ST_MakePoint(-77.02788, 38.99782), 4326)::geography,
+    has_handicap = true,
+    handicap = 12.6,
+    years_playing = 10,
+    walking_preference = 'either',
+    holes_preference = '18',
+    pace = 'ready',
+    betting = 'small',
+    drinks = 'sometimes',
+    post_round = 'hangout',
+    teaching_mindset = 'just_play',
+    style_default = 'relaxed',
+    photo_urls = array['https://images.unsplash.com/photo-1649001711329-65d6362e0c87?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1677174503006-f13225e869db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxhc2lhbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzR8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'marcus41.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Marcus',
+    age = 26,
+    gender = 'Man',
+    pronouns = 'he/him',
+    bio = 'Left-handed. Tournament curious. Let''s build something.',
+    home_city = 'Arlington, VA',
+    home_course_name = 'Chevy Chase Club',
+    home_location = ST_SetSRID(ST_MakePoint(-77.10225, 38.87904), 4326)::geography,
+    has_handicap = true,
+    handicap = 16.1,
+    years_playing = 12,
+    walking_preference = 'either',
+    holes_preference = '9',
+    pace = 'chill',
+    betting = 'small',
+    drinks = 'sometimes',
+    post_round = 'just_round',
+    teaching_mindset = 'just_play',
+    style_default = 'competitive',
+    photo_urls = array['https://images.unsplash.com/photo-1697448524689-8dfd3d11071e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1611374243147-44a702c2d44c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'malik42.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2151,172 +2053,25 @@ begin
 
   update public.profiles set
     display_name = 'Malik',
-    age = 31,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Muni golfer forever. Give me a 20-buck round and I''m happy.',
-    home_city = 'Santa Monica, CA',
-    home_course_name = 'Rancho Park',
-    home_location = ST_SetSRID(ST_MakePoint(-118.48545, 34.0163), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 8,
-    walking_preference = 'walk',
-    holes_preference = '18',
-    pace = 'ready',
-    betting = 'small',
-    drinks = 'no',
-    post_round = 'just_round',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1658751155771-a490ce65bd86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/flagged/photo-1558759103-d4d02c7ee13f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'lin45.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Lin',
-    age = 42,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Working my way from 20s to single digits.',
-    home_city = 'Santa Monica, CA',
-    home_course_name = 'Monarch Bay',
-    home_location = ST_SetSRID(ST_MakePoint(-118.48158, 34.02689), 4326)::geography,
+    age = 35,
+    gender = 'Non-binary',
+    pronouns = 'they/them',
+    bio = 'DC native. Watched the Langston renovation happen.',
+    home_city = 'Washington, DC',
+    home_course_name = 'Reston National GC',
+    home_location = ST_SetSRID(ST_MakePoint(-77.07038, 38.90666), 4326)::geography,
     has_handicap = true,
-    handicap = 26.3,
-    years_playing = 6,
-    walking_preference = 'either',
-    holes_preference = '18',
-    pace = 'chill',
-    betting = 'small',
-    drinks = 'yes',
-    post_round = 'just_round',
-    teaching_mindset = 'just_play',
-    style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1591491719565-9cae8fd89f8d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1653836137460-5a78ff432126?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'darius46.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Darius',
-    age = 24,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Muni golfer forever. Give me a 20-buck round and I''m happy.',
-    home_city = 'Berkeley, CA',
-    home_course_name = 'Tilden Park',
-    home_location = ST_SetSRID(ST_MakePoint(-122.28069, 37.86824), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 15,
+    handicap = 25.2,
+    years_playing = 20,
     walking_preference = 'walk',
-    holes_preference = 'either',
-    pace = 'moderate',
-    betting = 'yes',
-    drinks = 'no',
-    post_round = 'hangout',
-    teaching_mindset = 'just_play',
-    style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1693163575378-ac9f465ce03c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633597468456-d11ea13ede88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'kira47.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Kira',
-    age = 33,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Rediscovering the game after ten years off.',
-    home_city = 'Queens, NY',
-    home_course_name = 'Van Cortlandt Park',
-    home_location = ST_SetSRID(ST_MakePoint(-73.79141, 40.72477), 4326)::geography,
-    has_handicap = true,
-    handicap = 5.0,
-    years_playing = 18,
-    walking_preference = 'ride',
-    holes_preference = '18',
+    holes_preference = '9',
     pace = 'ready',
     betting = 'no',
     drinks = 'sometimes',
     post_round = 'hangout',
     teaching_mindset = 'open_to_tips',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1693163637018-cec278130a11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1744551154591-7613d92e0eb9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080'],
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1639747279286-c07eecb47a0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633009034724-5a3cb0aafa40?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673487033-78a56c484c18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2336,7 +2091,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'xavier48.seed@pindr.test',
+    'xavier43.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2347,74 +2102,25 @@ begin
 
   update public.profiles set
     display_name = 'Xavier',
-    age = 26,
-    gender = 'Woman',
-    pronouns = 'she/her',
+    age = 28,
+    gender = 'Man',
+    pronouns = 'he/him',
     bio = 'Beginner and loving it. Patient with me and I''ll be patient with you.',
-    home_city = 'San Francisco, CA',
-    home_course_name = 'Forest Park',
-    home_location = ST_SetSRID(ST_MakePoint(-122.42607, 37.76691), 4326)::geography,
+    home_city = 'Manhattan, NY',
+    home_course_name = 'Brookside',
+    home_location = ST_SetSRID(ST_MakePoint(-73.96528, 40.77402), 4326)::geography,
     has_handicap = false,
     handicap = null,
     years_playing = 8,
-    walking_preference = 'walk',
-    holes_preference = '9',
-    pace = 'moderate',
-    betting = 'yes',
-    drinks = 'sometimes',
-    post_round = 'just_round',
-    teaching_mindset = 'just_play',
-    style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1686605973024-457fb30114fd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxtYW4lMjBnb2xmaW5nfGVufDB8fHx8MTc3Njg4NTU2N3ww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1635745129486-dcb2a5259b1f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'layla49.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Layla',
-    age = 44,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Big hitter, short game still in progress.',
-    home_city = 'Queens, NY',
-    home_course_name = 'Forest Park',
-    home_location = ST_SetSRID(ST_MakePoint(-73.79725, 40.73039), 4326)::geography,
-    has_handicap = true,
-    handicap = 7.4,
-    years_playing = 25,
-    walking_preference = 'walk',
+    walking_preference = 'ride',
     holes_preference = '18',
-    pace = 'ready',
+    pace = 'moderate',
     betting = 'yes',
     drinks = 'yes',
     post_round = 'just_round',
-    teaching_mindset = 'just_play',
-    style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1675106644722-1bcf4cb208a8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1775493115258-2bf6833e2ee8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    teaching_mindset = 'open_to_tips',
+    style_default = 'relaxed',
+    photo_urls = array['https://images.unsplash.com/photo-1698692393564-08f2bcd78d8f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxhc2lhbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzR8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163537665-b7c5a5f01f75?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2434,7 +2140,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'nico50.seed@pindr.test',
+    'darius44.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2444,75 +2150,26 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Nico',
-    age = 32,
+    display_name = 'Darius',
+    age = 30,
     gender = 'Woman',
     pronouns = 'she/her',
-    bio = 'Former college player. Looking for solid games locally.',
-    home_city = 'San Francisco, CA',
-    home_course_name = 'Brookside',
-    home_location = ST_SetSRID(ST_MakePoint(-122.41765, 37.77181), 4326)::geography,
+    bio = 'Just want people who take the game seriously but not themselves.',
+    home_city = 'Queens, NY',
+    home_course_name = 'Van Cortlandt Park',
+    home_location = ST_SetSRID(ST_MakePoint(-73.79571, 40.73096), 4326)::geography,
     has_handicap = true,
-    handicap = 14.0,
+    handicap = 8.8,
     years_playing = 25,
-    walking_preference = 'ride',
-    holes_preference = 'either',
-    pace = 'moderate',
-    betting = 'small',
-    drinks = 'sometimes',
-    post_round = 'hangout',
-    teaching_mindset = 'just_play',
-    style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1561840883-dbdb5300f464?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1680157593732-85a3887a4a28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'imani51.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Imani',
-    age = 34,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Weekend warrior with more enthusiasm than skill.',
-    home_city = 'Manhattan, NY',
-    home_course_name = 'Forest Park',
-    home_location = ST_SetSRID(ST_MakePoint(-73.96164, 40.779), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 25,
-    walking_preference = 'ride',
+    walking_preference = 'walk',
     holes_preference = '18',
-    pace = 'chill',
+    pace = 'moderate',
     betting = 'no',
     drinks = 'no',
     post_round = 'hangout',
-    teaching_mindset = 'just_play',
+    teaching_mindset = 'open_to_tips',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1693163487498-07bbd30067f6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633597468433-fdb200b73f62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1697448524689-8dfd3d11071e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1500692113255-a77945812d91?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNnx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1650836150259-517d6c33b806?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2532,7 +2189,203 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'arjun52.seed@pindr.test',
+    'isaiah45.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Isaiah',
+    age = 36,
+    gender = 'Man',
+    pronouns = 'he/him',
+    bio = 'Grew up caddying. Now I just enjoy walking 18.',
+    home_city = 'Oakland, CA',
+    home_course_name = 'Penmar',
+    home_location = ST_SetSRID(ST_MakePoint(-122.26413, 37.81439), 4326)::geography,
+    has_handicap = true,
+    handicap = 10.6,
+    years_playing = 3,
+    walking_preference = 'walk',
+    holes_preference = '18',
+    pace = 'ready',
+    betting = 'small',
+    drinks = 'no',
+    post_round = 'just_round',
+    teaching_mindset = 'just_play',
+    style_default = 'relaxed',
+    photo_urls = array['https://images.unsplash.com/photo-1542436833-75ef72a576e3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHxsYXRpbmElMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163622610-1deb45f77d90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1672936830496-0d403a38afc7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'jaden46.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Jaden',
+    age = 24,
+    gender = 'Man',
+    pronouns = 'he/him',
+    bio = 'Former college player. Looking for solid games locally.',
+    home_city = 'Berkeley, CA',
+    home_course_name = 'TPC Harding Park',
+    home_location = ST_SetSRID(ST_MakePoint(-122.26464, 37.87826), 4326)::geography,
+    has_handicap = false,
+    handicap = null,
+    years_playing = 6,
+    walking_preference = 'either',
+    holes_preference = '18',
+    pace = 'chill',
+    betting = 'no',
+    drinks = 'yes',
+    post_round = 'just_round',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'competitive',
+    photo_urls = array['https://images.unsplash.com/photo-1680157593732-85a3887a4a28?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxibGFjayUyMHdvbWFuJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1677174502881-d197c868c0f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1535132011086-b8818f016104?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'omar47.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Omar',
+    age = 37,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Former college player. Looking for solid games locally.',
+    home_city = 'Manhattan, NY',
+    home_course_name = 'Brookside',
+    home_location = ST_SetSRID(ST_MakePoint(-73.97467, 40.79129), 4326)::geography,
+    has_handicap = true,
+    handicap = 6.3,
+    years_playing = 12,
+    walking_preference = 'walk',
+    holes_preference = '9',
+    pace = 'chill',
+    betting = 'no',
+    drinks = 'sometimes',
+    post_round = 'just_round',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1694636507260-8b2428e3b738?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673546715-706ae1cdef86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'raj48.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Raj',
+    age = 37,
+    gender = 'Non-binary',
+    pronouns = 'they/them',
+    bio = 'Working my way from 20s to single digits.',
+    home_city = 'Los Angeles, CA',
+    home_course_name = 'TPC Harding Park',
+    home_location = ST_SetSRID(ST_MakePoint(-118.23922, 34.0594), 4326)::geography,
+    has_handicap = true,
+    handicap = 27.2,
+    years_playing = 12,
+    walking_preference = 'either',
+    holes_preference = '18',
+    pace = 'chill',
+    betting = 'small',
+    drinks = 'yes',
+    post_round = 'just_round',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1672871583054-fd20d2cbe5bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1632347639583-b77941b7282a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'arjun49.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2543,270 +2396,25 @@ begin
 
   update public.profiles set
     display_name = 'Arjun',
-    age = 29,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Working my way from 20s to single digits.',
-    home_city = 'Jersey City, NJ',
-    home_course_name = 'Penmar',
-    home_location = ST_SetSRID(ST_MakePoint(-74.03992, 40.72222), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 5,
-    walking_preference = 'either',
-    holes_preference = '9',
-    pace = 'ready',
-    betting = 'no',
-    drinks = 'yes',
-    post_round = 'just_round',
-    teaching_mindset = 'just_play',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1731990141106-074d8b5b7ec9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxfHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1696476523242-1607be9345e1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNXx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'talia53.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Talia',
-    age = 32,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Muni golfer forever. Give me a 20-buck round and I''m happy.',
-    home_city = 'Pasadena, CA',
-    home_course_name = 'Metropolitan GL',
-    home_location = ST_SetSRID(ST_MakePoint(-118.13697, 34.15353), 4326)::geography,
-    has_handicap = true,
-    handicap = 8.0,
-    years_playing = 10,
-    walking_preference = 'either',
-    holes_preference = 'either',
-    pace = 'moderate',
-    betting = 'yes',
-    drinks = 'sometimes',
-    post_round = 'just_round',
-    teaching_mindset = 'just_play',
-    style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1696476523305-79cbc0e973c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1602646395218-8739d82c619a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'beau54.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Beau',
-    age = 27,
-    gender = 'Woman',
-    pronouns = 'she/her',
-    bio = 'Rediscovering the game after ten years off.',
-    home_city = 'Oakland, CA',
-    home_course_name = 'Van Cortlandt Park',
-    home_location = ST_SetSRID(ST_MakePoint(-122.27325, 37.80789), 4326)::geography,
-    has_handicap = true,
-    handicap = 19.9,
-    years_playing = 18,
-    walking_preference = 'ride',
-    holes_preference = '9',
-    pace = 'moderate',
-    betting = 'yes',
-    drinks = 'sometimes',
-    post_round = 'hangout',
-    teaching_mindset = 'just_play',
-    style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1693163630525-526459aaa2d3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1766288019709-5200e48c656a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'gia55.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Gia',
-    age = 34,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Weekend warrior with more enthusiasm than skill.',
-    home_city = 'San Francisco, CA',
-    home_course_name = 'Penmar',
-    home_location = ST_SetSRID(ST_MakePoint(-122.41817, 37.78258), 4326)::geography,
-    has_handicap = true,
-    handicap = 3.6,
-    years_playing = 20,
-    walking_preference = 'walk',
-    holes_preference = 'either',
-    pace = 'chill',
-    betting = 'no',
-    drinks = 'sometimes',
-    post_round = 'just_round',
-    teaching_mindset = 'just_play',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1693163619389-d604ba46b523?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1662224107294-de517937a037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzMHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1629673335562-7ca83773d894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'kenji56.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Kenji',
-    age = 38,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Former college player. Looking for solid games locally.',
-    home_city = 'Queens, NY',
-    home_course_name = 'Dyker Beach',
-    home_location = ST_SetSRID(ST_MakePoint(-73.79748, 40.72597), 4326)::geography,
-    has_handicap = true,
-    handicap = 16.4,
-    years_playing = 18,
-    walking_preference = 'ride',
-    holes_preference = 'either',
-    pace = 'ready',
-    betting = 'no',
-    drinks = 'yes',
-    post_round = 'just_round',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1683418164346-c690a0d785dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyNHx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/flagged/photo-1576448438685-9f5e5b283d4f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080'],
-    onboarded_at = now()
-  where user_id = u_id;
-end $$;
-
-do $$
-declare u_id uuid;
-begin
-  u_id := gen_random_uuid();
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'selena57.seed@pindr.test',
-    now(),
-    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  update public.profiles set
-    display_name = 'Selena',
-    age = 34,
+    age = 35,
     gender = 'Man',
     pronouns = 'he/him',
     bio = 'Grew up caddying. Now I just enjoy walking 18.',
-    home_city = 'Pasadena, CA',
-    home_course_name = 'Tilden Park',
-    home_location = ST_SetSRID(ST_MakePoint(-118.13488, 34.14505), 4326)::geography,
-    has_handicap = true,
-    handicap = 8.9,
-    years_playing = 10,
+    home_city = 'Oakland, CA',
+    home_course_name = 'Brookside',
+    home_location = ST_SetSRID(ST_MakePoint(-122.27652, 37.79657), 4326)::geography,
+    has_handicap = false,
+    handicap = null,
+    years_playing = 2,
     walking_preference = 'either',
     holes_preference = 'either',
     pace = 'moderate',
-    betting = 'yes',
-    drinks = 'sometimes',
-    post_round = 'just_round',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'relaxed',
-    photo_urls = array['https://images.unsplash.com/photo-1662224107294-de517937a037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8bWFuJTIwZ29sZmluZ3xlbnwwfHx8fDE3NzY4ODU1Njd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1773338437446-723d784c9008?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyfHxnb2xmJTIwY291cnNlJTIwcGVyc29ufGVufDB8fHx8MTc3Njg4NTU2OHww&ixlib=rb-4.1.0&q=80&w=1080'],
+    betting = 'no',
+    drinks = 'yes',
+    post_round = 'hangout',
+    teaching_mindset = 'just_play',
+    style_default = 'competitive',
+    photo_urls = array['https://images.unsplash.com/photo-1680157593682-dfce4735381d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxkaXZlcnNlJTIwZ29sZmVyc3xlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106644887-b1b150df1bb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw1fHx3b21lbiUyMGdvbGYlMjB0b3VybmFtZW50fGVufDB8fHx8MTc3Njk5Njc3Nnww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1586549349177-9073019361c6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2826,7 +2434,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'ravi58.seed@pindr.test',
+    'ravi50.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2837,25 +2445,25 @@ begin
 
   update public.profiles set
     display_name = 'Ravi',
-    age = 23,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Sunset rounds on the coast are my thing.',
-    home_city = 'Los Angeles, CA',
-    home_course_name = 'Van Cortlandt Park',
-    home_location = ST_SetSRID(ST_MakePoint(-118.2496, 34.05794), 4326)::geography,
+    age = 27,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Weekend warrior with more enthusiasm than skill.',
+    home_city = 'San Francisco, CA',
+    home_course_name = 'Brookside',
+    home_location = ST_SetSRID(ST_MakePoint(-122.4247, 37.76722), 4326)::geography,
     has_handicap = true,
-    handicap = 27.7,
+    handicap = 27.9,
     years_playing = 18,
     walking_preference = 'walk',
-    holes_preference = 'either',
-    pace = 'chill',
-    betting = 'yes',
-    drinks = 'sometimes',
-    post_round = 'hangout',
+    holes_preference = '18',
+    pace = 'moderate',
+    betting = 'small',
+    drinks = 'no',
+    post_round = 'just_round',
     teaching_mindset = 'open_to_tips',
     style_default = 'improvement',
-    photo_urls = array['https://images.unsplash.com/photo-1693163633170-713b9a8e6a41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2ODg1NTY3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1662224107342-c2bfd01a17f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1494249120761-ea1225b46c05?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxnb2xmJTIwcGxheWVyfGVufDB8fHx8MTc3Njg4NTU2Nnww&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1693163493266-8c533349a560?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1724889753205-c37d4000f57b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2875,7 +2483,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'diego59.seed@pindr.test',
+    'diego51.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2886,25 +2494,25 @@ begin
 
   update public.profiles set
     display_name = 'Diego',
-    age = 28,
-    gender = 'Man',
-    pronouns = 'he/him',
-    bio = 'Big hitter, short game still in progress.',
-    home_city = 'Queens, NY',
-    home_course_name = 'Pelham Bay',
-    home_location = ST_SetSRID(ST_MakePoint(-73.79774, 40.72084), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
-    years_playing = 6,
+    age = 31,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Just want people who take the game seriously but not themselves.',
+    home_city = 'Manhattan, NY',
+    home_course_name = 'Monarch Bay',
+    home_location = ST_SetSRID(ST_MakePoint(-73.96409, 40.79211), 4326)::geography,
+    has_handicap = true,
+    handicap = 14.1,
+    years_playing = 3,
     walking_preference = 'either',
     holes_preference = '18',
-    pace = 'chill',
-    betting = 'yes',
+    pace = 'ready',
+    betting = 'no',
     drinks = 'sometimes',
     post_round = 'hangout',
-    teaching_mindset = 'open_to_tips',
-    style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1629673487033-78a56c484c18?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1686605972535-09ea620d0498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwzfHx3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    teaching_mindset = 'just_play',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1677174503006-f13225e869db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOHx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1775326410599-6ae37a040895?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOHx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;
@@ -2924,7 +2532,7 @@ begin
     '00000000-0000-0000-0000-000000000000',
     'authenticated',
     'authenticated',
-    'yara60.seed@pindr.test',
+    'luis52.seed@pindr.test',
     now(),
     crypt('seedpassword-not-for-real-login', gen_salt('bf')),
     '{}'::jsonb,
@@ -2934,16 +2542,114 @@ begin
   );
 
   update public.profiles set
-    display_name = 'Yara',
-    age = 25,
+    display_name = 'Luis',
+    age = 29,
     gender = 'Man',
     pronouns = 'he/him',
-    bio = 'Beginner and loving it. Patient with me and I''ll be patient with you.',
-    home_city = 'Berkeley, CA',
-    home_course_name = 'Griffith Park',
-    home_location = ST_SetSRID(ST_MakePoint(-122.28052, 37.87186), 4326)::geography,
-    has_handicap = false,
-    handicap = null,
+    bio = 'Rediscovering the game after ten years off.',
+    home_city = 'Jersey City, NJ',
+    home_course_name = 'Van Cortlandt Park',
+    home_location = ST_SetSRID(ST_MakePoint(-74.04823, 40.72354), 4326)::geography,
+    has_handicap = true,
+    handicap = 3.5,
+    years_playing = 5,
+    walking_preference = 'either',
+    holes_preference = '9',
+    pace = 'chill',
+    betting = 'no',
+    drinks = 'yes',
+    post_round = 'hangout',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1627955741513-9ab9c5394448?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633597783383-e1f1e0d06b2f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'tomas53.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Tomas',
+    age = 27,
+    gender = 'Non-binary',
+    pronouns = 'they/them',
+    bio = 'Former college player. Looking for solid games locally.',
+    home_city = 'Queens, NY',
+    home_course_name = 'Penmar',
+    home_location = ST_SetSRID(ST_MakePoint(-73.78757, 40.7204), 4326)::geography,
+    has_handicap = true,
+    handicap = 23.0,
+    years_playing = 5,
+    walking_preference = 'walk',
+    holes_preference = '18',
+    pace = 'chill',
+    betting = 'no',
+    drinks = 'sometimes',
+    post_round = 'hangout',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1775493115258-2bf6833e2ee8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw0fHxhc2lhbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzR8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1649001711411-c35d4f4b559a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxN3x8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'alex54.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Alex',
+    age = 26,
+    gender = 'Man',
+    pronouns = 'he/him',
+    bio = 'Weekend warrior with more enthusiasm than skill.',
+    home_city = 'Brooklyn, NY',
+    home_course_name = 'Pelham Bay',
+    home_location = ST_SetSRID(ST_MakePoint(-73.95202, 40.67846), 4326)::geography,
+    has_handicap = true,
+    handicap = 22.5,
     years_playing = 18,
     walking_preference = 'walk',
     holes_preference = 'either',
@@ -2953,7 +2659,301 @@ begin
     post_round = 'just_round',
     teaching_mindset = 'just_play',
     style_default = 'competitive',
-    photo_urls = array['https://images.unsplash.com/photo-1697448524689-8dfd3d11071e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxnb2xmZXJ8ZW58MHx8fHwxNzc2ODg1NTY1fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1696104470342-b1ed3afe8381?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyOXx8Z29sZmVyfGVufDB8fHx8MTc3Njg4NTU2NXww&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1763620077486-89528144e9b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNHx8Z29sZiUyMGNvdXJzZSUyMHBlcnNvbnxlbnwwfHx8fDE3NzY4ODU1Njh8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    photo_urls = array['https://images.unsplash.com/photo-1627955806241-a7cf94780b1a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8Z29sZiUyMHBsYXllcnxlbnwwfHx8fDE3NzY4ODU1NjZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163613081-ad955609fec7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1657113947734-1fd26c9e6619?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw2fHxkaXZlcnNlJTIwZ29sZmVyc3xlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'sam55.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Sam',
+    age = 36,
+    gender = 'Man',
+    pronouns = 'he/him',
+    bio = 'Rediscovering the game after ten years off.',
+    home_city = 'Brooklyn, NY',
+    home_course_name = 'Dyker Beach',
+    home_location = ST_SetSRID(ST_MakePoint(-73.95258, 40.66967), 4326)::geography,
+    has_handicap = true,
+    handicap = 25.7,
+    years_playing = 20,
+    walking_preference = 'walk',
+    holes_preference = '9',
+    pace = 'chill',
+    betting = 'small',
+    drinks = 'no',
+    post_round = 'just_round',
+    teaching_mindset = 'just_play',
+    style_default = 'competitive',
+    photo_urls = array['https://images.unsplash.com/photo-1662954610383-64450aa24b82?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw3fHxnb2xmZXIlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1581459411312-026e3fc6f12b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyN3x8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'jordan56.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Jordan',
+    age = 36,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Rediscovering the game after ten years off.',
+    home_city = 'Santa Monica, CA',
+    home_course_name = 'TPC Harding Park',
+    home_location = ST_SetSRID(ST_MakePoint(-118.48818, 34.02656), 4326)::geography,
+    has_handicap = false,
+    handicap = null,
+    years_playing = 18,
+    walking_preference = 'either',
+    holes_preference = '9',
+    pace = 'moderate',
+    betting = 'small',
+    drinks = 'yes',
+    post_round = 'just_round',
+    teaching_mindset = 'just_play',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1597368629379-64c0c151431b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyM3x8YXNpYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc0fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1693163532134-5ea6c80b58a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1752079307017-cce2825bfc59?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMHx8Z29sZmVyJTIwcG9ydHJhaXR8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'casey57.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Casey',
+    age = 36,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Beginner and loving it. Patient with me and I''ll be patient with you.',
+    home_city = 'Berkeley, CA',
+    home_course_name = 'Tilden Park',
+    home_location = ST_SetSRID(ST_MakePoint(-122.27321, 37.87534), 4326)::geography,
+    has_handicap = true,
+    handicap = 26.8,
+    years_playing = 3,
+    walking_preference = 'walk',
+    holes_preference = '9',
+    pace = 'moderate',
+    betting = 'yes',
+    drinks = 'no',
+    post_round = 'just_round',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'competitive',
+    photo_urls = array['https://images.unsplash.com/photo-1677174501528-765fad3d3676?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMXx8YmxhY2slMjB3b21hbiUyMGdvbGZlcnxlbnwwfHx8fDE3NzY5OTY3NzV8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1677174502881-d197c868c0f7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxOXx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'riley58.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Riley',
+    age = 33,
+    gender = 'Man',
+    pronouns = 'he/him',
+    bio = 'Big hitter, short game still in progress.',
+    home_city = 'Brooklyn, NY',
+    home_course_name = 'Penmar',
+    home_location = ST_SetSRID(ST_MakePoint(-73.94574, 40.68702), 4326)::geography,
+    has_handicap = true,
+    handicap = 24.8,
+    years_playing = 2,
+    walking_preference = 'ride',
+    holes_preference = 'either',
+    pace = 'moderate',
+    betting = 'small',
+    drinks = 'yes',
+    post_round = 'hangout',
+    teaching_mindset = 'open_to_tips',
+    style_default = 'competitive',
+    photo_urls = array['https://images.unsplash.com/photo-1693163640190-f9dd38a88940?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw5fHxwbGF5aW5nJTIwZ29sZnxlbnwwfHx8fDE3NzY5OTY3Nzd8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106644887-b1b150df1bb8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxNXx8d29tYW4lMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2NzczfDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1675106646307-5ec337ade4ba?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMnx8bGF0aW5hJTIwZ29sZmVyfGVufDB8fHx8MTc3Njk5Njc3NXww&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'morgan59.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Morgan',
+    age = 42,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Beginner and loving it. Patient with me and I''ll be patient with you.',
+    home_city = 'Los Angeles, CA',
+    home_course_name = 'Forest Park',
+    home_location = ST_SetSRID(ST_MakePoint(-118.23756, 34.05368), 4326)::geography,
+    has_handicap = false,
+    handicap = null,
+    years_playing = 18,
+    walking_preference = 'either',
+    holes_preference = 'either',
+    pace = 'ready',
+    betting = 'no',
+    drinks = 'no',
+    post_round = 'hangout',
+    teaching_mindset = 'just_play',
+    style_default = 'relaxed',
+    photo_urls = array['https://images.unsplash.com/photo-1693163501669-2ec849659537?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxM3x8cGxheWluZyUyMGdvbGZ8ZW58MHx8fHwxNzc2OTk2Nzc3fDA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1752661497400-7901a834601a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwyMXx8ZGl2ZXJzZSUyMGdvbGZlcnN8ZW58MHx8fHwxNzc2OTk2Nzc2fDA&ixlib=rb-4.1.0&q=80&w=1080'],
+    onboarded_at = now()
+  where user_id = u_id;
+end $$;
+
+do $$
+declare u_id uuid;
+begin
+  u_id := gen_random_uuid();
+  insert into auth.users (
+    id, instance_id, aud, role,
+    email, email_confirmed_at,
+    encrypted_password,
+    raw_user_meta_data, raw_app_meta_data,
+    created_at, updated_at
+  ) values (
+    u_id,
+    '00000000-0000-0000-0000-000000000000',
+    'authenticated',
+    'authenticated',
+    'quinn60.seed@pindr.test',
+    now(),
+    crypt('seedpassword-not-for-real-login', gen_salt('bf')),
+    '{}'::jsonb,
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    now(),
+    now()
+  );
+
+  update public.profiles set
+    display_name = 'Quinn',
+    age = 34,
+    gender = 'Woman',
+    pronouns = 'she/her',
+    bio = 'Grew up caddying. Now I just enjoy walking 18.',
+    home_city = 'Queens, NY',
+    home_course_name = 'TPC Harding Park',
+    home_location = ST_SetSRID(ST_MakePoint(-73.79688, 40.72953), 4326)::geography,
+    has_handicap = false,
+    handicap = null,
+    years_playing = 5,
+    walking_preference = 'either',
+    holes_preference = 'either',
+    pace = 'chill',
+    betting = 'yes',
+    drinks = 'no',
+    post_round = 'hangout',
+    teaching_mindset = 'just_play',
+    style_default = 'improvement',
+    photo_urls = array['https://images.unsplash.com/photo-1687250438622-3277483121e8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHwxMnx8d29tZW4lMjBnb2xmJTIwdG91cm5hbWVudHxlbnwwfHx8fDE3NzY5OTY3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080', 'https://images.unsplash.com/photo-1633597468433-fdb200b73f62?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w5MzI1NTB8MHwxfHNlYXJjaHw4fHxsYXRpbmElMjBnb2xmZXJ8ZW58MHx8fHwxNzc2OTk2Nzc1fDA&ixlib=rb-4.1.0&q=80&w=1080'],
     onboarded_at = now()
   where user_id = u_id;
 end $$;

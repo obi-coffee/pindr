@@ -15,6 +15,7 @@ import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   basicsSchema,
   GENDER_OPTIONS,
+  type BasicsForm,
   type BasicsInput,
 } from '../../../lib/profile/schemas';
 import { supabase } from '../../../lib/supabase';
@@ -27,11 +28,14 @@ export default function EditBasics() {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<BasicsInput>({
+  } = useForm<BasicsForm, unknown, BasicsInput>({
     resolver: zodResolver(basicsSchema),
     defaultValues: {
       display_name: profile?.display_name ?? '',
-      age: profile?.age ?? undefined,
+      // Held as string while editing — schema's z.coerce.number()
+      // parses on submit. Sidesteps an iOS UITextField race that
+      // made backspace-to-empty visually revert the previous digit.
+      age: profile?.age != null ? String(profile.age) : '',
       gender: profile?.gender ?? '',
       pronouns: profile?.pronouns ?? '',
       bio: profile?.bio ?? '',
@@ -99,14 +103,8 @@ export default function EditBasics() {
               <Input
                 label="Age"
                 error={errors.age?.message}
-                value={
-                  value === undefined || Number.isNaN(value) ? '' : String(value)
-                }
-                onChangeText={(t) => {
-                  if (t === '') return onChange(undefined);
-                  const n = Number(t);
-                  onChange(Number.isNaN(n) ? undefined : n);
-                }}
+                value={value == null ? '' : String(value)}
+                onChangeText={(t) => onChange(t.replace(/\D/g, ''))}
                 onBlur={onBlur}
                 keyboardType="number-pad"
               />

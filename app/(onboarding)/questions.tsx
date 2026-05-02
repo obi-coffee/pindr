@@ -18,17 +18,20 @@ export default function QuestionsStep() {
   const [answers, setAnswers] = useState<ProfileAnswers>({});
   const [busy, setBusy] = useState(false);
 
+  // Keep raw text in state during typing — trimming on every
+  // keystroke ate the space key (trailing spaces vanished, breaking
+  // multi-word answers). Trim + drop empties at persist instead.
   const setAnswer = (id: string, value: string) => {
-    setAnswers((prev) => {
-      const next = { ...prev };
-      const trimmed = value.trim();
-      if (trimmed.length === 0) {
-        delete next[id];
-      } else {
-        next[id] = trimmed;
-      }
-      return next;
-    });
+    setAnswers((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const cleanAnswers = (raw: ProfileAnswers): ProfileAnswers => {
+    const out: ProfileAnswers = {};
+    for (const [k, v] of Object.entries(raw)) {
+      const trimmed = (v ?? '').trim();
+      if (trimmed.length > 0) out[k] = trimmed;
+    }
+    return out;
   };
 
   const persist = async (toSave: ProfileAnswers) => {
@@ -37,7 +40,7 @@ export default function QuestionsStep() {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ profile_answers: toSave })
+        .update({ profile_answers: cleanAnswers(toSave) })
         .eq('user_id', user.id);
       if (error) throw error;
       await refetchProfile();

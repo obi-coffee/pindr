@@ -19,26 +19,24 @@ export default function EditAnswers() {
   );
   const [busy, setBusy] = useState(false);
 
+  // Keep raw text in state during typing — trimming on every
+  // keystroke ate the space key. Trim + drop empties at save.
   const setAnswer = (id: string, value: string) => {
-    setAnswers((prev) => {
-      const next = { ...prev };
-      const trimmed = value.trim();
-      if (trimmed.length === 0) {
-        delete next[id];
-      } else {
-        next[id] = trimmed;
-      }
-      return next;
-    });
+    setAnswers((prev) => ({ ...prev, [id]: value }));
   };
 
   const save = async () => {
     if (!user) return;
     setBusy(true);
     try {
+      const cleaned: ProfileAnswers = {};
+      for (const [k, v] of Object.entries(answers)) {
+        const trimmed = (v ?? '').trim();
+        if (trimmed.length > 0) cleaned[k] = trimmed;
+      }
       const { error } = await supabase
         .from('profiles')
-        .update({ profile_answers: answers })
+        .update({ profile_answers: cleaned })
         .eq('user_id', user.id);
       if (error) throw error;
       await refetchProfile();

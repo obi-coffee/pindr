@@ -14,7 +14,10 @@ export const basicsSchema = z.object({
     .trim()
     .min(2, 'At least 2 characters')
     .max(40, 'Keep it under 40 characters'),
-  age: z
+  // coerce.number handles string-typed form values cleanly (the
+  // Controller stores raw text during editing so the space/backspace
+  // bugs that come with onChange(undefined) round-trips don't fire).
+  age: z.coerce
     .number({ message: 'Enter your age' })
     .int('Whole numbers only')
     .min(18, 'Must be 18 or older')
@@ -25,12 +28,21 @@ export const basicsSchema = z.object({
 });
 
 export type BasicsInput = z.infer<typeof basicsSchema>;
+export type BasicsForm = z.input<typeof basicsSchema>;
 
 export const golfSchema = z
   .object({
     has_handicap: z.boolean(),
-    handicap: z.number().min(-10, 'Too low').max(54, 'Too high').optional(),
-    years_playing: z
+    // Allow empty string for the optional case; coerce when present.
+    // (z.coerce.number().optional() would reject empty string.)
+    handicap: z
+      .union([
+        z.literal(''),
+        z.coerce.number().min(-10, 'Too low').max(54, 'Too high'),
+      ])
+      .optional()
+      .transform((v) => (v === '' || v == null ? undefined : v)),
+    years_playing: z.coerce
       .number({ message: 'Enter how long you have played' })
       .int('Whole numbers only')
       .min(0, 'Cannot be negative')
@@ -43,6 +55,7 @@ export const golfSchema = z
   });
 
 export type GolfInput = z.infer<typeof golfSchema>;
+export type GolfForm = z.input<typeof golfSchema>;
 
 export const styleSchema = z.object({
   walking_preference: z.enum(['walk', 'ride', 'either'], {

@@ -369,6 +369,21 @@ export default function Profile() {
           )}
         </Section>
 
+        <Section title="questions" editHref="/edit/answers">
+          {(() => {
+            const count = Object.values(profile?.profile_answers ?? {}).filter(
+              (v) => v && v.trim().length > 0,
+            ).length;
+            return count === 0 ? (
+              <Typography variant="body-sm" color="ink-subtle">
+                no answers yet.
+              </Typography>
+            ) : (
+              <Typography variant="body">{count} answered</Typography>
+            );
+          })()}
+        </Section>
+
         {__DEV__ ? (
           <View style={{ marginTop: 40 }}>
             <Row label="UI kit (dev)" href="/dev/ui-kit" />

@@ -29,6 +29,9 @@ export type Profile = {
   teaching_mindset: TeachingMindset | null;
   style_default: StyleDefault | null;
   photo_urls: string[];
+  // Phase 2 culture-fit answers, keyed by question id from
+  // lib/profile/questions.ts. Empty `{}` means no answers given.
+  profile_answers: Record<string, string>;
   onboarded_at: string | null;
   created_at: string;
   updated_at: string;

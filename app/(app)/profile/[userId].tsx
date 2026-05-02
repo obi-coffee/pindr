@@ -18,6 +18,7 @@ import {
   type Candidate,
 } from '../../../lib/discover/queries';
 import { useMatch } from '../../../lib/match/MatchProvider';
+import { PROFILE_QUESTIONS } from '../../../lib/profile/questions';
 
 export default function ProfileScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
@@ -325,6 +326,30 @@ function ProfileBody({
             value={titleCase(teachingLabel(profile.teaching_mindset))}
           />
         </Section>
+
+        {/* Optional culture-fit answers (Phase 2). Skip questions
+            with no answer so empty rows don't render. */}
+        {profile.profile_answers &&
+        Object.values(profile.profile_answers).some(
+          (v) => v && v.trim().length > 0,
+        ) ? (
+          <Section label="QUESTIONS">
+            <View style={{ gap: 14 }}>
+              {PROFILE_QUESTIONS.map((q) => {
+                const answer = profile.profile_answers?.[q.id];
+                if (!answer || !answer.trim()) return null;
+                return (
+                  <View key={q.id} style={{ gap: 4 }}>
+                    <Typography variant="caption" color="ink-subtle">
+                      {q.prompt}
+                    </Typography>
+                    <Typography variant="body">{answer}</Typography>
+                  </View>
+                );
+              })}
+            </View>
+          </Section>
+        ) : null}
 
         {profile.upcoming_round_id &&
         profile.upcoming_round_tee_time &&

@@ -20,6 +20,7 @@ import { ToastProvider } from '../components/motion/Toast';
 import { ThemeProvider, useTheme } from '../components/ui';
 import { AuthProvider, useAuth } from '../lib/auth/AuthProvider';
 import { HapticsProvider } from '../lib/haptics';
+import { MatchProvider } from '../lib/match/MatchProvider';
 import { usePushDeepLinking } from '../lib/push/deep-linking';
 
 // Keep the native splash up past its default "first-paint" dismiss so
@@ -84,7 +85,9 @@ export default function RootLayout() {
           <HapticsProvider>
             <ToastProvider>
               <AuthProvider>
-                <RootSlot />
+                <MatchProvider>
+                  <RootSlot />
+                </MatchProvider>
               </AuthProvider>
             </ToastProvider>
           </HapticsProvider>

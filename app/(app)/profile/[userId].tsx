@@ -17,12 +17,14 @@ import {
   recordSwipe,
   type Candidate,
 } from '../../../lib/discover/queries';
+import { useMatch } from '../../../lib/match/MatchProvider';
 
 export default function ProfileScreen() {
   const { userId } = useLocalSearchParams<{ userId: string }>();
   const { user } = useAuth();
   const { colors } = useTheme();
   const { show: showToast } = useToast();
+  const { showMatch } = useMatch();
   const { width } = useWindowDimensions();
 
   const [profile, setProfile] = useState<Candidate | null>(null);
@@ -52,11 +54,12 @@ export default function ProfileScreen() {
     if (!user || !profile || acting) return;
     setActing(true);
     try {
-      await recordSwipe(user.id, profile.user_id, direction);
-      // Match-modal lift comes in step 1c; for now, just pop back to
-      // the deck. The deck refetches on focus, so the swiped card is
-      // gone next time the user lands on it. A new match still gets
-      // recorded and the recipient gets a Phase 5c push.
+      const result = await recordSwipe(user.id, profile.user_id, direction);
+      // The MatchModal is rendered by MatchProvider at the root, so
+      // it stays mounted as we pop back to the deck. Showing it before
+      // the back-navigation means the user sees the moment land
+      // immediately and the deck slides in beneath it.
+      if (result.matched) showMatch(profile, result.matchId);
       router.back();
     } catch {
       setActing(false);

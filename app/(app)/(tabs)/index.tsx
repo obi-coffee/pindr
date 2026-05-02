@@ -9,12 +9,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReducedMotion } from 'react-native-reanimated';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
 import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
-import { MatchModal } from '../../../components/MatchModal';
 import { FadeIn } from '../../../components/motion/FadeIn';
 import { SwipeCard } from '../../../components/SwipeCard';
 import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
+import { useMatch } from '../../../lib/match/MatchProvider';
 import {
   DEFAULT_FILTERS,
   loadFilters,
@@ -36,23 +36,21 @@ import {
 } from '../../../lib/travel/queries';
 
 export default function Discover() {
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
   const haptics = useHaptics();
   const { show: showToast } = useToast();
+  const { showMatch } = useMatch();
   const reducedMotion = useReducedMotion();
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [travel, setTravel] = useState<TravelSession | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [match, setMatch] = useState<{
-    candidate: Candidate;
-    matchId: string;
-  } | null>(null);
 
   const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
@@ -90,7 +88,7 @@ export default function Discover() {
       try {
         const result = await recordSwipe(user.id, candidate.user_id, direction);
         if (result.matched) {
-          setMatch({ candidate, matchId: result.matchId });
+          showMatch(candidate, result.matchId);
           void maybePromptForPush(user.id, 'first_match');
         }
       } catch {
@@ -102,7 +100,7 @@ export default function Discover() {
         });
       }
     },
-    [candidates, user, haptics, showToast],
+    [candidates, user, haptics, showMatch, showToast],
   );
 
   const cardWidth = width - 32;
@@ -249,6 +247,13 @@ export default function Discover() {
               onSwipeLeft={(i) => handleSwipe(i, 'left')}
               onSwipeTop={(i) => handleSwipe(i, 'super')}
               onSwipedAll={() => setCandidates([])}
+              onIndexChange={setActiveIndex}
+              onPress={() => {
+                const candidate = candidates[activeIndex];
+                if (candidate) {
+                  router.push(`/profile/${candidate.user_id}` as never);
+                }
+              }}
               disableBottomSwipe
               OverlayLabelRight={LockedInStamp}
               OverlayLabelLeft={MaybeLaterStamp}
@@ -274,17 +279,6 @@ export default function Discover() {
         </FadeIn>
       )}
 
-      <MatchModal
-        match={match?.candidate ?? null}
-        myPhotoUrl={profile?.photo_urls?.[0] ?? null}
-        onKeepSwiping={() => setMatch(null)}
-        onSayHi={() => {
-          if (!match) return;
-          const { matchId } = match;
-          setMatch(null);
-          router.push(`/chat/${matchId}` as never);
-        }}
-      />
     </SafeAreaView>
   );
 }

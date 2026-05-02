@@ -78,7 +78,7 @@ export default function LocationStep() {
         .eq('user_id', user.id);
       if (error) throw error;
       await refetchProfile();
-      router.push('/done');
+      router.push('/questions');
     } catch (err) {
       Alert.alert('could not save', (err as Error).message);
     } finally {
@@ -98,7 +98,7 @@ export default function LocationStep() {
           color="ink-soft"
           style={{ marginBottom: 8 }}
         >
-          step 6 of 6
+          step 6 of 7
         </Typography>
         <Typography variant="h1" style={{ marginBottom: 6 }}>
           where do you play?

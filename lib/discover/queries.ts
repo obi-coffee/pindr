@@ -26,6 +26,10 @@ export type Candidate = {
   upcoming_round_id: string | null;
   upcoming_round_tee_time: string | null;
   upcoming_round_course_name: string | null;
+  // Set by get_profile_by_id (Phase 2). discover_candidates does not
+  // populate this — it's not surfaced on the deck card. Treat as
+  // optional client-side.
+  profile_answers?: Record<string, string>;
 };
 
 export async function fetchCandidates(

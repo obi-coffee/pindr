@@ -1,9 +1,10 @@
 import { Link, router } from 'expo-router';
-import { Pressable, Switch, View } from 'react-native';
+import { Alert, Pressable, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReducedMotion } from 'react-native-reanimated';
 import { Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
+import { deleteMyAccount } from '../../lib/auth/deleteAccount';
 import { useHaptics } from '../../lib/haptics';
 
 const APPEARANCE_LABEL = {
@@ -24,6 +25,29 @@ export default function SettingsScreen() {
   const handleSignOut = async () => {
     await signOut();
     router.back();
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete account?',
+      'This permanently removes your profile, matches, messages, and rounds. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteMyAccount();
+            } catch (e) {
+              const message =
+                e instanceof Error ? e.message : 'please try again';
+              Alert.alert('Could not delete account', message);
+            }
+          },
+        },
+      ],
+    );
   };
 
   const handleHapticsToggle = (next: boolean) => {
@@ -80,6 +104,11 @@ export default function SettingsScreen() {
         <Row label="community guidelines" href="/guidelines" />
         <Row label="blocked users" href="/blocks" />
         <Row label="sign out" onPress={handleSignOut} />
+        <Row
+          label="delete account"
+          onPress={handleDeleteAccount}
+          destructive
+        />
       </View>
     </SafeAreaView>
   );
@@ -101,12 +130,14 @@ function Row({
   onPress,
   trailing,
   disabled,
+  destructive,
 }: {
   label: string;
   href?: string;
   onPress?: () => void;
   trailing?: string;
   disabled?: boolean;
+  destructive?: boolean;
 }) {
   const { colors } = useTheme();
   const content = (
@@ -122,7 +153,9 @@ function Row({
         opacity: disabled ? 0.6 : 1,
       }}
     >
-      <Typography variant="body">{label}</Typography>
+      <Typography variant="body" color={destructive ? 'danger' : 'ink'}>
+        {label}
+      </Typography>
       <Typography variant="body" color="ink-subtle">
         {trailing ? `${trailing} ${disabled ? '' : '›'}` : '›'}
       </Typography>

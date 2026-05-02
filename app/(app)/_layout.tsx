@@ -30,6 +30,7 @@ export default function AppLayout() {
       <Stack.Screen name="travel" options={sheetOptions} />
       <Stack.Screen name="report/[userId]" options={sheetOptions} />
       <Stack.Screen name="share-plan/[matchId]" options={sheetOptions} />
+      <Stack.Screen name="profile/[userId]" />
     </Stack>
   );
 }

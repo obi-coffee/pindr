@@ -1,5 +1,6 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Pressable,
   View,
@@ -36,7 +37,7 @@ import {
 } from '../../../lib/travel/queries';
 
 export default function Discover() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
@@ -51,6 +52,40 @@ export default function Discover() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Banner visibility starts hidden so we don't flash it before the
+  // AsyncStorage check resolves. Toggle to true only after we've
+  // confirmed the user hasn't dismissed it.
+  const [bannerDismissed, setBannerDismissed] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    AsyncStorage.getItem(`pindr.banner.complete-profile.dismissed.${user.id}`)
+      .then((v) => {
+        if (!cancelled) setBannerDismissed(v === '1');
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const dismissProfileBanner = useCallback(() => {
+    setBannerDismissed(true);
+    if (user) {
+      AsyncStorage.setItem(
+        `pindr.banner.complete-profile.dismissed.${user.id}`,
+        '1',
+      ).catch(() => {});
+    }
+  }, [user]);
+
+  const answersEmpty =
+    !profile?.profile_answers ||
+    Object.values(profile.profile_answers).every(
+      (v) => !v || v.trim().length === 0,
+    );
+  const showCompleteProfileBanner = answersEmpty && !bannerDismissed;
 
   const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
@@ -145,6 +180,13 @@ export default function Discover() {
           />
         </View>
       </View>
+
+      {showCompleteProfileBanner ? (
+        <CompleteProfileBanner
+          onPress={() => router.push('/edit/answers')}
+          onDismiss={dismissProfileBanner}
+        />
+      ) : null}
 
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -334,6 +376,48 @@ function HeaderPill({
           </Typography>
         </View>
       ) : null}
+    </Pressable>
+  );
+}
+
+function CompleteProfileBanner({
+  onPress,
+  onDismiss,
+}: {
+  onPress: () => void;
+  onDismiss: () => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        marginHorizontal: 20,
+        marginBottom: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 999,
+        backgroundColor: colors.mustard,
+      }}
+    >
+      <Typography variant="caption" style={{ flex: 1, color: '#0E0E0C' }}>
+        complete your profile · answer a few questions
+      </Typography>
+      <Pressable
+        onPress={(e) => {
+          e.stopPropagation();
+          onDismiss();
+        }}
+        hitSlop={10}
+        style={{ paddingHorizontal: 6 }}
+      >
+        <Typography variant="caption" style={{ color: '#0E0E0C' }}>
+          ×
+        </Typography>
+      </Pressable>
     </Pressable>
   );
 }

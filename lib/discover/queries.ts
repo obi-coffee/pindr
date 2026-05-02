@@ -45,6 +45,21 @@ export async function fetchCandidates(
   return (data ?? []) as Candidate[];
 }
 
+// Fetch a single profile by user_id. Returns null if blocked,
+// not-onboarded, the caller themselves, or simply doesn't exist.
+// Backed by the get_profile_by_id RPC (SECURITY DEFINER) since direct
+// profiles SELECT is owner-only.
+export async function fetchProfileById(
+  userId: string,
+): Promise<Candidate | null> {
+  const { data, error } = await supabase.rpc('get_profile_by_id', {
+    target_user_id: userId,
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as Candidate[];
+  return rows[0] ?? null;
+}
+
 export type SwipeDirection = 'right' | 'left' | 'super';
 
 export type SwipeResult =

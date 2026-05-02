@@ -252,6 +252,24 @@ export default function Profile() {
               your rounds
             </Button>
           </View>
+          <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
+            <Button
+              variant="paper"
+              size="md"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/qr/show' as never)}
+            >
+              my code
+            </Button>
+            <Button
+              variant="paper"
+              size="md"
+              style={{ flex: 1 }}
+              onPress={() => router.push('/qr/scan' as never)}
+            >
+              scan a code
+            </Button>
+          </View>
         </View>
 
         <Section title="basics" editHref="/edit/basics">

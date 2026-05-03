@@ -312,10 +312,7 @@ function ProfileBody({
 
         {/* Play-style fields */}
         <Section label="THE GAME">
-          <Field label="Walking" value={titleCase(walkingLabel(profile.walking_preference))} />
           <Field label="Holes" value={titleCase(holesLabel(profile.holes_preference))} />
-          <Field label="Pace" value={titleCase(profile.pace)} />
-          <Field label="Betting" value={titleCase(profile.betting)} />
           <Field label="Drinks" value={titleCase(profile.drinks)} />
           <Field
             label="Post-round"
@@ -456,13 +453,6 @@ function Field({ label, value }: { label: string; value: string | null }) {
 function titleCase(s: string | null | undefined): string | null {
   if (!s) return null;
   return s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
-}
-
-function walkingLabel(v: string | null): string | null {
-  if (v === 'walk') return 'Always walks';
-  if (v === 'ride') return 'Always rides';
-  if (v === 'either') return 'Walks or rides';
-  return null;
 }
 
 function holesLabel(v: string | null): string | null {

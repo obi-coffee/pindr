@@ -37,25 +37,10 @@ const STYLE_LABEL: Record<string, string> = {
   improvement: 'Improvement',
   competitive: 'Competitive',
 };
-const PACE_LABEL: Record<string, string> = {
-  chill: 'Chill',
-  moderate: 'Moderate',
-  ready: 'Ready golf',
-};
-const WALKING_LABEL: Record<string, string> = {
-  walk: 'Walks',
-  ride: 'Rides',
-  either: 'Walk or ride',
-};
 const HOLES_LABEL: Record<string, string> = {
   '9': '9 only',
   '18': '18 only',
   either: '9 or 18',
-};
-const BETTING_LABEL: Record<string, string> = {
-  yes: 'Bets',
-  small: 'Small bets',
-  no: 'No bets',
 };
 const DRINKS_LABEL: Record<string, string> = {
   yes: 'Drinks on course',
@@ -100,11 +85,8 @@ export default function Profile() {
 
   const styleTags: string[] = [];
   if (profile?.style_default) styleTags.push(STYLE_LABEL[profile.style_default] ?? profile.style_default);
-  if (profile?.pace) styleTags.push(PACE_LABEL[profile.pace] ?? profile.pace);
-  if (profile?.walking_preference) styleTags.push(WALKING_LABEL[profile.walking_preference] ?? profile.walking_preference);
   if (profile?.holes_preference) styleTags.push(HOLES_LABEL[profile.holes_preference] ?? profile.holes_preference);
   if (profile?.teaching_mindset) styleTags.push(TEACHING_LABEL[profile.teaching_mindset] ?? profile.teaching_mindset);
-  if (profile?.betting) styleTags.push(BETTING_LABEL[profile.betting] ?? profile.betting);
   if (profile?.drinks) styleTags.push(DRINKS_LABEL[profile.drinks] ?? profile.drinks);
   if (profile?.post_round) styleTags.push(POST_ROUND_LABEL[profile.post_round] ?? profile.post_round);
 

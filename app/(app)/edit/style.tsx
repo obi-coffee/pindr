@@ -74,10 +74,7 @@ export default function EditStyle() {
   } = useForm<StyleInput>({
     resolver: zodResolver(styleSchema),
     defaultValues: {
-      walking_preference: profile?.walking_preference ?? undefined,
       holes_preference: profile?.holes_preference ?? undefined,
-      pace: profile?.pace ?? undefined,
-      betting: profile?.betting ?? undefined,
       drinks: profile?.drinks ?? undefined,
       post_round: profile?.post_round ?? undefined,
       teaching_mindset: profile?.teaching_mindset ?? undefined,
@@ -136,40 +133,6 @@ export default function EditStyle() {
           />
           <Controller
             control={control}
-            name="pace"
-            render={({ field: { value, onChange } }) => (
-              <ChipGroup
-                label="Pace of play"
-                value={value}
-                onChange={onChange}
-                error={errors.pace?.message}
-                options={[
-                  { value: 'chill', label: 'Chill' },
-                  { value: 'moderate', label: 'Moderate' },
-                  { value: 'ready', label: 'Ready golf' },
-                ]}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="walking_preference"
-            render={({ field: { value, onChange } }) => (
-              <ChipGroup
-                label="Walk or ride"
-                value={value}
-                onChange={onChange}
-                error={errors.walking_preference?.message}
-                options={[
-                  { value: 'walk', label: 'Walk' },
-                  { value: 'ride', label: 'Ride' },
-                  { value: 'either', label: 'Either' },
-                ]}
-              />
-            )}
-          />
-          <Controller
-            control={control}
             name="holes_preference"
             render={({ field: { value, onChange } }) => (
               <ChipGroup
@@ -197,23 +160,6 @@ export default function EditStyle() {
                 options={[
                   { value: 'open_to_tips', label: 'Open to tips' },
                   { value: 'just_play', label: 'Just play' },
-                ]}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="betting"
-            render={({ field: { value, onChange } }) => (
-              <ChipGroup
-                label="Betting"
-                value={value}
-                onChange={onChange}
-                error={errors.betting?.message}
-                options={[
-                  { value: 'yes', label: 'Yes' },
-                  { value: 'small', label: 'Small stakes' },
-                  { value: 'no', label: 'No' },
                 ]}
               />
             )}

@@ -58,12 +58,16 @@ export type GolfInput = z.infer<typeof golfSchema>;
 export type GolfForm = z.input<typeof golfSchema>;
 
 export const styleSchema = z.object({
-  walking_preference: z.enum(['walk', 'ride', 'either'], {
-    message: 'Pick one',
-  }),
+  // walking_preference, pace, and betting were removed from onboarding/
+  // edit because the new culture-fit questions (walk_or_ride, pace,
+  // wagers) cover the same ground. The DB columns and the discover RPC
+  // still return them so legacy rows stay readable.
+  walking_preference: z
+    .enum(['walk', 'ride', 'either'])
+    .optional(),
   holes_preference: z.enum(['9', '18', 'either'], { message: 'Pick one' }),
-  pace: z.enum(['chill', 'moderate', 'ready'], { message: 'Pick one' }),
-  betting: z.enum(['yes', 'small', 'no'], { message: 'Pick one' }),
+  pace: z.enum(['chill', 'moderate', 'ready']).optional(),
+  betting: z.enum(['yes', 'small', 'no']).optional(),
   drinks: z.enum(['yes', 'sometimes', 'no'], { message: 'Pick one' }),
   post_round: z.enum(['hangout', 'just_round'], { message: 'Pick one' }),
   teaching_mindset: z.enum(['open_to_tips', 'just_play'], {

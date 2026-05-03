@@ -36,6 +36,29 @@ begin
     now()
   );
 
+  -- Modern GoTrue requires an auth.identities row per provider for
+  -- email/password sign-in to resolve the user. Without this, the
+  -- credential check passes silently but no session is issued.
+  insert into auth.identities (
+    id, user_id, provider, provider_id,
+    identity_data,
+    last_sign_in_at, created_at, updated_at
+  ) values (
+    gen_random_uuid(),
+    u_id,
+    'email',
+    u_id::text,
+    jsonb_build_object(
+      'sub', u_id::text,
+      'email', 'appreview@pindr.app',
+      'email_verified', true,
+      'phone_verified', false
+    ),
+    null,
+    now(),
+    now()
+  );
+
   update public.profiles set
     display_name = 'Johnny Appleseed',
     age = 36,

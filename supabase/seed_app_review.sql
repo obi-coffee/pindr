@@ -1,63 +1,26 @@
--- Apple App Review demo account: appreview@pindr.app / appreview2026.
--- The email isn't real, so email_confirmed_at is forced to now() —
--- the reviewer can sign in immediately. Located in Cupertino so the
--- Discover and Rounds tabs show the seeded California inventory.
+-- Apple App Review demo profile for appreview@pindr.app.
 --
--- Run from the Supabase SQL Editor. Idempotent — re-running first
--- removes any prior appreview@pindr.app account so you end with one
--- clean reviewer profile.
+-- Step 1 (one-time, manual): create the auth user via the Supabase
+-- dashboard (Authentication > Users > Add user > Create new user)
+-- with email appreview@pindr.app, password appreview2026, and the
+-- "Auto Confirm User" checkbox enabled. That guarantees auth.users
+-- and auth.identities are populated correctly by GoTrue itself —
+-- raw SQL inserts into the auth schema are brittle across Supabase
+-- versions.
+--
+-- Step 2 (this script, idempotent): fill in the profile row that the
+-- public.handle_new_user trigger created when the user was added.
+-- Re-run any time to reset Johnny's profile state mid-test.
 --
 -- Photos are reused Unsplash URLs already validated by seed.sql.
-
-delete from auth.users where email = 'appreview@pindr.app';
 
 do $$
 declare u_id uuid;
 begin
-  u_id := gen_random_uuid();
-
-  insert into auth.users (
-    id, instance_id, aud, role,
-    email, email_confirmed_at,
-    encrypted_password,
-    raw_user_meta_data, raw_app_meta_data,
-    created_at, updated_at
-  ) values (
-    u_id,
-    '00000000-0000-0000-0000-000000000000',
-    'authenticated',
-    'authenticated',
-    'appreview@pindr.app',
-    now(),
-    crypt('appreview2026', gen_salt('bf')),
-    '{}'::jsonb,
-    '{"provider":"email","providers":["email"]}'::jsonb,
-    now(),
-    now()
-  );
-
-  -- Modern GoTrue requires an auth.identities row per provider for
-  -- email/password sign-in to resolve the user. Without this, the
-  -- credential check passes silently but no session is issued.
-  insert into auth.identities (
-    id, user_id, provider, provider_id,
-    identity_data,
-    last_sign_in_at, created_at, updated_at
-  ) values (
-    gen_random_uuid(),
-    u_id,
-    'email',
-    u_id::text,
-    jsonb_build_object(
-      'sub', u_id::text,
-      'email', 'appreview@pindr.app',
-      'email_verified', true,
-      'phone_verified', false
-    ),
-    null,
-    now(),
-    now()
-  );
+  select id into u_id from auth.users where email = 'appreview@pindr.app';
+  if u_id is null then
+    raise exception 'auth user appreview@pindr.app not found — create it via the Supabase dashboard first (see header).';
+  end if;
 
   update public.profiles set
     display_name = 'Johnny Appleseed',

@@ -57,11 +57,17 @@ export function Button({
         : isPaper
           ? colors['paper-raised']
           : 'transparent';
+  // Mustard stays the same warm yellow in both themes, so its label is
+  // pinned to lightColors.ink. Paper inverts with the theme (cream in
+  // light, near-black in dark), so it must use the themed ink token —
+  // hardcoding lightColors.ink leaves dark text on a dark background.
   const labelColor = isGhost
     ? colors.ink
-    : isMustard || isPaper
+    : isMustard
       ? lightColors.ink
-      : colors['paper-high'];
+      : isPaper
+        ? colors.ink
+        : colors['paper-high'];
   const borderWidth = isGhost ? 1 : 0;
   const borderColor = colors['stroke-strong'];
 

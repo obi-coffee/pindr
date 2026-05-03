@@ -36,7 +36,7 @@ export async function fetchCandidates(
   filters: DiscoverFilters,
 ): Promise<Candidate[]> {
   const { data, error } = await supabase.rpc('discover_candidates', {
-    max_distance_km: filters.maxDistanceKm,
+    max_distance_km: filters.maxDistanceMi * 1.60934,
     min_age: filters.minAge,
     max_age: filters.maxAge,
     genders: filters.genders,

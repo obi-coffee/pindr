@@ -424,7 +424,7 @@ function CompleteProfileBanner({
 
 function countActiveFilters(f: DiscoverFilters): number {
   let n = 0;
-  if (f.maxDistanceKm !== DEFAULT_FILTERS.maxDistanceKm) n++;
+  if (f.maxDistanceMi !== DEFAULT_FILTERS.maxDistanceMi) n++;
   if (f.minAge !== null || f.maxAge !== null) n++;
   if (f.minHandicap !== null || f.maxHandicap !== null) n++;
   if (f.genders && f.genders.length > 0) n++;

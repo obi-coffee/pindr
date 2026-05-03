@@ -10,7 +10,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useToast } from '../../../components/motion/Toast';
-import { Button, Tag, Typography, useTheme } from '../../../components/ui';
+import {
+  Button,
+  PindrLogo,
+  Tag,
+  Typography,
+  radii,
+  useTheme,
+} from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
   fetchProfileById,
@@ -98,25 +105,25 @@ export default function ProfileScreen() {
 
 function Header() {
   return (
-    <View
-      style={{
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingTop: 6,
-        paddingBottom: 10,
-      }}
-    >
-      <Pressable onPress={() => router.back()} hitSlop={8}>
-        <Typography variant="caption" color="ink-soft">
-          back
-        </Typography>
-      </Pressable>
-      <Typography variant="caption" color="ink">
-        profile
-      </Typography>
-      <View style={{ minWidth: 48 }} />
+    <View>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 20,
+          paddingTop: 6,
+          paddingBottom: 10,
+        }}
+      >
+        <PindrLogo height={35} />
+      </View>
+      <View style={{ paddingHorizontal: 20, paddingBottom: 8 }}>
+        <Pressable onPress={() => router.back()} hitSlop={8}>
+          <Typography variant="caption" color="ink-soft">
+            ‹ back
+          </Typography>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -199,6 +206,8 @@ function ProfileBody({
 }: ProfileBodyProps) {
   const { colors } = useTheme();
   const photos = profile.photo_urls.filter(Boolean);
+  const photoSize = width - 40;
+  const photoHeight = photoSize * 1.25;
   const distance =
     profile.distance_km !== null
       ? `${Math.max(1, Math.round(profile.distance_km * 0.621))} mi away`
@@ -207,38 +216,44 @@ function ProfileBody({
   return (
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={{ paddingBottom: 32 }}>
-        {/* Photo carousel */}
-        <ScrollView
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          style={{ width }}
-        >
-          {photos.length > 0 ? (
-            photos.map((url, i) => (
+        {/* Photo carousel — rounded cards, matches own-profile styling */}
+        {photos.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 20 }}
+          >
+            {photos.map((url, i) => (
               <Image
                 key={`${url}-${i}`}
                 source={{ uri: url }}
-                style={{ width, height: width, backgroundColor: colors.stone }}
+                style={{
+                  width: photoSize,
+                  height: photoHeight,
+                  borderRadius: radii.lg,
+                  marginRight: i === photos.length - 1 ? 0 : 12,
+                  backgroundColor: colors['paper-raised'],
+                }}
                 resizeMode="cover"
               />
-            ))
-          ) : (
-            <View
-              style={{
-                width,
-                height: width,
-                backgroundColor: colors.stone,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              <Typography variant="body" color="ink-subtle">
-                no photo
-              </Typography>
-            </View>
-          )}
-        </ScrollView>
+            ))}
+          </ScrollView>
+        ) : (
+          <View
+            style={{
+              marginHorizontal: 20,
+              height: photoHeight,
+              borderRadius: radii.lg,
+              backgroundColor: colors['paper-raised'],
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="body" color="ink-subtle">
+              no photo
+            </Typography>
+          </View>
+        )}
 
         {/* Header block */}
         <View style={{ paddingHorizontal: 20, paddingTop: 20, gap: 4 }}>

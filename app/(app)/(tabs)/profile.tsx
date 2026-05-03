@@ -101,7 +101,7 @@ export default function Profile() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <ScrollView contentContainerStyle={{ paddingBottom: 56 }}>
+      <ScrollView contentContainerStyle={{ paddingBottom: 120 }}>
         <View
           style={{
             flexDirection: 'row',

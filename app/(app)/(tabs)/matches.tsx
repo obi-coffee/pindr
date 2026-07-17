@@ -1,14 +1,10 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Pressable,
-  RefreshControl,
-  View,
-} from 'react-native';
+import { FlatList, Image, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SkeletonMatchesList } from '../../../components/lists/SkeletonMatchesList';
+import { FadeIn } from '../../../components/motion/FadeIn';
+import { usePullRefresh } from '../../../components/motion/PullRefresh';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import { fetchMatches, type MatchSummary } from '../../../lib/chat/queries';
@@ -42,6 +38,11 @@ export default function Matches() {
     }, [load]),
   );
 
+  const refreshControl = usePullRefresh({
+    refreshing,
+    onRefresh: () => load(true),
+  });
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: colors.paper }}
@@ -62,11 +63,7 @@ export default function Matches() {
       </View>
 
       {loading && !refreshing ? (
-        <View
-          style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
-        >
-          <ActivityIndicator color={colors.ink} />
-        </View>
+        <SkeletonMatchesList />
       ) : error ? (
         <View
           style={{
@@ -85,17 +82,12 @@ export default function Matches() {
           </Typography>
         </View>
       ) : (
+        <FadeIn style={{ flex: 1 }}>
         <FlatList
           data={matches}
           keyExtractor={(item) => item.match_id}
           contentContainerStyle={{ paddingBottom: 32 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => load(true)}
-              tintColor={colors.ink}
-            />
-          }
+          refreshControl={refreshControl}
           ListEmptyComponent={() => (
             <View
               style={{
@@ -134,6 +126,7 @@ export default function Matches() {
             />
           )}
         />
+        </FadeIn>
       )}
     </SafeAreaView>
   );

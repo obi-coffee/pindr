@@ -1,17 +1,21 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   View,
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useReducedMotion } from 'react-native-reanimated';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
-import { MatchModal } from '../../../components/MatchModal';
+import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
+import { FadeIn } from '../../../components/motion/FadeIn';
 import { SwipeCard } from '../../../components/SwipeCard';
+import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
+import { useMatch } from '../../../lib/match/MatchProvider';
 import {
   DEFAULT_FILTERS,
   loadFilters,
@@ -23,6 +27,9 @@ import {
   type Candidate,
   type SwipeDirection,
 } from '../../../lib/discover/queries';
+import { useHaptics } from '../../../lib/haptics';
+import { useToast } from '../../../components/motion/Toast';
+import { maybePromptForPush } from '../../../lib/push/maybePrompt';
 import { openUserMenu } from '../../../lib/safety/menu';
 import {
   fetchActiveOrUpcomingSession,
@@ -34,13 +41,51 @@ export default function Discover() {
   const { colors } = useTheme();
   const { width, height } = useWindowDimensions();
   const swiperRef = useRef<SwiperCardRefType>(null);
+  const haptics = useHaptics();
+  const { show: showToast } = useToast();
+  const { showMatch } = useMatch();
+  const reducedMotion = useReducedMotion();
 
   const [filters, setFilters] = useState<DiscoverFilters>(DEFAULT_FILTERS);
   const [travel, setTravel] = useState<TravelSession | null>(null);
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [match, setMatch] = useState<Candidate | null>(null);
+  // Banner visibility starts hidden so we don't flash it before the
+  // AsyncStorage check resolves. Toggle to true only after we've
+  // confirmed the user hasn't dismissed it.
+  const [bannerDismissed, setBannerDismissed] = useState<boolean>(true);
+
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    AsyncStorage.getItem(`pindr.banner.complete-profile.dismissed.${user.id}`)
+      .then((v) => {
+        if (!cancelled) setBannerDismissed(v === '1');
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const dismissProfileBanner = useCallback(() => {
+    setBannerDismissed(true);
+    if (user) {
+      AsyncStorage.setItem(
+        `pindr.banner.complete-profile.dismissed.${user.id}`,
+        '1',
+      ).catch(() => {});
+    }
+  }, [user]);
+
+  const answersEmpty =
+    !profile?.profile_answers ||
+    Object.values(profile.profile_answers).every(
+      (v) => !v || v.trim().length === 0,
+    );
+  const showCompleteProfileBanner = answersEmpty && !bannerDismissed;
 
   const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
@@ -74,14 +119,23 @@ export default function Discover() {
       if (!user) return;
       const candidate = candidates[cardIndex];
       if (!candidate) return;
+      haptics.swipeRelease();
       try {
         const result = await recordSwipe(user.id, candidate.user_id, direction);
-        if (result.matched) setMatch(candidate);
-      } catch (err) {
-        setError((err as Error).message);
+        if (result.matched) {
+          showMatch(candidate, result.matchId);
+          void maybePromptForPush(user.id, 'first_match');
+        }
+      } catch {
+        // Swipe is already optimistic (card is off-screen). No rollback,
+        // just surface the failure. The missing swipes row will be retried
+        // if the user encounters the same candidate in a later session.
+        showToast("couldn't save that — mind trying again?", {
+          variant: 'error',
+        });
       }
     },
-    [candidates, user],
+    [candidates, user, haptics, showMatch, showToast],
   );
 
   const cardWidth = width - 32;
@@ -108,7 +162,14 @@ export default function Discover() {
         <PindrLogo height={35} />
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <HeaderPill
-            label={travel ? `✈ ${travel.city}` : 'Travel'}
+            label={
+              travel
+                ? // Use only the primary place name (before the first
+                  // comma) so pills like "Washington, District of Columbia"
+                  // don't push the Filters pill off-screen.
+                  `✈ ${travel.city.split(',')[0]}`
+                : 'Travel'
+            }
             highlighted={Boolean(travel)}
             onPress={() => router.push('/travel')}
           />
@@ -120,9 +181,16 @@ export default function Discover() {
         </View>
       </View>
 
+      {showCompleteProfileBanner ? (
+        <CompleteProfileBanner
+          onPress={() => router.push('/edit/answers')}
+          onDismiss={dismissProfileBanner}
+        />
+      ) : null}
+
       {loading ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={colors.ink} />
+          <SkeletonDeck width={cardWidth} height={cardHeight} />
         </View>
       ) : error ? (
         <View
@@ -172,7 +240,7 @@ export default function Discover() {
           </Typography>
         </View>
       ) : (
-        <View
+        <FadeIn
           style={{
             flex: 1,
             alignItems: 'center',
@@ -185,6 +253,7 @@ export default function Discover() {
               ref={swiperRef}
               data={candidates}
               cardStyle={{ width: cardWidth, height: cardHeight }}
+              prerenderItems={1}
               renderCard={(item) => (
                 <SwipeCard
                   candidate={item}
@@ -194,10 +263,21 @@ export default function Discover() {
                       currentUserId: user.id,
                       targetUserId: item.user_id,
                       targetName: item.display_name,
+                      toast: showToast,
                       onBlocked: () => {
                         setCandidates((prev) =>
                           prev.filter((c) => c.user_id !== item.user_id),
                         );
+                      },
+                      onBlockFailed: () => {
+                        // Restore the card to the deck if the server
+                        // rejects the block.
+                        setCandidates((prev) => {
+                          if (prev.some((c) => c.user_id === item.user_id)) {
+                            return prev;
+                          }
+                          return [item, ...prev];
+                        });
                       },
                     });
                   }}
@@ -209,17 +289,38 @@ export default function Discover() {
               onSwipeLeft={(i) => handleSwipe(i, 'left')}
               onSwipeTop={(i) => handleSwipe(i, 'super')}
               onSwipedAll={() => setCandidates([])}
+              onIndexChange={setActiveIndex}
+              onPress={() => {
+                const candidate = candidates[activeIndex];
+                if (candidate) {
+                  router.push(`/profile/${candidate.user_id}` as never);
+                }
+              }}
               disableBottomSwipe
+              OverlayLabelRight={LockedInStamp}
+              OverlayLabelLeft={MaybeLaterStamp}
+              // Stamp fully opaque once drag reaches 40% of card-width
+              // (plan §4.1 spec is 30-100%; two-point range matches the
+              // library's default shape which 3 points sometimes broke).
+              inputOverlayLabelRightOpacityRange={[0, cardWidth * 0.4]}
+              outputOverlayLabelRightOpacityRange={[0, 1]}
+              inputOverlayLabelLeftOpacityRange={[0, -cardWidth * 0.4]}
+              outputOverlayLabelLeftOpacityRange={[0, 1]}
+              // Library applies rotate in RADIANS, not degrees. Cap at ±8°
+              // at screen edges per plan §4.1. 8° ≈ Math.PI / 22.5. When
+              // Reduce Motion is on, zero out rotation per plan §5 — the
+              // card still translates linearly with the finger.
+              rotateInputRange={[-width, 0, width]}
+              rotateOutputRange={
+                reducedMotion
+                  ? [0, 0, 0]
+                  : [-Math.PI / 22.5, 0, Math.PI / 22.5]
+              }
             />
           </View>
-        </View>
+        </FadeIn>
       )}
 
-      <MatchModal
-        match={match}
-        myPhotoUrl={profile?.photo_urls?.[0] ?? null}
-        onKeepSwiping={() => setMatch(null)}
-      />
     </SafeAreaView>
   );
 }
@@ -279,9 +380,51 @@ function HeaderPill({
   );
 }
 
+function CompleteProfileBanner({
+  onPress,
+  onDismiss,
+}: {
+  onPress: () => void;
+  onDismiss: () => void;
+}) {
+  const { colors } = useTheme();
+  return (
+    <Pressable
+      onPress={onPress}
+      style={{
+        marginHorizontal: 20,
+        marginBottom: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 999,
+        backgroundColor: colors.mustard,
+      }}
+    >
+      <Typography variant="caption" style={{ flex: 1, color: '#0E0E0C' }}>
+        complete your profile · answer a few questions
+      </Typography>
+      <Pressable
+        onPress={(e) => {
+          e.stopPropagation();
+          onDismiss();
+        }}
+        hitSlop={10}
+        style={{ paddingHorizontal: 6 }}
+      >
+        <Typography variant="caption" style={{ color: '#0E0E0C' }}>
+          ×
+        </Typography>
+      </Pressable>
+    </Pressable>
+  );
+}
+
 function countActiveFilters(f: DiscoverFilters): number {
   let n = 0;
-  if (f.maxDistanceKm !== DEFAULT_FILTERS.maxDistanceKm) n++;
+  if (f.maxDistanceMi !== DEFAULT_FILTERS.maxDistanceMi) n++;
   if (f.minAge !== null || f.maxAge !== null) n++;
   if (f.minHandicap !== null || f.maxHandicap !== null) n++;
   if (f.genders && f.genders.length > 0) n++;

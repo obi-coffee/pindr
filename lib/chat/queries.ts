@@ -18,6 +18,10 @@ export type ChatMessage = {
   sender_id: string;
   body: string;
   created_at: string;
+  // UI-only marker set on client-side temp rows inserted before the
+  // server confirms the send. Never present on rows fetched or
+  // delivered via realtime.
+  _pending?: boolean;
 };
 
 export type MatchDetails = {
@@ -25,6 +29,7 @@ export type MatchDetails = {
   other_user_id: string;
   other_display_name: string | null;
   other_photo_url: string | null;
+  other_availability: Record<string, boolean> | null;
 };
 
 export async function fetchMatches(): Promise<MatchSummary[]> {
@@ -50,7 +55,7 @@ export async function fetchMatchDetails(
 
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('display_name, photo_urls')
+    .select('display_name, photo_urls, availability')
     .eq('user_id', otherId)
     .maybeSingle();
   if (profileError) throw profileError;
@@ -60,6 +65,8 @@ export async function fetchMatchDetails(
     other_user_id: otherId,
     other_display_name: profile?.display_name ?? null,
     other_photo_url: profile?.photo_urls?.[0] ?? null,
+    other_availability:
+      (profile?.availability as Record<string, boolean> | null) ?? null,
   };
 }
 

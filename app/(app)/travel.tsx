@@ -12,26 +12,45 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CityPickerInput } from '../../components/CityPickerInput';
+import { DateTimeSheet } from '../../components/DateTimeSheet';
 import {
   Button,
-  Input,
   Typography,
   radii,
   useTheme,
 } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
-import {
-  dateToDisplay,
-  displayToIso,
-  isoToDisplay,
-  maskDateInput,
-} from '../../lib/format/date';
+import { isoToDisplay } from '../../lib/format/date';
 import {
   deleteTravelSession,
   fetchActiveOrUpcomingSession,
   saveTravelSession,
   type TravelSession,
 } from '../../lib/travel/queries';
+
+// "YYYY-MM-DD" → local-midnight Date; Date → "YYYY-MM-DD" using local
+// getters so the stored string matches what the user picked on their
+// phone regardless of timezone.
+function isoDateToLocal(iso: string): Date {
+  const [y, m, d] = iso.split('-').map((n) => parseInt(n, 10));
+  return new Date(y, (m || 1) - 1, d || 1);
+}
+
+function localDateToIso(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function dateToReadable(d: Date): string {
+  return d.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
 
 export default function TravelScreen() {
   const { user } = useAuth();
@@ -40,8 +59,9 @@ export default function TravelScreen() {
   const [busy, setBusy] = useState(false);
   const [session, setSession] = useState<TravelSession | null>(null);
   const [city, setCity] = useState('');
-  const [startDate, setStartDate] = useState(dateToDisplay(new Date()));
-  const [endDate, setEndDate] = useState(dateToDisplay(new Date()));
+  const [startDate, setStartDate] = useState<Date>(() => new Date());
+  const [endDate, setEndDate] = useState<Date>(() => new Date());
+  const [dateOpen, setDateOpen] = useState<'start' | 'end' | null>(null);
   const [coords, setCoords] = useState<{
     latitude: number;
     longitude: number;
@@ -55,8 +75,8 @@ export default function TravelScreen() {
         if (s) {
           setSession(s);
           setCity(s.city);
-          setStartDate(isoToDisplay(s.start_date));
-          setEndDate(isoToDisplay(s.end_date));
+          setStartDate(isoDateToLocal(s.start_date));
+          setEndDate(isoDateToLocal(s.end_date));
         }
       } catch (err) {
         Alert.alert('could not load travel', (err as Error).message);
@@ -69,15 +89,12 @@ export default function TravelScreen() {
   const save = async () => {
     if (!user) return;
     if (!city.trim()) return Alert.alert('enter a city');
-    const startIso = displayToIso(startDate);
-    const endIso = displayToIso(endDate);
-    if (!startIso || !endIso) {
-      return Alert.alert('dates must be MM-DD-YYYY');
-    }
+    const startIso = localDateToIso(startDate);
+    const endIso = localDateToIso(endDate);
     if (endIso < startIso) {
       return Alert.alert('end date must be on or after start date');
     }
-    const todayIso = new Date().toISOString().slice(0, 10);
+    const todayIso = localDateToIso(new Date());
     if (endIso < todayIso) {
       return Alert.alert('end date must be today or later');
     }
@@ -243,26 +260,55 @@ export default function TravelScreen() {
             autoCorrect={false}
           />
 
-          <Input
-            label="Start date"
-            value={startDate}
-            onChangeText={(t) => setStartDate(maskDateInput(t))}
-            placeholder="MM-DD-YYYY"
-            keyboardType="number-pad"
-            maxLength={10}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <Input
-            label="End date"
-            value={endDate}
-            onChangeText={(t) => setEndDate(maskDateInput(t))}
-            placeholder="MM-DD-YYYY"
-            keyboardType="number-pad"
-            maxLength={10}
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
+          <View>
+            <Typography
+              variant="caption"
+              color="ink-soft"
+              style={{ marginBottom: 6 }}
+            >
+              START DATE
+            </Typography>
+            <Pressable
+              onPress={() => setDateOpen('start')}
+              style={{
+                borderWidth: 1,
+                borderColor: colors['stroke-strong'],
+                borderRadius: radii.md,
+                backgroundColor: colors['paper-high'],
+                paddingHorizontal: 14,
+                paddingVertical: 14,
+              }}
+            >
+              <Typography variant="body-lg">
+                {dateToReadable(startDate)}
+              </Typography>
+            </Pressable>
+          </View>
+
+          <View>
+            <Typography
+              variant="caption"
+              color="ink-soft"
+              style={{ marginBottom: 6 }}
+            >
+              END DATE
+            </Typography>
+            <Pressable
+              onPress={() => setDateOpen('end')}
+              style={{
+                borderWidth: 1,
+                borderColor: colors['stroke-strong'],
+                borderRadius: radii.md,
+                backgroundColor: colors['paper-high'],
+                paddingHorizontal: 14,
+                paddingVertical: 14,
+              }}
+            >
+              <Typography variant="body-lg">
+                {dateToReadable(endDate)}
+              </Typography>
+            </Pressable>
+          </View>
 
           <Button
             variant="primary"
@@ -288,6 +334,23 @@ export default function TravelScreen() {
           ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <DateTimeSheet
+        visible={dateOpen !== null}
+        mode="date"
+        value={dateOpen === 'end' ? endDate : startDate}
+        minimumDate={dateOpen === 'end' ? startDate : new Date()}
+        onChange={(next) => {
+          if (dateOpen === 'start') {
+            setStartDate(next);
+            // Keep end >= start automatically.
+            if (endDate < next) setEndDate(next);
+          } else if (dateOpen === 'end') {
+            setEndDate(next);
+          }
+        }}
+        onClose={() => setDateOpen(null)}
+      />
     </SafeAreaView>
   );
 }

@@ -1,7 +1,12 @@
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, RefreshControl, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CheckinCard } from '../../../components/CheckinCard';
+import { TodayCard } from '../../../components/TodayCard';
+import { SkeletonRoundsList } from '../../../components/lists/SkeletonRoundsList';
+import { FadeIn } from '../../../components/motion/FadeIn';
+import { usePullRefresh } from '../../../components/motion/PullRefresh';
 import { RoundListRow } from '../../../components/RoundListRow';
 import {
   RoundsFilterBar,
@@ -9,9 +14,13 @@ import {
   type RoundsFilters,
 } from '../../../components/RoundsFilterBar';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
+import { useAuth } from '../../../lib/auth/AuthProvider';
+import { listPendingCheckinRounds } from '../../../lib/rounds/checkins';
+import { listTodayLockedRounds } from '../../../lib/rounds/today';
 import {
   listOpenRounds,
   type RoundListItem,
+  type RoundWithCourse,
 } from '../../../lib/rounds/queries';
 
 const DEFAULT_FILTERS: RoundsFilters = {
@@ -20,9 +29,12 @@ const DEFAULT_FILTERS: RoundsFilters = {
 };
 
 export default function Rounds() {
+  const { user } = useAuth();
   const { colors } = useTheme();
   const [filters, setFilters] = useState<RoundsFilters>(DEFAULT_FILTERS);
   const [rounds, setRounds] = useState<RoundListItem[]>([]);
+  const [pendingCheckins, setPendingCheckins] = useState<RoundWithCourse[]>([]);
+  const [todayRounds, setTodayRounds] = useState<RoundWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -50,15 +62,47 @@ export default function Rounds() {
     [],
   );
 
+  // Day-of and check-in cards load independently of the feed — a feed
+  // error shouldn't hide them, and vice versa.
+  const loadCards = useCallback(async () => {
+    if (!user) return;
+    try {
+      const [pending, today] = await Promise.all([
+        listPendingCheckinRounds(user.id),
+        listTodayLockedRounds(user.id),
+      ]);
+      setPendingCheckins(pending);
+      setTodayRounds(today);
+    } catch {
+      setPendingCheckins([]);
+      setTodayRounds([]);
+    }
+  }, [user]);
+
   useFocusEffect(
     useCallback(() => {
       load(filters);
-    }, [load, filters]),
+      loadCards();
+    }, [load, loadCards, filters]),
   );
 
   useEffect(() => {
     load(filters);
   }, [filters, load]);
+
+  const refreshControl = usePullRefresh({
+    refreshing,
+    onRefresh: () => {
+      load(filters, true);
+      loadCards();
+    },
+  });
+
+  // A round shortly past its tee time can qualify for both cards; the
+  // day-of card wins until its window closes.
+  const todayIds = new Set(todayRounds.map((r) => r.id));
+  const activeCheckin =
+    pendingCheckins.filter((r) => !todayIds.has(r.id))[0] ?? null;
 
   return (
     <SafeAreaView
@@ -79,12 +123,25 @@ export default function Rounds() {
         <Typography variant="h1">rounds</Typography>
       </View>
 
+      {user
+        ? todayRounds.map((r) => (
+            <TodayCard key={r.id} round={r} userId={user.id} />
+          ))
+        : null}
+
+      {activeCheckin && user ? (
+        <CheckinCard
+          key={activeCheckin.id}
+          round={activeCheckin}
+          userId={user.id}
+          onDismiss={() => setPendingCheckins((prev) => prev.slice(1))}
+        />
+      ) : null}
+
       <RoundsFilterBar value={filters} onChange={setFilters} />
 
       {loading && !refreshing ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={colors.ink} />
-        </View>
+        <SkeletonRoundsList />
       ) : error ? (
         <View
           style={{
@@ -103,17 +160,12 @@ export default function Rounds() {
           </Typography>
         </View>
       ) : (
+        <FadeIn style={{ flex: 1 }}>
         <FlatList
           data={rounds}
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 120 }}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={() => load(filters, true)}
-              tintColor={colors.ink}
-            />
-          }
+          refreshControl={refreshControl}
           ItemSeparatorComponent={() => (
             <View
               style={{
@@ -151,6 +203,7 @@ export default function Rounds() {
             />
           )}
         />
+        </FadeIn>
       )}
     </SafeAreaView>
   );

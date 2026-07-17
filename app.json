@@ -10,14 +10,15 @@
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#1F2A21"
     },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.obiekweokolo.pindr",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Pindr uses your camera so you can scan a friend's QR code to instantly connect."
       }
     },
     "android": {
@@ -50,6 +51,19 @@
         {
           "locationWhenInUsePermission": "Pindr uses your location to find players nearby.",
           "locationAlwaysAndWhenInUsePermission": "Pindr uses your location to find players nearby."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/adaptive-icon.png",
+          "color": "#ffffff"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Pindr uses your camera so you can scan a friend's QR code to instantly connect."
         }
       ],
       "@react-native-community/datetimepicker"

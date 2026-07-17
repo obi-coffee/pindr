@@ -26,13 +26,19 @@ export type Candidate = {
   upcoming_round_id: string | null;
   upcoming_round_tee_time: string | null;
   upcoming_round_course_name: string | null;
+  // Set by get_profile_by_id (Phase 2). discover_candidates does not
+  // populate this — it's not surfaced on the deck card. Treat as
+  // optional client-side.
+  profile_answers?: Record<string, string>;
+  // Set by get_profile_by_id (Loop Phase E). Same optionality caveat.
+  availability?: Record<string, boolean>;
 };
 
 export async function fetchCandidates(
   filters: DiscoverFilters,
 ): Promise<Candidate[]> {
   const { data, error } = await supabase.rpc('discover_candidates', {
-    max_distance_km: filters.maxDistanceKm,
+    max_distance_km: filters.maxDistanceMi * 1.60934,
     min_age: filters.minAge,
     max_age: filters.maxAge,
     genders: filters.genders,
@@ -45,13 +51,32 @@ export async function fetchCandidates(
   return (data ?? []) as Candidate[];
 }
 
+// Fetch a single profile by user_id. Returns null if blocked,
+// not-onboarded, the caller themselves, or simply doesn't exist.
+// Backed by the get_profile_by_id RPC (SECURITY DEFINER) since direct
+// profiles SELECT is owner-only.
+export async function fetchProfileById(
+  userId: string,
+): Promise<Candidate | null> {
+  const { data, error } = await supabase.rpc('get_profile_by_id', {
+    target_user_id: userId,
+  });
+  if (error) throw error;
+  const rows = (data ?? []) as Candidate[];
+  return rows[0] ?? null;
+}
+
 export type SwipeDirection = 'right' | 'left' | 'super';
+
+export type SwipeResult =
+  | { matched: false }
+  | { matched: true; matchId: string };
 
 export async function recordSwipe(
   swiperId: string,
   swipeeId: string,
   direction: SwipeDirection,
-): Promise<{ matched: boolean }> {
+): Promise<SwipeResult> {
   const { error: insertError } = await supabase.from('swipes').insert({
     swiper_id: swiperId,
     swipee_id: swipeeId,
@@ -70,5 +95,6 @@ export async function recordSwipe(
     .eq('user_b_id', hi)
     .maybeSingle();
   if (error) throw error;
-  return { matched: Boolean(data) };
+  if (!data) return { matched: false };
+  return { matched: true, matchId: data.id as string };
 }

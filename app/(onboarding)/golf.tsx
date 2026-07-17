@@ -16,7 +16,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandMark } from '../../components/BrandMark';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
-import { golfSchema, type GolfInput } from '../../lib/profile/schemas';
+import {
+  golfSchema,
+  type GolfForm,
+  type GolfInput,
+} from '../../lib/profile/schemas';
 import { supabase } from '../../lib/supabase';
 
 export default function Golf() {
@@ -29,12 +33,13 @@ export default function Golf() {
     watch,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<GolfInput>({
+  } = useForm<GolfForm, unknown, GolfInput>({
     resolver: zodResolver(golfSchema),
     defaultValues: {
       has_handicap: profile?.has_handicap ?? false,
       handicap: profile?.handicap ?? undefined,
-      years_playing: profile?.years_playing ?? undefined,
+      years_playing:
+        profile?.years_playing != null ? String(profile.years_playing) : '',
       home_course_name: profile?.home_course_name ?? '',
     },
   });
@@ -139,7 +144,7 @@ export default function Golf() {
               name="handicap"
               render={({ field: { value, onChange, onBlur } }) => (
                 <HandicapInput
-                  value={value}
+                  value={typeof value === 'number' ? value : undefined}
                   onChange={onChange}
                   onBlur={onBlur}
                   error={errors.handicap?.message}
@@ -155,16 +160,8 @@ export default function Golf() {
               <Input
                 label="Years playing"
                 error={errors.years_playing?.message}
-                value={
-                  value === undefined || Number.isNaN(value)
-                    ? ''
-                    : String(value)
-                }
-                onChangeText={(t) => {
-                  if (t === '') return onChange(undefined);
-                  const n = Number(t);
-                  onChange(Number.isNaN(n) ? undefined : n);
-                }}
+                value={value == null ? '' : String(value)}
+                onChangeText={(t) => onChange(t.replace(/\D/g, ''))}
                 onBlur={onBlur}
                 keyboardType="number-pad"
                 placeholder="5"

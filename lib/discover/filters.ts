@@ -19,7 +19,7 @@ function normalizeGenders(input: unknown): string[] | null {
 }
 
 export type DiscoverFilters = {
-  maxDistanceKm: number;
+  maxDistanceMi: number;
   minAge: number | null;
   maxAge: number | null;
   genders: string[] | null;
@@ -30,7 +30,7 @@ export type DiscoverFilters = {
 };
 
 export const DEFAULT_FILTERS: DiscoverFilters = {
-  maxDistanceKm: 100,
+  maxDistanceMi: 60,
   minAge: null,
   maxAge: null,
   genders: null,
@@ -40,7 +40,9 @@ export const DEFAULT_FILTERS: DiscoverFilters = {
   womenOnly: false,
 };
 
-const STORAGE_KEY = 'pindr.discoverFilters.v1';
+// Bumped from v1 when distance switched units; loading the old key
+// would interpret saved km as mi and silently shrink the radius.
+const STORAGE_KEY = 'pindr.discoverFilters.v2';
 
 export async function loadFilters(): Promise<DiscoverFilters> {
   try {

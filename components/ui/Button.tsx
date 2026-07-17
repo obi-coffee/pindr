@@ -1,14 +1,15 @@
 import {
   ActivityIndicator,
-  Pressable,
   Text,
   type PressableProps,
   type ViewStyle,
 } from 'react-native';
+import { PressableFade } from '../motion/PressableFade';
+import { PressableScale } from '../motion/PressableScale';
 import { useTheme } from './ThemeProvider';
 import { fontFamilyFor, lightColors, radii } from './theme';
 
-type Variant = 'primary' | 'ghost' | 'destructive' | 'mustard';
+type Variant = 'primary' | 'ghost' | 'destructive' | 'mustard' | 'paper';
 type Size = 'sm' | 'md' | 'lg';
 
 export type ButtonProps = Omit<PressableProps, 'children' | 'style'> & {
@@ -45,6 +46,7 @@ export function Button({
   const isDestructive = variant === 'destructive';
   const isGhost = variant === 'ghost';
   const isMustard = variant === 'mustard';
+  const isPaper = variant === 'paper';
 
   const background = isPrimary
     ? colors.ink
@@ -52,12 +54,20 @@ export function Button({
       ? colors.burgundy
       : isMustard
         ? colors.mustard
-        : 'transparent';
+        : isPaper
+          ? colors['paper-raised']
+          : 'transparent';
+  // Mustard stays the same warm yellow in both themes, so its label is
+  // pinned to lightColors.ink. Paper inverts with the theme (cream in
+  // light, near-black in dark), so it must use the themed ink token —
+  // hardcoding lightColors.ink leaves dark text on a dark background.
   const labelColor = isGhost
     ? colors.ink
     : isMustard
       ? lightColors.ink
-      : colors['paper-high'];
+      : isPaper
+        ? colors.ink
+        : colors['paper-high'];
   const borderWidth = isGhost ? 1 : 0;
   const borderColor = colors['stroke-strong'];
 
@@ -85,17 +95,33 @@ export function Button({
     fontFamily: fontFamilyFor(LABEL_WEIGHT),
   };
 
+  const content = loading ? (
+    <ActivityIndicator color={labelColor} size="small" />
+  ) : (
+    <Text style={labelStyle}>{children}</Text>
+  );
+
+  // Ghost buttons get the opacity-only fade. Everything else (primary,
+  // destructive, mustard) gets the scale+opacity press + haptic.
+  if (isGhost) {
+    return (
+      <PressableFade
+        {...rest}
+        disabled={disabled || loading}
+        style={[containerStyle, style]}
+      >
+        {content}
+      </PressableFade>
+    );
+  }
+
   return (
-    <Pressable
+    <PressableScale
       {...rest}
       disabled={disabled || loading}
       style={[containerStyle, style]}
     >
-      {loading ? (
-        <ActivityIndicator color={labelColor} size="small" />
-      ) : (
-        <Text style={labelStyle}>{children}</Text>
-      )}
-    </Pressable>
+      {content}
+    </PressableScale>
   );
 }

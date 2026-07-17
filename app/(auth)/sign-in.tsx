@@ -106,11 +106,21 @@ export default function SignIn() {
             Sign in
           </Button>
 
+          <View style={{ alignItems: 'center', marginTop: 16 }}>
+            <Link href="/forgot-password" asChild>
+              <Pressable hitSlop={8}>
+                <Typography variant="body-sm" color="ink-soft">
+                  forgot password?
+                </Typography>
+              </Pressable>
+            </Link>
+          </View>
+
           <View
             style={{
               flexDirection: 'row',
               justifyContent: 'center',
-              marginTop: 28,
+              marginTop: 20,
               gap: 6,
             }}
           >

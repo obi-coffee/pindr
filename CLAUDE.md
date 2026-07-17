@@ -32,10 +32,19 @@ a design decision.
 - Zustand for UI state, TanStack Query for server data
 - react-hook-form + zod for forms
 - NativeWind for styling (Tailwind classes)
-- react-native-deck-swiper for the card stack
+- rn-swiper-list for the card stack (Reanimated-backed; plan originally
+  called for react-native-deck-swiper, but the existing swiper is
+  rn-swiper-list — keep this in mind when referencing the plan)
+- react-native-reanimated v4 + react-native-gesture-handler + expo-haptics
+  for all motion and haptics (Phase 5d). **No other animation libraries**
+  — no Moti, Lottie, or react-native-animatable.
 
 Supabase client is already initialized at `lib/supabase.ts`. Environment
 variables live in `.env` (gitignored) with the `EXPO_PUBLIC_` prefix.
+Motion tokens (durations, springs, easings) live in `lib/motion.ts` and
+are the single source of truth — no inline magic numbers anywhere else
+in the codebase. Haptics go through the `useHaptics()` hook in
+`lib/haptics.ts`.
 
 ## How we work
 - **One phase at a time.** Don't build ahead of what the user asked for.
@@ -55,15 +64,15 @@ variables live in `.env` (gitignored) with the `EXPO_PUBLIC_` prefix.
   specific multiple-choice question rather than guessing.
 
 ## Data model (authoritative — update this section if it changes)
-Core tables: users, profiles, interests, profile_interests, courses,
-swipes, matches, messages, reports, travel_sessions, rounds,
-round_requests (the last two from Phase 5b), plus a `partner_refs` jsonb
-column on courses. Phase 5c adds: push_tokens, notification_preferences,
-notifications_log. See the project plan for full schema. Location
-columns use `geography(point, 4326)` with PostGIS. The `rounds.source`,
-`rounds.external_ref`, `rounds.price_cents`, and `courses.partner_refs`
-fields are V2-readiness slots — present in V1 but unused/null; partner
-inventory (GolfNow) will populate them in V2 without a schema change.
+Core tables: users, profiles, interests, profile_interests, courses, swipes,
+matches, messages, reports, travel_sessions. Phase 5b adds: rounds,
+round_requests, plus a `partner_refs` jsonb column on courses. Phase 5c
+adds: push_tokens, notification_preferences, notifications_log. See the
+project plan for full schema. Location columns use `geography(point, 4326)`
+with PostGIS. The `rounds.source`, `rounds.external_ref`,
+`rounds.price_cents`, and `courses.partner_refs` fields are V2-readiness
+slots — present in V1 but unused/null; partner inventory (GolfNow) will
+populate them in V2 without a schema change.
 
 ## Safety requirements that must ship in MVP
 - Phone + email verification at signup
@@ -80,35 +89,34 @@ Swing video uploads, tee-time booking integration (V2 — GolfNow affiliate),
 GHIN handicap verification, photo/selfie verification, subscriptions,
 pro/coach profile type, post-round reviews. Do not build these without
 explicit approval, even if they seem small. NOTE: user-posted "open
-rounds" are IN scope as of Phase 5b. Push notifications are IN scope as
-of Phase 5c. Micro-interactions and motion polish are IN scope as of
-Phase 5d. See project plan §8.
+rounds" are IN scope as of Phase 5b — see project plan §8. Push
+notifications are IN scope as of Phase 5c — see §8 and
+`../Pindr-Push-Notification-Plan.md`. Micro-interactions and motion
+polish are IN scope as of Phase 5d — see §8 and
+`../Pindr-MicroInteractions-Plan.md`.
 
 ## Where we are right now
-Phases 0–5b are complete: Expo + TypeScript scaffold, Supabase client
+Phases 0–5d are complete: Expo + TypeScript scaffold, Supabase client
 wired, auth + app shell, profile creation, discovery & swipe, matches &
-chat, safety + polish, and user-posted rounds. The open-rounds feature
-(rounds + round_requests tables, posting composer, rounds list, round
-requests inbox, discovery-card "OPEN ROUND" badge) is shipped.
+chat, safety + polish, user-posted open rounds, push notifications, and
+the motion layer. Notifications are rate-limited, quiet-hour-aware, and
+delivered via Supabase Edge Functions + Expo Push. The motion system —
+tokens in `lib/motion.ts`, haptics in `lib/haptics.ts`, skeletons,
+fade-ins, toasts, optimistic updates, match-moment overlay, swipe
+stamps, Reduce Motion fallbacks — is live across the app.
 
-## Your current task (Phase 5c — push notifications, quiet curator register)
-Add push notifications for the narrow set of moments that warrant
-interrupting the user — new match, new message, round requests and
-their outcomes, round reminders. The voice and cadence are the point,
-not the delivery mechanism.
+Phase 5d deferrals (documented in commits):
+- Shared-element hero transitions — Reanimated v4 removed the
+  `sharedTransitionTag` API; the replacement isn't shipped yet.
+- Custom pull-to-refresh indicator shape — iOS Fabric's
+  `UIRefreshControl` doesn't honor `tintColor='transparent'`; shipped a
+  mustard-tinted native spinner via a prop-flicker workaround.
+- Dynamic low-end-Android perf degradation — current animations are
+  transform/opacity-only on the UI thread, which holds 60fps on
+  reasonable devices without explicit gating.
 
-**`../Pindr-Push-Notification-Plan.md` is the authoritative spec** —
-read it end-to-end before starting. Scope in/out, the full notification
-inventory, rate-limit + quiet-hour rules, and the technical foundation
-all live there. All notification copy comes from that doc's §5 copy
-library — **do not write new notification strings inline in code**.
-If a new notification type seems needed, add it to the plan first and
-then implement.
-
-The seven-step build order lives in §8 "Phase 5c" of
-`../Pindr-Project-Plan.md`. Follow the process rules in "How we work"
-above — propose the plan in plain English first, wait for approval,
-then build step by step with review pauses between each step. Do not
-touch the swipe deck, card composition, open-rounds feature, or visual
-system beyond what's strictly required to wire pushes into existing
-flows.
+## Your current task (Phase 6 — testing & first real users)
+MVP feature scope is complete. Invite a small cohort via Expo Go /
+TestFlight, seed 50–100 mock profiles in target cities so early users
+see cards, and iterate on what breaks. No new features without explicit
+approval — bug fixes and polish only.

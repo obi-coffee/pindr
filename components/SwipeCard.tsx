@@ -282,18 +282,6 @@ function OpenRoundBadge({
 function buildTags(c: Candidate): TagSpec[] {
   const tags: TagSpec[] = [];
 
-  switch (c.walking_preference) {
-    case 'walk':
-      tags.push({ label: 'Walks', variant: 'outline' });
-      break;
-    case 'ride':
-      tags.push({ label: 'Rides', variant: 'outline' });
-      break;
-    case 'either':
-      tags.push({ label: 'Walk or ride', variant: 'outline' });
-      break;
-  }
-
   switch (c.holes_preference) {
     case '9':
       tags.push({ label: '9 only', variant: 'outline' });

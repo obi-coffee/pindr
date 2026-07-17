@@ -26,7 +26,7 @@ import {
 } from '../../lib/discover/filters';
 import { GENDER_OPTIONS } from '../../lib/profile/schemas';
 
-const DISTANCE_OPTIONS = [10, 25, 50, 100, 200];
+const DISTANCE_OPTIONS = [5, 10, 25, 50, 100, 200];
 const GENDER_FILTER_OPTIONS = GENDER_OPTIONS.filter(
   (g) => g.value !== 'prefer_not_to_say',
 );
@@ -126,13 +126,13 @@ export default function FiltersScreen() {
         >
           <Section title="distance">
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-              {DISTANCE_OPTIONS.map((km) => (
+              {DISTANCE_OPTIONS.map((mi) => (
                 <ChipSelect
-                  key={km}
-                  selected={filters.maxDistanceKm === km}
-                  onPress={() => set('maxDistanceKm', km)}
+                  key={mi}
+                  selected={filters.maxDistanceMi === mi}
+                  onPress={() => set('maxDistanceMi', mi)}
                 >
-                  {`${km} km`}
+                  {`${mi} mi`}
                 </ChipSelect>
               ))}
             </View>

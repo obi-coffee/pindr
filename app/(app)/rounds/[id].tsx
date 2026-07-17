@@ -8,14 +8,22 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useToast } from '../../../components/motion/Toast';
 import { Button, PindrLogo, Tag, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
+import {
+  fetchMatchDetails,
+  type MatchDetails,
+} from '../../../lib/chat/queries';
+import { useHaptics } from '../../../lib/haptics';
+import { isRoundToday, useArrival } from '../../../lib/rounds/today';
 import {
   cancelRound,
   deleteRound,
   getMyRequestForRound,
   getRound,
   listRequestsForRound,
+  openRoundSeat,
   requestToJoinRound,
   respondToRequest,
   withdrawRequest,
@@ -39,10 +47,17 @@ export default function RoundDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { user } = useAuth();
   const { colors } = useTheme();
+  const { show: showToast } = useToast();
   const [round, setRound] = useState<RoundWithCourse | null>(null);
+  const [partner, setPartner] = useState<MatchDetails | null>(null);
   const [myRequest, setMyRequest] = useState<MyRoundRequest | null>(null);
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const failToast = useCallback(
+    () => showToast("couldn't save that — mind trying again?", { variant: 'error' }),
+    [showToast],
+  );
 
   const load = useCallback(async () => {
     if (!id || !user) return;
@@ -50,8 +65,24 @@ export default function RoundDetail() {
     try {
       const r = await getRound(id);
       setRound(r);
+      // For a locked round, the partner lookup doubles as a membership
+      // check: matches RLS only lets the two match members read the row,
+      // so a Phase F third player gets null here and falls through to
+      // the ordinary requester view.
+      let partnerDetails: MatchDetails | null = null;
+      if (r.origin_match_id) {
+        try {
+          partnerDetails = await fetchMatchDetails(r.origin_match_id, user.id);
+        } catch {
+          partnerDetails = null;
+        }
+      }
+      setPartner(partnerDetails);
       if (r.host_user_id === user.id) {
         setRequests(await listRequestsForRound(id));
+        setMyRequest(null);
+      } else if (r.origin_match_id && partnerDetails) {
+        setRequests([]);
         setMyRequest(null);
       } else {
         setMyRequest(await getMyRequestForRound(id, user.id));
@@ -64,10 +95,88 @@ export default function RoundDetail() {
     }
   }, [id, user]);
 
+  // Phase F: host opens one seat at a time to the feed.
+  const [openingSeat, setOpeningSeat] = useState(false);
+  const handleOpenSeat = useCallback(async () => {
+    if (!round || openingSeat) return;
+    setOpeningSeat(true);
+    try {
+      await openRoundSeat(round.id);
+      await load();
+    } catch (err) {
+      showToast((err as Error).message, { variant: 'error' });
+    } finally {
+      setOpeningSeat(false);
+    }
+  }, [round, openingSeat, load, showToast]);
+
   useFocusEffect(
     useCallback(() => {
       load();
     }, [load]),
+  );
+
+  // Optimistic request: flip myRequest to a synthetic pending row
+  // immediately. On success, onReload pulls the real row (which the
+  // server assigned a real id). On failure, revert + toast.
+  const handleRequest = useCallback(async () => {
+    if (!round || !user) return;
+    const prevMyRequest = myRequest;
+    const tempRequest: MyRoundRequest = {
+      id: `temp-${Date.now()}`,
+      status: 'pending',
+      created_at: new Date().toISOString(),
+      responded_at: null,
+    };
+    setMyRequest(tempRequest);
+    try {
+      await requestToJoinRound(round, user.id);
+      load();
+    } catch {
+      setMyRequest(prevMyRequest);
+      failToast();
+    }
+  }, [round, user, myRequest, load, failToast]);
+
+  // Optimistic withdraw: flip status locally, then reconcile via reload.
+  const handleWithdraw = useCallback(
+    async (requestId: string) => {
+      const prevMyRequest = myRequest;
+      setMyRequest((prev) =>
+        prev && prev.id === requestId ? { ...prev, status: 'withdrawn' } : prev,
+      );
+      try {
+        await withdrawRequest(requestId);
+        load();
+      } catch {
+        setMyRequest(prevMyRequest);
+        failToast();
+      }
+    },
+    [myRequest, load, failToast],
+  );
+
+  // Optimistic host response: update the request's status in the local
+  // list immediately. Reload reconciles; rollback on failure.
+  const handleRespond = useCallback(
+    async (requestId: string, accept: boolean) => {
+      const prevRequests = requests;
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === requestId
+            ? { ...r, status: accept ? 'accepted' : 'declined' }
+            : r,
+        ),
+      );
+      try {
+        await respondToRequest(requestId, accept);
+        load();
+      } catch {
+        setRequests(prevRequests);
+        failToast();
+      }
+    },
+    [requests, load, failToast],
   );
 
   if (loading) {
@@ -105,7 +214,13 @@ export default function RoundDetail() {
     minute: '2-digit',
   });
   const isHost = user.id === round.host_user_id;
+  const isLocked = round.origin_match_id !== null;
+  // A Phase F third player sees the ordinary requester view even though
+  // the round originated in someone else's chat.
+  const isLockedMember = isLocked && (isHost || partner !== null);
+  const isPairOnly = isLockedMember && round.seats_total === 2;
   const isCancellable = round.status === 'open' || round.status === 'full';
+  const hasFormat = Boolean(round.format?.walking || round.format?.match_type);
 
   const pendingRequests = requests.filter((r) => r.status === 'pending');
   const otherRequests = requests.filter((r) => r.status !== 'pending');
@@ -150,16 +265,28 @@ export default function RoundDetail() {
         >
           <Stat label="Date" value={dateLabel} />
           <Stat label="Tee" value={timeLabel} />
-          <Stat
-            label="Seats"
-            value={`${round.seats_open} of ${round.seats_total - 1}`}
-          />
+          {!isPairOnly ? (
+            <Stat
+              label="Seats"
+              value={`${round.seats_open} of ${round.seats_total - 1}`}
+            />
+          ) : null}
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          <Tag size="sm">{WALKING_LABEL[round.format.walking] ?? '—'}</Tag>
-          <Tag size="sm">{MATCH_LABEL[round.format.match_type] ?? '—'}</Tag>
-          {round.status !== 'open' ? (
+          {isLockedMember ? (
+            <Tag size="sm" variant="solid">
+              locked in
+            </Tag>
+          ) : null}
+          {hasFormat ? (
+            <>
+              <Tag size="sm">{WALKING_LABEL[round.format.walking] ?? '—'}</Tag>
+              <Tag size="sm">{MATCH_LABEL[round.format.match_type] ?? '—'}</Tag>
+            </>
+          ) : null}
+          {round.status !== 'open' &&
+          !(isLockedMember && round.status === 'full') ? (
             <Tag size="sm" variant="solid">
               {round.status}
             </Tag>
@@ -169,26 +296,37 @@ export default function RoundDetail() {
         {round.notes ? (
           <View>
             <Typography variant="caption" color="ink-soft" style={{ marginBottom: 6 }}>
-              FROM THE HOST
+              {isLockedMember ? 'THE NOTE' : 'FROM THE HOST'}
             </Typography>
             <Typography variant="body-lg">{round.notes}</Typography>
           </View>
         ) : null}
 
-        {isHost ? (
+        {isLockedMember ? (
+          <LockedActions
+            round={round}
+            partner={partner}
+            isHost={isHost}
+            isCancellable={isCancellable}
+            requests={requests}
+            onRespond={handleRespond}
+            onOpenSeat={handleOpenSeat}
+            openingSeat={openingSeat}
+          />
+        ) : isHost ? (
           <HostActions
             round={round}
             pending={pendingRequests}
             other={otherRequests}
-            onReload={load}
+            onRespond={handleRespond}
             isCancellable={isCancellable}
           />
         ) : (
           <RequesterActions
             round={round}
             myRequest={myRequest}
-            userId={user.id}
-            onReload={load}
+            onRequest={handleRequest}
+            onWithdraw={handleWithdraw}
           />
         )}
       </ScrollView>
@@ -196,17 +334,210 @@ export default function RoundDetail() {
   );
 }
 
+function LockedActions({
+  round,
+  partner,
+  isHost,
+  isCancellable,
+  requests,
+  onRespond,
+  onOpenSeat,
+  openingSeat,
+}: {
+  round: RoundWithCourse;
+  partner: MatchDetails | null;
+  isHost: boolean;
+  isCancellable: boolean;
+  requests: PendingRequest[];
+  onRespond: (requestId: string, accept: boolean) => void;
+  onOpenSeat: () => void;
+  openingSeat: boolean;
+}) {
+  const { colors } = useTheme();
+  const isToday =
+    (round.status === 'full' || round.status === 'open') &&
+    isRoundToday(round);
+  const teeInFuture = new Date(round.tee_time).getTime() > Date.now();
+  const canOpenSeat =
+    isHost &&
+    round.seats_total < 4 &&
+    (round.status === 'full' || round.status === 'open') &&
+    teeInFuture;
+  const seatOpened = round.seats_total > 2;
+  const pending = requests.filter((r) => r.status === 'pending');
+  const resolved = requests.filter((r) => r.status !== 'pending');
+  return (
+    <View style={{ gap: 16 }}>
+      <View>
+        <Typography variant="caption" color="ink-soft" style={{ marginBottom: 10 }}>
+          YOUR PARTNER
+        </Typography>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 999,
+              overflow: 'hidden',
+              backgroundColor: colors['paper-raised'],
+            }}
+          >
+            {partner?.other_photo_url ? (
+              <Image
+                source={{ uri: partner.other_photo_url }}
+                style={{ flex: 1 }}
+                resizeMode="cover"
+              />
+            ) : null}
+          </View>
+          <Typography variant="h3" style={{ flex: 1 }}>
+            {partner?.other_display_name ?? 'your match'}
+          </Typography>
+        </View>
+      </View>
+
+      {round.status === 'cancelled' ? (
+        <Typography variant="body" color="ink-soft">
+          this round was cancelled. the chat's still open.
+        </Typography>
+      ) : null}
+
+      <View style={{ gap: 10 }}>
+        {isToday ? <ImHereButton roundId={round.id} /> : null}
+        {partner ? (
+          <Button
+            variant={isToday ? 'ghost' : 'primary'}
+            size="lg"
+            fullWidth
+            onPress={() =>
+              router.push(`/chat/${partner.match_id}` as never)
+            }
+          >
+            Message.
+          </Button>
+        ) : null}
+        {isHost && isCancellable ? (
+          <Button
+            variant="ghost"
+            size="lg"
+            fullWidth
+            onPress={() => confirmCancel(round.id)}
+          >
+            Cancel round.
+          </Button>
+        ) : null}
+        {!isHost && isCancellable ? (
+          <Typography variant="body-sm" color="ink-subtle">
+            need to back out? talk it out in chat — they proposed, so the
+            cancel button lives on their side.
+          </Typography>
+        ) : null}
+      </View>
+
+      {/* Phase F: fill the four. Host opens seats to the feed; the
+          existing request/approve flow does the rest. The partner sees
+          the seat status too — no surprise strangers. */}
+      {canOpenSeat || seatOpened ? (
+        <View style={{ gap: 10, marginTop: 8 }}>
+          <Typography variant="caption" color="ink-soft">
+            FILL THE FOUR
+          </Typography>
+          {seatOpened ? (
+            <Typography variant="body-sm" color="ink-soft">
+              {round.seats_open === 0
+                ? 'all seats filled. your group is set.'
+                : `${round.seats_open} open ${
+                    round.seats_open === 1 ? 'seat' : 'seats'
+                  } showing in the rounds feed.`}
+            </Typography>
+          ) : (
+            <Typography variant="body-sm" color="ink-soft">
+              want a third? opening a spot puts this round in the public
+              feed — you approve whoever requests.
+            </Typography>
+          )}
+          {canOpenSeat ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              fullWidth
+              loading={openingSeat}
+              onPress={onOpenSeat}
+            >
+              Open a spot.
+            </Button>
+          ) : null}
+          {isHost && seatOpened ? (
+            <View style={{ marginTop: 4 }}>
+              {pending.length === 0 && resolved.length === 0 ? (
+                <Typography variant="body-sm" color="ink-subtle">
+                  no requests yet. sit tight.
+                </Typography>
+              ) : null}
+              {pending.map((r) => (
+                <PendingRow key={r.id} req={r} onRespond={onRespond} />
+              ))}
+              {resolved.length > 0 ? (
+                <View
+                  style={{
+                    marginTop: 12,
+                    paddingTop: 12,
+                    borderTopWidth: 1,
+                    borderColor: colors.stroke,
+                    gap: 8,
+                  }}
+                >
+                  {resolved.map((r) => (
+                    <ResolvedRow key={r.id} req={r} />
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+// "i'm here" (Loop Phase D): one-shot arrival ping to the partner. The
+// server dedupes; useArrival keeps the button honest across restarts.
+function ImHereButton({ roundId }: { roundId: string }) {
+  const { show: showToast } = useToast();
+  const haptics = useHaptics();
+  const { announced, busy, announce } = useArrival(roundId);
+  return (
+    <Button
+      variant="primary"
+      size="lg"
+      fullWidth
+      loading={busy}
+      disabled={announced}
+      onPress={async () => {
+        try {
+          await announce();
+          haptics.match();
+        } catch (err) {
+          showToast((err as Error).message, { variant: 'error' });
+        }
+      }}
+    >
+      {announced ? "They know you're here." : "I'm here."}
+    </Button>
+  );
+}
+
 function HostActions({
   round,
   pending,
   other,
-  onReload,
+  onRespond,
   isCancellable,
 }: {
   round: RoundWithCourse;
   pending: PendingRequest[];
   other: PendingRequest[];
-  onReload: () => void;
+  onRespond: (requestId: string, accept: boolean) => void;
   isCancellable: boolean;
 }) {
   const { colors } = useTheme();
@@ -251,7 +582,7 @@ function HostActions({
           </Typography>
         ) : null}
         {pending.map((r) => (
-          <PendingRow key={r.id} req={r} onReload={onReload} />
+          <PendingRow key={r.id} req={r} onRespond={onRespond} />
         ))}
         {other.length > 0 ? (
           <View
@@ -275,10 +606,10 @@ function HostActions({
 
 function PendingRow({
   req,
-  onReload,
+  onRespond,
 }: {
   req: PendingRequest;
-  onReload: () => void;
+  onRespond: (requestId: string, accept: boolean) => void;
 }) {
   const { colors } = useTheme();
   const handicap =
@@ -327,14 +658,14 @@ function PendingRow({
         <Button
           variant="ghost"
           size="sm"
-          onPress={() => doRespond(req.id, false, onReload)}
+          onPress={() => onRespond(req.id, false)}
         >
           Pass
         </Button>
         <Button
           variant="primary"
           size="sm"
-          onPress={() => doRespond(req.id, true, onReload)}
+          onPress={() => onRespond(req.id, true)}
         >
           Accept
         </Button>
@@ -360,13 +691,13 @@ function ResolvedRow({ req }: { req: PendingRequest }) {
 function RequesterActions({
   round,
   myRequest,
-  userId,
-  onReload,
+  onRequest,
+  onWithdraw,
 }: {
   round: RoundWithCourse;
   myRequest: MyRoundRequest | null;
-  userId: string;
-  onReload: () => void;
+  onRequest: () => void;
+  onWithdraw: (requestId: string) => void;
 }) {
   if (round.status === 'cancelled') {
     return (
@@ -386,7 +717,7 @@ function RequesterActions({
         size="lg"
         fullWidth
         disabled={isFull}
-        onPress={() => doRequest(round, userId, onReload)}
+        onPress={onRequest}
       >
         {isFull ? 'Round is full.' : 'Request this round.'}
       </Button>
@@ -403,7 +734,7 @@ function RequesterActions({
           variant="ghost"
           size="lg"
           fullWidth
-          onPress={() => doWithdraw(myRequest.id, onReload)}
+          onPress={() => onWithdraw(myRequest.id)}
         >
           Withdraw request.
         </Button>
@@ -441,41 +772,6 @@ function Stat({ label, value }: { label: string; value: string }) {
       <Typography variant="card-stat-value">{value}</Typography>
     </View>
   );
-}
-
-async function doRequest(
-  round: RoundWithCourse,
-  userId: string,
-  onReload: () => void,
-) {
-  try {
-    await requestToJoinRound(round, userId);
-    onReload();
-  } catch (err) {
-    Alert.alert('could not send request', (err as Error).message);
-  }
-}
-
-async function doWithdraw(requestId: string, onReload: () => void) {
-  try {
-    await withdrawRequest(requestId);
-    onReload();
-  } catch (err) {
-    Alert.alert('could not withdraw', (err as Error).message);
-  }
-}
-
-async function doRespond(
-  requestId: string,
-  accept: boolean,
-  onReload: () => void,
-) {
-  try {
-    await respondToRequest(requestId, accept);
-    onReload();
-  } catch (err) {
-    Alert.alert('could not update request', (err as Error).message);
-  }
 }
 
 function confirmCancel(id: string) {

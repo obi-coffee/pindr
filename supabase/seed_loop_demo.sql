@@ -13,9 +13,12 @@
 -- What the reviewer sees after this runs:
 --   - Chat with partner A: a short conversation + a live plan card
 --     waiting on Johnny ("Lock it in." / "Pass") for a round 3 days out.
---   - Chat with partner B: a locked-in round TOMORROW hosted by Johnny
---     (rounds tab TODAY card appears on round day; "Open a spot." is
---     tappable since Johnny is the host — the fill-the-four demo).
+--   - Chat with partner B: a locked-in round 6 days out hosted by
+--     Johnny ("Open a spot." is tappable since Johnny is the host —
+--     the fill-the-four demo). Six days, not tomorrow: review can
+--     happen days after this script runs, and the round must still be
+--     in the future when the reviewer opens the app. The TODAY card
+--     only shows on round day itself.
 --   - A locked round with partner B from 4 days ago with no check-in →
 --     the two-tap check-in card sits on top of the rounds tab, and
 --     "Run it back." pre-fills the plan screen.
@@ -115,16 +118,16 @@ begin
 
   -- Chat B: the running partnership.
   insert into public.messages (match_id, sender_id, body, created_at) values
-    (m_b, u_b,      'good round last week. same energy tomorrow?', now() - interval '23 hours'),
-    (m_b, u_johnny, 'locked it in already. see you out there.',    now() - interval '21 hours');
+    (m_b, u_b,      'good round last week. run it back?',       now() - interval '23 hours'),
+    (m_b, u_johnny, 'locked it in already. see you out there.', now() - interval '21 hours');
 
-  -- Upcoming locked round, ~26h out, HOSTED BY JOHNNY so the reviewer
+  -- Upcoming locked round, 6 days out, HOSTED BY JOHNNY so the reviewer
   -- can tap "Open a spot." themselves (fill the four).
   insert into public.rounds
     (host_user_id, course_id, tee_time, seats_total, seats_open,
      format, notes, status, origin_match_id)
   values
-    (u_johnny, v_course, now() + interval '26 hours', 2, 0,
+    (u_johnny, v_course, now() + interval '6 days', 2, 0,
      '{}'::jsonb, 'run it back.', 'full', m_b)
   returning id into r_up;
 
@@ -137,7 +140,7 @@ begin
     (match_id, proposer_id, course_id, tee_time, note, status, round_id,
      created_at, responded_at)
   values
-    (m_b, u_johnny, v_course, now() + interval '26 hours', 'run it back.',
+    (m_b, u_johnny, v_course, now() + interval '6 days', 'run it back.',
      'accepted', r_up, now() - interval '22 hours', now() - interval '22 hours');
 
   -- Past locked round, 4 days ago, hosted by partner B, no check-in →

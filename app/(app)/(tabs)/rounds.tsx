@@ -2,6 +2,7 @@ import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { CheckinCard } from '../../../components/CheckinCard';
 import { SkeletonRoundsList } from '../../../components/lists/SkeletonRoundsList';
 import { FadeIn } from '../../../components/motion/FadeIn';
 import { usePullRefresh } from '../../../components/motion/PullRefresh';
@@ -12,9 +13,12 @@ import {
   type RoundsFilters,
 } from '../../../components/RoundsFilterBar';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
+import { useAuth } from '../../../lib/auth/AuthProvider';
+import { listPendingCheckinRounds } from '../../../lib/rounds/checkins';
 import {
   listOpenRounds,
   type RoundListItem,
+  type RoundWithCourse,
 } from '../../../lib/rounds/queries';
 
 const DEFAULT_FILTERS: RoundsFilters = {
@@ -23,9 +27,11 @@ const DEFAULT_FILTERS: RoundsFilters = {
 };
 
 export default function Rounds() {
+  const { user } = useAuth();
   const { colors } = useTheme();
   const [filters, setFilters] = useState<RoundsFilters>(DEFAULT_FILTERS);
   const [rounds, setRounds] = useState<RoundListItem[]>([]);
+  const [pendingCheckins, setPendingCheckins] = useState<RoundWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,10 +59,22 @@ export default function Rounds() {
     [],
   );
 
+  // Check-in prompts load independently of the feed — a feed error
+  // shouldn't hide the card, and vice versa. One card at a time.
+  const loadCheckins = useCallback(async () => {
+    if (!user) return;
+    try {
+      setPendingCheckins(await listPendingCheckinRounds(user.id));
+    } catch {
+      setPendingCheckins([]);
+    }
+  }, [user]);
+
   useFocusEffect(
     useCallback(() => {
       load(filters);
-    }, [load, filters]),
+      loadCheckins();
+    }, [load, loadCheckins, filters]),
   );
 
   useEffect(() => {
@@ -65,8 +83,13 @@ export default function Rounds() {
 
   const refreshControl = usePullRefresh({
     refreshing,
-    onRefresh: () => load(filters, true),
+    onRefresh: () => {
+      load(filters, true);
+      loadCheckins();
+    },
   });
+
+  const activeCheckin = pendingCheckins[0] ?? null;
 
   return (
     <SafeAreaView
@@ -86,6 +109,15 @@ export default function Rounds() {
         <PindrLogo height={35} />
         <Typography variant="h1">rounds</Typography>
       </View>
+
+      {activeCheckin && user ? (
+        <CheckinCard
+          key={activeCheckin.id}
+          round={activeCheckin}
+          userId={user.id}
+          onDismiss={() => setPendingCheckins((prev) => prev.slice(1))}
+        />
+      ) : null}
 
       <RoundsFilterBar value={filters} onChange={setFilters} />
 

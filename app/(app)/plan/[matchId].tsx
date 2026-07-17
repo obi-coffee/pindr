@@ -32,12 +32,43 @@ function defaultTeeTime(): Date {
 }
 
 export default function ProposePlan() {
-  const { matchId } = useLocalSearchParams<{ matchId: string }>();
+  // The optional params are the "run it back" prefill (Loop Phase C):
+  // the check-in card reopens this screen with the same course and the
+  // same weekday next week already picked.
+  const { matchId, courseId, courseName, courseCity, courseState, tee } =
+    useLocalSearchParams<{
+      matchId: string;
+      courseId?: string;
+      courseName?: string;
+      courseCity?: string;
+      courseState?: string;
+      tee?: string;
+    }>();
   const { user } = useAuth();
   const { colors } = useTheme();
 
-  const [course, setCourse] = useState<CourseSummary | null>(null);
-  const [teeTime, setTeeTime] = useState<Date>(defaultTeeTime());
+  const [course, setCourse] = useState<CourseSummary | null>(() =>
+    courseId && courseName
+      ? {
+          id: courseId,
+          name: courseName,
+          city: courseCity || null,
+          state: courseState || null,
+          lng: 0,
+          lat: 0,
+          distance_km: null,
+        }
+      : null,
+  );
+  const [teeTime, setTeeTime] = useState<Date>(() => {
+    if (tee) {
+      const parsed = new Date(tee);
+      if (!Number.isNaN(parsed.getTime()) && parsed.getTime() > Date.now()) {
+        return parsed;
+      }
+    }
+    return defaultTeeTime();
+  });
   const [note, setNote] = useState('');
   const [pickerOpen, setPickerOpen] = useState(false);
   const [dateOpen, setDateOpen] = useState(false);

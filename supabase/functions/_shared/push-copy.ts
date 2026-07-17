@@ -166,3 +166,13 @@ export function planAcceptedCopy(input: {
     deepLink: `pindr:///rounds/${input.roundId}`,
   };
 }
+
+// §5.11 — Post-round check-in (the morning after a locked round).
+// Deep-links to the rounds tab, where the check-in card sits on top.
+export function roundCheckinCopy(input: { courseName: string }): PushCopy {
+  return {
+    title: truncate(`so — how was ${input.courseName.toLowerCase()}?`, 50),
+    body: 'two taps. then run it back if it was a good one.',
+    deepLink: 'pindr:///rounds',
+  };
+}

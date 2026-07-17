@@ -31,6 +31,10 @@ export type Round = {
   notes: string | null;
   status: RoundStatus;
   source: 'user_posted' | 'golfnow';
+  // Set when the round was locked in from a match chat (Loop Phase A).
+  // Locked rounds are private to the pair: status 'full', so they never
+  // surface in the public feed.
+  origin_match_id: string | null;
   created_at: string;
 };
 
@@ -42,6 +46,9 @@ export type RoundWithCourse = Round & {
     state: string | null;
   };
 };
+
+const ROUND_SELECT =
+  'id, host_user_id, course_id, tee_time, seats_total, seats_open, format, notes, status, source, origin_match_id, created_at, course:courses(id, name, city, state)';
 
 export async function searchCourses(query: string): Promise<CourseSummary[]> {
   const q = query.trim();
@@ -122,9 +129,7 @@ export async function deleteRound(id: string): Promise<void> {
 export async function getRound(id: string): Promise<RoundWithCourse> {
   const { data, error } = await supabase
     .from('rounds')
-    .select(
-      'id, host_user_id, course_id, tee_time, seats_total, seats_open, format, notes, status, source, created_at, course:courses(id, name, city, state)',
-    )
+    .select(ROUND_SELECT)
     .eq('id', id)
     .single();
   if (error) throw error;
@@ -175,13 +180,31 @@ export async function listMyRounds(
 ): Promise<RoundWithCourse[]> {
   const { data, error } = await supabase
     .from('rounds')
-    .select(
-      'id, host_user_id, course_id, tee_time, seats_total, seats_open, format, notes, status, source, created_at, course:courses(id, name, city, state)',
-    )
+    .select(ROUND_SELECT)
     .eq('host_user_id', hostUserId)
     .order('tee_time', { ascending: true });
   if (error) throw error;
   return (data ?? []) as unknown as RoundWithCourse[];
+}
+
+/**
+ * Rounds this user joined (accepted request), rather than hosted. Covers
+ * both feed rounds the host accepted them into and locked-in rounds from
+ * a match chat, where accept_round_plan seats them automatically.
+ */
+export async function listJoinedRounds(
+  userId: string,
+): Promise<RoundWithCourse[]> {
+  const { data, error } = await supabase
+    .from('round_requests')
+    .select(`round:rounds(${ROUND_SELECT})`)
+    .eq('requesting_user_id', userId)
+    .eq('status', 'accepted');
+  if (error) throw error;
+  const rows = (data ?? []) as unknown as { round: RoundWithCourse | null }[];
+  return rows
+    .map((r) => r.round)
+    .filter((r): r is RoundWithCourse => r !== null);
 }
 
 export type RoundRequestStatus =

@@ -10,6 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
+  listJoinedRounds,
   listMyRounds,
   type RoundWithCourse,
 } from '../../../lib/rounds/queries';
@@ -26,7 +27,19 @@ export default function MyRounds() {
       (async () => {
         setLoading(true);
         try {
-          setRounds(await listMyRounds(user.id));
+          // Hosted rounds + rounds joined via an accepted request (which
+          // includes locked-in rounds from a match chat). Dedupe by id
+          // just in case, then keep tee-time order.
+          const [hosted, joined] = await Promise.all([
+            listMyRounds(user.id),
+            listJoinedRounds(user.id),
+          ]);
+          const byId = new Map<string, RoundWithCourse>();
+          for (const r of [...hosted, ...joined]) byId.set(r.id, r);
+          const merged = [...byId.values()].sort((a, b) =>
+            a.tee_time.localeCompare(b.tee_time),
+          );
+          setRounds(merged);
         } catch {
           setRounds([]);
         } finally {
@@ -121,6 +134,7 @@ export default function MyRounds() {
 
 function RoundRow({ round }: { round: RoundWithCourse }) {
   const { colors } = useTheme();
+  const isLocked = round.origin_match_id !== null;
   const tee = new Date(round.tee_time);
   const dateLabel = tee.toLocaleDateString(undefined, {
     weekday: 'short',
@@ -155,18 +169,20 @@ function RoundRow({ round }: { round: RoundWithCourse }) {
           {round.course.name}
         </Typography>
         <Typography variant="caption" color="ink-subtle">
-          {round.seats_open} OPEN
+          {isLocked ? 'LOCKED IN' : `${round.seats_open} OPEN`}
         </Typography>
       </View>
       <Typography variant="body-sm" color="ink-soft">
         {dateLabel} · {timeLabel}
       </Typography>
-      <Typography
-        variant="caption"
-        style={{ color: statusColor, marginTop: 4 }}
-      >
-        {round.status}
-      </Typography>
+      {!(isLocked && round.status === 'full') ? (
+        <Typography
+          variant="caption"
+          style={{ color: statusColor, marginTop: 4 }}
+        >
+          {round.status}
+        </Typography>
+      ) : null}
     </Pressable>
   );
 }

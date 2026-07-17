@@ -12,6 +12,10 @@ import { useToast } from '../../../components/motion/Toast';
 import { Button, PindrLogo, Tag, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
 import {
+  fetchMatchDetails,
+  type MatchDetails,
+} from '../../../lib/chat/queries';
+import {
   cancelRound,
   deleteRound,
   getMyRequestForRound,
@@ -42,6 +46,7 @@ export default function RoundDetail() {
   const { colors } = useTheme();
   const { show: showToast } = useToast();
   const [round, setRound] = useState<RoundWithCourse | null>(null);
+  const [partner, setPartner] = useState<MatchDetails | null>(null);
   const [myRequest, setMyRequest] = useState<MyRoundRequest | null>(null);
   const [requests, setRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,12 +62,20 @@ export default function RoundDetail() {
     try {
       const r = await getRound(id);
       setRound(r);
-      if (r.host_user_id === user.id) {
+      if (r.origin_match_id) {
+        // Locked-in round from a match chat: the only other player is the
+        // match partner. No request UI in this variant.
+        setPartner(await fetchMatchDetails(r.origin_match_id, user.id));
+        setRequests([]);
+        setMyRequest(null);
+      } else if (r.host_user_id === user.id) {
         setRequests(await listRequestsForRound(id));
         setMyRequest(null);
+        setPartner(null);
       } else {
         setMyRequest(await getMyRequestForRound(id, user.id));
         setRequests([]);
+        setPartner(null);
       }
     } catch {
       setRound(null);
@@ -175,7 +188,9 @@ export default function RoundDetail() {
     minute: '2-digit',
   });
   const isHost = user.id === round.host_user_id;
+  const isLocked = round.origin_match_id !== null;
   const isCancellable = round.status === 'open' || round.status === 'full';
+  const hasFormat = Boolean(round.format?.walking || round.format?.match_type);
 
   const pendingRequests = requests.filter((r) => r.status === 'pending');
   const otherRequests = requests.filter((r) => r.status !== 'pending');
@@ -220,16 +235,27 @@ export default function RoundDetail() {
         >
           <Stat label="Date" value={dateLabel} />
           <Stat label="Tee" value={timeLabel} />
-          <Stat
-            label="Seats"
-            value={`${round.seats_open} of ${round.seats_total - 1}`}
-          />
+          {!isLocked ? (
+            <Stat
+              label="Seats"
+              value={`${round.seats_open} of ${round.seats_total - 1}`}
+            />
+          ) : null}
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          <Tag size="sm">{WALKING_LABEL[round.format.walking] ?? '—'}</Tag>
-          <Tag size="sm">{MATCH_LABEL[round.format.match_type] ?? '—'}</Tag>
-          {round.status !== 'open' ? (
+          {isLocked ? (
+            <Tag size="sm" variant="solid">
+              locked in
+            </Tag>
+          ) : null}
+          {hasFormat ? (
+            <>
+              <Tag size="sm">{WALKING_LABEL[round.format.walking] ?? '—'}</Tag>
+              <Tag size="sm">{MATCH_LABEL[round.format.match_type] ?? '—'}</Tag>
+            </>
+          ) : null}
+          {round.status !== 'open' && !(isLocked && round.status === 'full') ? (
             <Tag size="sm" variant="solid">
               {round.status}
             </Tag>
@@ -239,13 +265,20 @@ export default function RoundDetail() {
         {round.notes ? (
           <View>
             <Typography variant="caption" color="ink-soft" style={{ marginBottom: 6 }}>
-              FROM THE HOST
+              {isLocked ? 'THE NOTE' : 'FROM THE HOST'}
             </Typography>
             <Typography variant="body-lg">{round.notes}</Typography>
           </View>
         ) : null}
 
-        {isHost ? (
+        {isLocked ? (
+          <LockedActions
+            round={round}
+            partner={partner}
+            isHost={isHost}
+            isCancellable={isCancellable}
+          />
+        ) : isHost ? (
           <HostActions
             round={round}
             pending={pendingRequests}
@@ -263,6 +296,88 @@ export default function RoundDetail() {
         )}
       </ScrollView>
     </SafeAreaView>
+  );
+}
+
+function LockedActions({
+  round,
+  partner,
+  isHost,
+  isCancellable,
+}: {
+  round: RoundWithCourse;
+  partner: MatchDetails | null;
+  isHost: boolean;
+  isCancellable: boolean;
+}) {
+  const { colors } = useTheme();
+  return (
+    <View style={{ gap: 16 }}>
+      <View>
+        <Typography variant="caption" color="ink-soft" style={{ marginBottom: 10 }}>
+          YOUR PARTNER
+        </Typography>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          <View
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: 999,
+              overflow: 'hidden',
+              backgroundColor: colors['paper-raised'],
+            }}
+          >
+            {partner?.other_photo_url ? (
+              <Image
+                source={{ uri: partner.other_photo_url }}
+                style={{ flex: 1 }}
+                resizeMode="cover"
+              />
+            ) : null}
+          </View>
+          <Typography variant="h3" style={{ flex: 1 }}>
+            {partner?.other_display_name ?? 'your match'}
+          </Typography>
+        </View>
+      </View>
+
+      {round.status === 'cancelled' ? (
+        <Typography variant="body" color="ink-soft">
+          this round was cancelled. the chat's still open.
+        </Typography>
+      ) : null}
+
+      <View style={{ gap: 10 }}>
+        {partner ? (
+          <Button
+            variant="primary"
+            size="lg"
+            fullWidth
+            onPress={() =>
+              router.push(`/chat/${partner.match_id}` as never)
+            }
+          >
+            Message.
+          </Button>
+        ) : null}
+        {isHost && isCancellable ? (
+          <Button
+            variant="ghost"
+            size="lg"
+            fullWidth
+            onPress={() => confirmCancel(round.id)}
+          >
+            Cancel round.
+          </Button>
+        ) : null}
+        {!isHost && isCancellable ? (
+          <Typography variant="body-sm" color="ink-subtle">
+            need to back out? talk it out in chat — they proposed, so the
+            cancel button lives on their side.
+          </Typography>
+        ) : null}
+      </View>
+    </View>
   );
 }
 

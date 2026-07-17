@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
@@ -13,6 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SkeletonChatList } from '../../../components/lists/SkeletonChatList';
 import { FadeIn } from '../../../components/motion/FadeIn';
 import { useToast } from '../../../components/motion/Toast';
+import { PlanCard } from '../../../components/PlanCard';
 import {
   Typography,
   fontFamilyFor,
@@ -28,23 +29,42 @@ import {
   type ChatMessage,
   type MatchDetails,
 } from '../../../lib/chat/queries';
+import { useHaptics } from '../../../lib/haptics';
+import {
+  acceptPlan,
+  cancelPlan,
+  declinePlan,
+  listPlans,
+  type PlanWithCourse,
+  type RoundPlanStatus,
+} from '../../../lib/plans/queries';
 import { openUserMenu } from '../../../lib/safety/menu';
 import { supabase } from '../../../lib/supabase';
+
+// The chat timeline interleaves two kinds of items: plain messages and
+// round-plan cards, merged by created_at so a plan reads like part of
+// the conversation.
+type TimelineItem =
+  | { kind: 'message'; key: string; created_at: string; message: ChatMessage }
+  | { kind: 'plan'; key: string; created_at: string; plan: PlanWithCourse };
 
 export default function ChatThread() {
   const { matchId } = useLocalSearchParams<{ matchId: string }>();
   const { user } = useAuth();
   const { colors } = useTheme();
   const { show: showToast } = useToast();
+  const haptics = useHaptics();
 
   const [details, setDetails] = useState<MatchDetails | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [plans, setPlans] = useState<PlanWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
+  const [busyPlanId, setBusyPlanId] = useState<string | null>(null);
 
-  const listRef = useRef<FlatList<ChatMessage>>(null);
+  const listRef = useRef<FlatList<TimelineItem>>(null);
 
   useEffect(() => {
     if (!matchId || !user) return;
@@ -52,13 +72,15 @@ export default function ChatThread() {
 
     (async () => {
       try {
-        const [d, msgs] = await Promise.all([
+        const [d, msgs, planRows] = await Promise.all([
           fetchMatchDetails(matchId, user.id),
           fetchMessages(matchId),
+          listPlans(matchId),
         ]);
         if (cancelled) return;
         setDetails(d);
         setMessages(msgs);
+        setPlans(planRows);
         await markMatchRead(matchId, user.id);
       } catch (err) {
         if (!cancelled) setError((err as Error).message);
@@ -66,6 +88,14 @@ export default function ChatThread() {
         if (!cancelled) setLoading(false);
       }
     })();
+
+    const refreshPlans = () => {
+      listPlans(matchId)
+        .then((rows) => {
+          if (!cancelled) setPlans(rows);
+        })
+        .catch(() => {});
+    };
 
     const channel = supabase
       .channel(`match:${matchId}`)
@@ -88,6 +118,28 @@ export default function ChatThread() {
           }
         },
       )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'round_plans',
+          filter: `match_id=eq.${matchId}`,
+        },
+        // The realtime payload has no joined course row, so refetch the
+        // (short) plan list instead of patching state from the payload.
+        refreshPlans,
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'round_plans',
+          filter: `match_id=eq.${matchId}`,
+        },
+        refreshPlans,
+      )
       .subscribe();
 
     return () => {
@@ -96,13 +148,110 @@ export default function ChatThread() {
     };
   }, [matchId, user]);
 
+  const timeline = useMemo<TimelineItem[]>(() => {
+    const items: TimelineItem[] = [
+      ...messages.map((m) => ({
+        kind: 'message' as const,
+        key: `m-${m.id}`,
+        created_at: m.created_at,
+        message: m,
+      })),
+      ...plans.map((p) => ({
+        kind: 'plan' as const,
+        key: `p-${p.id}`,
+        created_at: p.created_at,
+        plan: p,
+      })),
+    ];
+    items.sort((a, b) => a.created_at.localeCompare(b.created_at));
+    return items;
+  }, [messages, plans]);
+
   useEffect(() => {
-    if (messages.length > 0) {
+    if (timeline.length > 0) {
       requestAnimationFrame(() => {
         listRef.current?.scrollToEnd({ animated: true });
       });
     }
-  }, [messages.length]);
+  }, [timeline.length]);
+
+  const patchPlan = useCallback(
+    (planId: string, patch: Partial<PlanWithCourse>) => {
+      setPlans((prev) =>
+        prev.map((p) => (p.id === planId ? { ...p, ...patch } : p)),
+      );
+    },
+    [],
+  );
+
+  // Optimistic accept: the card flips to "locked in" immediately; on
+  // failure we revert and toast. Realtime's UPDATE event reconciles the
+  // authoritative row (with round_id) either way.
+  const handleAccept = useCallback(
+    async (plan: PlanWithCourse) => {
+      if (busyPlanId) return;
+      setBusyPlanId(plan.id);
+      const prevStatus: RoundPlanStatus = plan.status;
+      patchPlan(plan.id, { status: 'accepted' });
+      try {
+        const roundId = await acceptPlan(plan.id);
+        patchPlan(plan.id, { round_id: roundId });
+        haptics.match();
+      } catch (err) {
+        patchPlan(plan.id, { status: prevStatus });
+        showToast((err as Error).message, { variant: 'error' });
+      } finally {
+        setBusyPlanId(null);
+      }
+    },
+    [busyPlanId, patchPlan, haptics, showToast],
+  );
+
+  const handleDecline = useCallback(
+    async (plan: PlanWithCourse) => {
+      if (busyPlanId) return;
+      setBusyPlanId(plan.id);
+      const prevStatus: RoundPlanStatus = plan.status;
+      patchPlan(plan.id, { status: 'declined' });
+      try {
+        await declinePlan(plan.id);
+      } catch {
+        patchPlan(plan.id, { status: prevStatus });
+        showToast("couldn't save that — mind trying again?", {
+          variant: 'error',
+        });
+      } finally {
+        setBusyPlanId(null);
+      }
+    },
+    [busyPlanId, patchPlan, showToast],
+  );
+
+  const handleCancel = useCallback(
+    async (plan: PlanWithCourse) => {
+      if (busyPlanId) return;
+      setBusyPlanId(plan.id);
+      const prevStatus: RoundPlanStatus = plan.status;
+      patchPlan(plan.id, { status: 'cancelled' });
+      try {
+        await cancelPlan(plan.id);
+      } catch {
+        patchPlan(plan.id, { status: prevStatus });
+        showToast("couldn't save that — mind trying again?", {
+          variant: 'error',
+        });
+      } finally {
+        setBusyPlanId(null);
+      }
+    },
+    [busyPlanId, patchPlan, showToast],
+  );
+
+  const handleViewRound = useCallback((plan: PlanWithCourse) => {
+    if (plan.round_id) {
+      router.push(`/rounds/${plan.round_id}` as never);
+    }
+  }, []);
 
   const onSend = useCallback(async () => {
     if (!matchId || !user) return;
@@ -239,6 +388,24 @@ export default function ChatThread() {
         <Typography variant="h3" style={{ flex: 1 }}>
           {details?.other_display_name ?? 'match'}
         </Typography>
+        <Pressable
+          onPress={() => router.push(`/plan/${matchId}` as never)}
+          hitSlop={8}
+          style={{
+            height: 36,
+            paddingHorizontal: 12,
+            borderRadius: radii.pill,
+            borderWidth: 1,
+            borderColor: colors['stroke-strong'],
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginRight: 4,
+          }}
+        >
+          <Typography variant="caption" color="ink">
+            plan a round
+          </Typography>
+        </Pressable>
         {details?.other_user_id && user ? (
           <Pressable
             onPress={() =>
@@ -275,16 +442,31 @@ export default function ChatThread() {
       >
         <FlatList
           ref={listRef}
-          data={messages}
-          keyExtractor={(m) => m.id}
+          data={timeline}
+          keyExtractor={(item) => item.key}
           contentContainerStyle={{
             paddingHorizontal: 16,
             paddingTop: 12,
             paddingBottom: 8,
           }}
-          renderItem={({ item }) => (
-            <MessageBubble message={item} mine={item.sender_id === user?.id} />
-          )}
+          renderItem={({ item }) =>
+            item.kind === 'message' ? (
+              <MessageBubble
+                message={item.message}
+                mine={item.message.sender_id === user?.id}
+              />
+            ) : (
+              <PlanCard
+                plan={item.plan}
+                mine={item.plan.proposer_id === user?.id}
+                busy={busyPlanId === item.plan.id}
+                onAccept={handleAccept}
+                onDecline={handleDecline}
+                onCancel={handleCancel}
+                onViewRound={handleViewRound}
+              />
+            )
+          }
           onContentSizeChange={() =>
             listRef.current?.scrollToEnd({ animated: false })
           }

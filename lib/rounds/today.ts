@@ -32,7 +32,11 @@ export async function listTodayLockedRounds(
   return [...byId.values()]
     .filter(
       (r) =>
-        r.origin_match_id !== null && r.status === 'full' && isRoundToday(r),
+        r.origin_match_id !== null &&
+        // 'open' too: a locked round hunting for a third (Phase F)
+        // still deserves its day-of card.
+        (r.status === 'full' || r.status === 'open') &&
+        isRoundToday(r),
     )
     .sort((a, b) => a.tee_time.localeCompare(b.tee_time));
 }

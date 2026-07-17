@@ -169,7 +169,9 @@ function RoundRow({ round }: { round: RoundWithCourse }) {
           {round.course.name}
         </Typography>
         <Typography variant="caption" color="ink-subtle">
-          {isLocked ? 'LOCKED IN' : `${round.seats_open} OPEN`}
+          {isLocked && round.seats_total === 2
+            ? 'LOCKED IN'
+            : `${round.seats_open} OPEN`}
         </Typography>
       </View>
       <Typography variant="body-sm" color="ink-soft">

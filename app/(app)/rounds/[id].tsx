@@ -23,6 +23,7 @@ import {
   getMyRequestForRound,
   getRound,
   listRequestsForRound,
+  openRoundSeat,
   requestToJoinRound,
   respondToRequest,
   withdrawRequest,
@@ -64,20 +65,28 @@ export default function RoundDetail() {
     try {
       const r = await getRound(id);
       setRound(r);
+      // For a locked round, the partner lookup doubles as a membership
+      // check: matches RLS only lets the two match members read the row,
+      // so a Phase F third player gets null here and falls through to
+      // the ordinary requester view.
+      let partnerDetails: MatchDetails | null = null;
       if (r.origin_match_id) {
-        // Locked-in round from a match chat: the only other player is the
-        // match partner. No request UI in this variant.
-        setPartner(await fetchMatchDetails(r.origin_match_id, user.id));
-        setRequests([]);
-        setMyRequest(null);
-      } else if (r.host_user_id === user.id) {
+        try {
+          partnerDetails = await fetchMatchDetails(r.origin_match_id, user.id);
+        } catch {
+          partnerDetails = null;
+        }
+      }
+      setPartner(partnerDetails);
+      if (r.host_user_id === user.id) {
         setRequests(await listRequestsForRound(id));
         setMyRequest(null);
-        setPartner(null);
+      } else if (r.origin_match_id && partnerDetails) {
+        setRequests([]);
+        setMyRequest(null);
       } else {
         setMyRequest(await getMyRequestForRound(id, user.id));
         setRequests([]);
-        setPartner(null);
       }
     } catch {
       setRound(null);
@@ -85,6 +94,21 @@ export default function RoundDetail() {
       setLoading(false);
     }
   }, [id, user]);
+
+  // Phase F: host opens one seat at a time to the feed.
+  const [openingSeat, setOpeningSeat] = useState(false);
+  const handleOpenSeat = useCallback(async () => {
+    if (!round || openingSeat) return;
+    setOpeningSeat(true);
+    try {
+      await openRoundSeat(round.id);
+      await load();
+    } catch (err) {
+      showToast((err as Error).message, { variant: 'error' });
+    } finally {
+      setOpeningSeat(false);
+    }
+  }, [round, openingSeat, load, showToast]);
 
   useFocusEffect(
     useCallback(() => {
@@ -191,6 +215,10 @@ export default function RoundDetail() {
   });
   const isHost = user.id === round.host_user_id;
   const isLocked = round.origin_match_id !== null;
+  // A Phase F third player sees the ordinary requester view even though
+  // the round originated in someone else's chat.
+  const isLockedMember = isLocked && (isHost || partner !== null);
+  const isPairOnly = isLockedMember && round.seats_total === 2;
   const isCancellable = round.status === 'open' || round.status === 'full';
   const hasFormat = Boolean(round.format?.walking || round.format?.match_type);
 
@@ -237,7 +265,7 @@ export default function RoundDetail() {
         >
           <Stat label="Date" value={dateLabel} />
           <Stat label="Tee" value={timeLabel} />
-          {!isLocked ? (
+          {!isPairOnly ? (
             <Stat
               label="Seats"
               value={`${round.seats_open} of ${round.seats_total - 1}`}
@@ -246,7 +274,7 @@ export default function RoundDetail() {
         </View>
 
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
-          {isLocked ? (
+          {isLockedMember ? (
             <Tag size="sm" variant="solid">
               locked in
             </Tag>
@@ -257,7 +285,8 @@ export default function RoundDetail() {
               <Tag size="sm">{MATCH_LABEL[round.format.match_type] ?? '—'}</Tag>
             </>
           ) : null}
-          {round.status !== 'open' && !(isLocked && round.status === 'full') ? (
+          {round.status !== 'open' &&
+          !(isLockedMember && round.status === 'full') ? (
             <Tag size="sm" variant="solid">
               {round.status}
             </Tag>
@@ -267,18 +296,22 @@ export default function RoundDetail() {
         {round.notes ? (
           <View>
             <Typography variant="caption" color="ink-soft" style={{ marginBottom: 6 }}>
-              {isLocked ? 'THE NOTE' : 'FROM THE HOST'}
+              {isLockedMember ? 'THE NOTE' : 'FROM THE HOST'}
             </Typography>
             <Typography variant="body-lg">{round.notes}</Typography>
           </View>
         ) : null}
 
-        {isLocked ? (
+        {isLockedMember ? (
           <LockedActions
             round={round}
             partner={partner}
             isHost={isHost}
             isCancellable={isCancellable}
+            requests={requests}
+            onRespond={handleRespond}
+            onOpenSeat={handleOpenSeat}
+            openingSeat={openingSeat}
           />
         ) : isHost ? (
           <HostActions
@@ -306,14 +339,33 @@ function LockedActions({
   partner,
   isHost,
   isCancellable,
+  requests,
+  onRespond,
+  onOpenSeat,
+  openingSeat,
 }: {
   round: RoundWithCourse;
   partner: MatchDetails | null;
   isHost: boolean;
   isCancellable: boolean;
+  requests: PendingRequest[];
+  onRespond: (requestId: string, accept: boolean) => void;
+  onOpenSeat: () => void;
+  openingSeat: boolean;
 }) {
   const { colors } = useTheme();
-  const isToday = round.status === 'full' && isRoundToday(round);
+  const isToday =
+    (round.status === 'full' || round.status === 'open') &&
+    isRoundToday(round);
+  const teeInFuture = new Date(round.tee_time).getTime() > Date.now();
+  const canOpenSeat =
+    isHost &&
+    round.seats_total < 4 &&
+    (round.status === 'full' || round.status === 'open') &&
+    teeInFuture;
+  const seatOpened = round.seats_total > 2;
+  const pending = requests.filter((r) => r.status === 'pending');
+  const resolved = requests.filter((r) => r.status !== 'pending');
   return (
     <View style={{ gap: 16 }}>
       <View>
@@ -381,6 +433,69 @@ function LockedActions({
           </Typography>
         ) : null}
       </View>
+
+      {/* Phase F: fill the four. Host opens seats to the feed; the
+          existing request/approve flow does the rest. The partner sees
+          the seat status too — no surprise strangers. */}
+      {canOpenSeat || seatOpened ? (
+        <View style={{ gap: 10, marginTop: 8 }}>
+          <Typography variant="caption" color="ink-soft">
+            FILL THE FOUR
+          </Typography>
+          {seatOpened ? (
+            <Typography variant="body-sm" color="ink-soft">
+              {round.seats_open === 0
+                ? 'all seats filled. your group is set.'
+                : `${round.seats_open} open ${
+                    round.seats_open === 1 ? 'seat' : 'seats'
+                  } showing in the rounds feed.`}
+            </Typography>
+          ) : (
+            <Typography variant="body-sm" color="ink-soft">
+              want a third? opening a spot puts this round in the public
+              feed — you approve whoever requests.
+            </Typography>
+          )}
+          {canOpenSeat ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              fullWidth
+              loading={openingSeat}
+              onPress={onOpenSeat}
+            >
+              Open a spot.
+            </Button>
+          ) : null}
+          {isHost && seatOpened ? (
+            <View style={{ marginTop: 4 }}>
+              {pending.length === 0 && resolved.length === 0 ? (
+                <Typography variant="body-sm" color="ink-subtle">
+                  no requests yet. sit tight.
+                </Typography>
+              ) : null}
+              {pending.map((r) => (
+                <PendingRow key={r.id} req={r} onRespond={onRespond} />
+              ))}
+              {resolved.length > 0 ? (
+                <View
+                  style={{
+                    marginTop: 12,
+                    paddingTop: 12,
+                    borderTopWidth: 1,
+                    borderColor: colors.stroke,
+                    gap: 8,
+                  }}
+                >
+                  {resolved.map((r) => (
+                    <ResolvedRow key={r.id} req={r} />
+                  ))}
+                </View>
+              ) : null}
+            </View>
+          ) : null}
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -50,7 +50,9 @@ Deno.serve(async (req) => {
   const { data: rounds, error } = await admin
     .from('rounds')
     .select('id, host_user_id, course_id, tee_time, status, origin_match_id')
-    .eq('status', 'full')
+    // 'open' too: a locked round with an unfilled Phase F seat still
+    // happened and still gets its morning-after prompt.
+    .in('status', ['full', 'open'])
     .not('origin_match_id', 'is', null)
     .gte('tee_time', windowStart)
     .lte('tee_time', windowEnd);

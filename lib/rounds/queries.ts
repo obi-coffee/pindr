@@ -207,6 +207,18 @@ export async function listJoinedRounds(
     .filter((r): r is RoundWithCourse => r !== null);
 }
 
+/**
+ * Loop Phase F: the host of a locked round opens one seat to the feed.
+ * Server-side RPC keeps the seat math atomic and enforces host-only,
+ * max four seats, future tee time.
+ */
+export async function openRoundSeat(roundId: string): Promise<void> {
+  const { error } = await supabase.rpc('open_round_seat', {
+    p_round_id: roundId,
+  });
+  if (error) throw error;
+}
+
 export type RoundRequestStatus =
   | 'pending'
   | 'accepted'

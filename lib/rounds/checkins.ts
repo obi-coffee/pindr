@@ -68,7 +68,9 @@ export async function listPendingCheckinRounds(
     .filter(
       (r) =>
         r.origin_match_id !== null &&
-        r.status === 'full' &&
+        // 'open' too: a locked round with an unfilled extra seat
+        // (Phase F) still happened and still deserves a check-in.
+        (r.status === 'full' || r.status === 'open') &&
         new Date(r.tee_time).getTime() < now &&
         !checked.has(r.id),
     )

@@ -176,3 +176,18 @@ export function roundCheckinCopy(input: { courseName: string }): PushCopy {
     deepLink: 'pindr:///rounds',
   };
 }
+
+// §5.12 — "i'm here" arrival ping (day of a locked round). Human-initiated;
+// bypasses quiet hours per plan §5.12 (the only event that does).
+export function arrivalCopy(input: {
+  arriverDisplayName: string | null;
+  courseName: string;
+  roundId: string;
+}): PushCopy {
+  const arriver = firstName(input.arriverDisplayName);
+  return {
+    title: truncate(`${arriver}'s at ${input.courseName.toLowerCase()}.`, 50),
+    body: "they're here — see you at the first tee.",
+    deepLink: `pindr:///rounds/${input.roundId}`,
+  };
+}

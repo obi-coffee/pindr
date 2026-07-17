@@ -15,6 +15,8 @@ import {
   fetchMatchDetails,
   type MatchDetails,
 } from '../../../lib/chat/queries';
+import { useHaptics } from '../../../lib/haptics';
+import { isRoundToday, useArrival } from '../../../lib/rounds/today';
 import {
   cancelRound,
   deleteRound,
@@ -311,6 +313,7 @@ function LockedActions({
   isCancellable: boolean;
 }) {
   const { colors } = useTheme();
+  const isToday = round.status === 'full' && isRoundToday(round);
   return (
     <View style={{ gap: 16 }}>
       <View>
@@ -348,9 +351,10 @@ function LockedActions({
       ) : null}
 
       <View style={{ gap: 10 }}>
+        {isToday ? <ImHereButton roundId={round.id} /> : null}
         {partner ? (
           <Button
-            variant="primary"
+            variant={isToday ? 'ghost' : 'primary'}
             size="lg"
             fullWidth
             onPress={() =>
@@ -378,6 +382,33 @@ function LockedActions({
         ) : null}
       </View>
     </View>
+  );
+}
+
+// "i'm here" (Loop Phase D): one-shot arrival ping to the partner. The
+// server dedupes; useArrival keeps the button honest across restarts.
+function ImHereButton({ roundId }: { roundId: string }) {
+  const { show: showToast } = useToast();
+  const haptics = useHaptics();
+  const { announced, busy, announce } = useArrival(roundId);
+  return (
+    <Button
+      variant="primary"
+      size="lg"
+      fullWidth
+      loading={busy}
+      disabled={announced}
+      onPress={async () => {
+        try {
+          await announce();
+          haptics.match();
+        } catch (err) {
+          showToast((err as Error).message, { variant: 'error' });
+        }
+      }}
+    >
+      {announced ? "They know you're here." : "I'm here."}
+    </Button>
   );
 }
 

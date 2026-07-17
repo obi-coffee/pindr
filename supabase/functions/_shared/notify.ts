@@ -28,6 +28,10 @@ export type NotifyInput = {
   // Opt out of the 24h rate limit. Used by the messages path when the
   // recipient is mid-conversation (plan §2 exemption).
   bypassRateLimit?: boolean;
+  // Opt out of quiet hours. Plan §5.12: the "i'm here" arrival ping is
+  // the ONLY event allowed to set this — a queued arrival ping is useless
+  // at a 7am tee time. Everything else queues like normal.
+  bypassQuietHours?: boolean;
 };
 
 type LogStatus = 'sent' | 'failed' | 'queued';
@@ -102,7 +106,7 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
     return;
   }
 
-  if (prefsRow) {
+  if (prefsRow && !input.bypassQuietHours) {
     const quiet = isInQuietHours({
       now: new Date(),
       quietHoursStart: prefsRow.quiet_hours_start,

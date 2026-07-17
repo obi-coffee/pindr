@@ -136,3 +136,33 @@ export function roundDeclinedCopy(input: {
     deepLink: 'pindr:///rounds',
   };
 }
+
+// §5.9 — Round plan proposed (recipient: the other match member)
+export function planProposedCopy(input: {
+  proposerDisplayName: string | null;
+  courseName: string;
+  teeTimeLabel: string; // e.g. "sat 7:20"
+  matchId: string;
+}): PushCopy {
+  const proposer = firstName(input.proposerDisplayName);
+  return {
+    title: `${proposer} wants to lock in a round.`,
+    body: `${input.courseName.toLowerCase()}, ${input.teeTimeLabel}. the plan's in your chat.`,
+    deepLink: `pindr:///chat/${input.matchId}`,
+  };
+}
+
+// §5.10 — Round plan locked in (recipient: the proposer)
+export function planAcceptedCopy(input: {
+  accepterDisplayName: string | null;
+  courseName: string;
+  teeTimeLabel: string;
+  roundId: string;
+}): PushCopy {
+  const accepter = firstName(input.accepterDisplayName);
+  return {
+    title: 'locked in.',
+    body: `${accepter}'s in for ${input.courseName.toLowerCase()}, ${input.teeTimeLabel}. it's a round.`,
+    deepLink: `pindr:///rounds/${input.roundId}`,
+  };
+}

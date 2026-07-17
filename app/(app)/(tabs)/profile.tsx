@@ -24,6 +24,7 @@ import {
   fetchUserInterestIds,
   type Interest,
 } from '../../../lib/profile/interests';
+import { selectedSlots } from '../../../lib/profile/availability';
 
 const GENDER_LABEL: Record<string, string> = {
   woman: 'Woman',
@@ -357,6 +358,25 @@ export default function Profile() {
               ))}
             </View>
           )}
+        </Section>
+
+        <Section title="availability" editHref="/edit/availability">
+          {(() => {
+            const slots = selectedSlots(profile?.availability);
+            return slots.length === 0 ? (
+              <Typography variant="body-sm" color="ink-subtle">
+                not set yet — when do you usually play?
+              </Typography>
+            ) : (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {slots.map((s) => (
+                  <Tag key={s.id} size="sm">
+                    {s.label}
+                  </Tag>
+                ))}
+              </View>
+            );
+          })()}
         </Section>
 
         <Section title="location" editHref="/edit/location">

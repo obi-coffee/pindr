@@ -25,6 +25,7 @@ import {
   type Candidate,
 } from '../../../lib/discover/queries';
 import { useMatch } from '../../../lib/match/MatchProvider';
+import { selectedSlots } from '../../../lib/profile/availability';
 import { PROFILE_QUESTIONS } from '../../../lib/profile/questions';
 
 export default function ProfileScreen() {
@@ -338,6 +339,19 @@ function ProfileBody({
             value={titleCase(teachingLabel(profile.teaching_mindset))}
           />
         </Section>
+
+        {/* Availability (Loop Phase E). Renders nothing when unset. */}
+        {selectedSlots(profile.availability).length > 0 ? (
+          <Section label="WHEN THEY PLAY">
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+              {selectedSlots(profile.availability).map((s) => (
+                <Tag key={s.id} size="sm">
+                  {s.label}
+                </Tag>
+              ))}
+            </View>
+          </Section>
+        ) : null}
 
         {/* Optional culture-fit answers (Phase 2). Skip questions
             with no answer so empty rows don't render. */}

@@ -38,6 +38,7 @@ import {
   type PlanWithCourse,
   type RoundPlanStatus,
 } from '../../../lib/plans/queries';
+import { availabilityShortLine } from '../../../lib/profile/availability';
 import { openUserMenu } from '../../../lib/safety/menu';
 import { supabase } from '../../../lib/supabase';
 
@@ -385,9 +386,16 @@ export default function ChatThread() {
             />
           ) : null}
         </View>
-        <Typography variant="h3" style={{ flex: 1 }}>
-          {details?.other_display_name ?? 'match'}
-        </Typography>
+        <View style={{ flex: 1 }}>
+          <Typography variant="h3">
+            {details?.other_display_name ?? 'match'}
+          </Typography>
+          {availabilityShortLine(details?.other_availability) ? (
+            <Typography variant="body-sm" color="ink-soft" numberOfLines={1}>
+              plays {availabilityShortLine(details?.other_availability)}
+            </Typography>
+          ) : null}
+        </View>
         <Pressable
           onPress={() => router.push(`/plan/${matchId}` as never)}
           hitSlop={8}

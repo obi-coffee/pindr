@@ -3,9 +3,14 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandMark } from '../../components/BrandMark';
+import { AvailabilityPicker } from '../../components/AvailabilityPicker';
 import { QuestionPicker } from '../../components/QuestionPicker';
 import { Button, Typography, useTheme } from '../../components/ui';
 import { useAuth } from '../../lib/auth/AuthProvider';
+import {
+  toAvailability,
+  type AvailabilitySlotId,
+} from '../../lib/profile/availability';
 import {
   PROFILE_QUESTIONS,
   type ProfileAnswers,
@@ -16,7 +21,17 @@ export default function QuestionsStep() {
   const { user, refetchProfile } = useAuth();
   const { colors } = useTheme();
   const [answers, setAnswers] = useState<ProfileAnswers>({});
+  const [slots, setSlots] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState(false);
+
+  const toggleSlot = (id: AvailabilitySlotId) => {
+    setSlots((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   // Keep raw text in state during typing — trimming on every
   // keystroke ate the space key (trailing spaces vanished, breaking
@@ -34,13 +49,16 @@ export default function QuestionsStep() {
     return out;
   };
 
-  const persist = async (toSave: ProfileAnswers) => {
+  const persist = async (toSave: ProfileAnswers, slotsToSave: Set<string>) => {
     if (!user) return;
     setBusy(true);
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ profile_answers: cleanAnswers(toSave) })
+        .update({
+          profile_answers: cleanAnswers(toSave),
+          availability: toAvailability(slotsToSave),
+        })
         .eq('user_id', user.id);
       if (error) throw error;
       await refetchProfile();
@@ -67,7 +85,7 @@ export default function QuestionsStep() {
         }}
       >
         <Pressable
-          onPress={() => persist({})}
+          onPress={() => persist({}, new Set())}
           hitSlop={12}
           disabled={busy}
         >
@@ -97,6 +115,13 @@ export default function QuestionsStep() {
           profile so people get a feel for who you are out there.
         </Typography>
 
+        <View style={{ gap: 8, marginBottom: 28 }}>
+          <Typography variant="body-lg">
+            When do you usually play?
+          </Typography>
+          <AvailabilityPicker selected={slots} onToggle={toggleSlot} />
+        </View>
+
         <View style={{ gap: 28 }}>
           {PROFILE_QUESTIONS.map((q) => (
             <QuestionPicker
@@ -113,7 +138,7 @@ export default function QuestionsStep() {
           size="lg"
           fullWidth
           loading={busy}
-          onPress={() => persist(answers)}
+          onPress={() => persist(answers, slots)}
           style={{ marginTop: 32 }}
         >
           Save and finish

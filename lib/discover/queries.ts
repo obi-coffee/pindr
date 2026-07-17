@@ -30,6 +30,8 @@ export type Candidate = {
   // populate this — it's not surfaced on the deck card. Treat as
   // optional client-side.
   profile_answers?: Record<string, string>;
+  // Set by get_profile_by_id (Loop Phase E). Same optionality caveat.
+  availability?: Record<string, boolean>;
 };
 
 export async function fetchCandidates(

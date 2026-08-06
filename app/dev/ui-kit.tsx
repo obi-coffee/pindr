@@ -11,7 +11,7 @@ import {
 } from '../../components/ui';
 
 const TYPE_SAMPLES: { variant: TypographyVariant; sample: string }[] = [
-  { variant: 'display-xl', sample: 'Find your foursome.' },
+  { variant: 'display-xl', sample: 'Find your four.' },
   { variant: 'display-lg', sample: 'You found your people.' },
   { variant: 'h1', sample: 'maya locked in too' },
   { variant: 'h2', sample: 'how you play' },

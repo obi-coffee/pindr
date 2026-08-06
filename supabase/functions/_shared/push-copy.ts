@@ -91,7 +91,7 @@ export function roundFilledCopy(input: {
   roundId: string;
 }): PushCopy {
   return {
-    title: "your foursome's full.",
+    title: "your four's full.",
     body: `${input.courseName.toLowerCase()}, ${input.teeTimeLabel}. group chat's open.`,
     deepLink: `pindr:///rounds/${input.roundId}`,
   };
@@ -119,7 +119,7 @@ export function roundTomorrowCopy(input: {
 }): PushCopy {
   return {
     title: `tomorrow at ${input.courseName.toLowerCase()}.`,
-    body: `${input.teeTimeClockLabel} tee time. your foursome's set.`,
+    body: `${input.teeTimeClockLabel} tee time. your four's set.`,
     deepLink: `pindr:///rounds/${input.roundId}`,
   };
 }

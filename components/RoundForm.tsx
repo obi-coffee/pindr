@@ -34,9 +34,9 @@ export type RoundFormProps = {
 };
 
 const GROUP_OPTIONS: { value: 2 | 3 | 4; label: string }[] = [
-  { value: 2, label: 'Twosome' },
-  { value: 3, label: 'Threesome' },
-  { value: 4, label: 'Foursome' },
+  { value: 2, label: 'Two' },
+  { value: 3, label: 'Three' },
+  { value: 4, label: 'Four' },
 ];
 
 const WALKING_OPTIONS: { value: WalkingChoice; label: string }[] = [

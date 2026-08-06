@@ -166,6 +166,17 @@ export default function Rounds() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={{ paddingBottom: 120 }}
           refreshControl={refreshControl}
+          ListHeaderComponent={
+            rounds.length > 0 ? (
+              <Typography
+                variant="caption"
+                color="ink-subtle"
+                style={{ paddingHorizontal: 20, paddingBottom: 8 }}
+              >
+                NEAREST FIRST
+              </Typography>
+            ) : null
+          }
           ItemSeparatorComponent={() => (
             <View
               style={{

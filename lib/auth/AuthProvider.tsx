@@ -23,6 +23,39 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+// Explicit column list instead of '*': home_location is excluded so the
+// column-privilege hardening (supabase/pending/APPLY-AFTER-1.0.1_...) can
+// revoke client read access to raw coordinates without breaking this
+// query. Nothing in the app reads home_location back — screens only ever
+// write it (edit/location, onboarding/location) and display home_city.
+const PROFILE_COLUMNS = [
+  'user_id',
+  'display_name',
+  'age',
+  'gender',
+  'pronouns',
+  'bio',
+  'home_city',
+  'home_course_name',
+  'handicap',
+  'has_handicap',
+  'years_playing',
+  'walking_preference',
+  'holes_preference',
+  'pace',
+  'betting',
+  'drinks',
+  'post_round',
+  'teaching_mindset',
+  'style_default',
+  'photo_urls',
+  'profile_answers',
+  'availability',
+  'onboarded_at',
+  'created_at',
+  'updated_at',
+].join(', ');
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -35,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfileLoading(true);
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select(PROFILE_COLUMNS)
       .eq('user_id', userId)
       .maybeSingle();
     if (error) console.warn('[auth] fetchProfile failed:', error.message);

@@ -14,7 +14,11 @@ export type Profile = {
   gender: string | null;
   pronouns: string | null;
   bio: string | null;
-  home_location: unknown | null;
+  // Optional: no longer fetched by the client. The raw coordinate point
+  // is write-only from the app (edit/location, onboarding/location);
+  // reads were removed for privacy — see
+  // supabase/pending/APPLY-AFTER-1.0.1_profiles_column_privileges.sql.
+  home_location?: unknown | null;
   home_city: string | null;
   home_course_name: string | null;
   handicap: number | null;

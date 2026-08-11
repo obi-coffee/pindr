@@ -32,6 +32,12 @@ export type Candidate = {
   profile_answers?: Record<string, string>;
   // Set by get_profile_by_id (Loop Phase E). Same optionality caveat.
   availability?: Record<string, boolean>;
+  // Set by get_profile_by_id (1.0.1 Phase D). Same optionality caveat.
+  // can_host_guests is pre-masked server-side: always false unless the
+  // home course is actually a private club.
+  home_course_id?: string | null;
+  home_course_is_private?: boolean;
+  can_host_guests?: boolean;
 };
 
 export async function fetchCandidates(

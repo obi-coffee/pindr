@@ -51,6 +51,9 @@ export const golfSchema = z
     // Set when the name was picked from the course list; cleared the
     // moment the user types free text (see CoursePickerInput usage).
     home_course_id: z.string().uuid().nullable().optional(),
+    // Only rendered (and only persisted true) when the home course is
+    // a private club — see edit/golf.tsx.
+    can_host_guests: z.boolean().optional(),
   })
   .refine((d) => !d.has_handicap || typeof d.handicap === 'number', {
     message: 'Enter your handicap or toggle it off',

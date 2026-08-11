@@ -206,6 +206,8 @@ function ProfileBody({
   acting,
 }: ProfileBodyProps) {
   const { colors } = useTheme();
+  // Own profile, for the "your home course too" regulars entry point.
+  const { profile: myProfile } = useAuth();
   const photos = profile.photo_urls.filter(Boolean);
   const photoSize = width - 40;
   const photoHeight = photoSize * 1.25;
@@ -323,6 +325,30 @@ function ProfileBody({
                 .filter(Boolean)
                 .join(', ')}
             </Typography>
+            {/* Information, never hierarchy: caption style, ink on
+                paper, no icon, no color, no ordering boost anywhere. */}
+            {profile.home_course_is_private ? (
+              <Typography variant="caption" color="ink-soft" style={{ marginTop: 4 }}>
+                member club
+              </Typography>
+            ) : null}
+            {profile.can_host_guests ? (
+              <Typography variant="caption" color="ink-soft" style={{ marginTop: 2 }}>
+                can host guests
+              </Typography>
+            ) : null}
+            {profile.home_course_id &&
+            profile.home_course_id === myProfile?.home_course_id ? (
+              <Pressable
+                onPress={() => router.push('/regulars' as never)}
+                hitSlop={8}
+                style={{ marginTop: 8 }}
+              >
+                <Typography variant="body-sm" color="ink">
+                  your home course too — see the regulars ›
+                </Typography>
+              </Pressable>
+            ) : null}
           </Section>
         ) : null}
 

@@ -279,10 +279,21 @@ export default function Profile() {
             <Typography
               variant="card-meta"
               color="ink-soft"
-              style={{ marginBottom: 12 }}
+              style={{ marginBottom: profile?.home_course_id ? 4 : 12 }}
             >
               Home · {profile.home_course_name}
             </Typography>
+          ) : null}
+          {profile?.home_course_id ? (
+            <Pressable
+              onPress={() => router.push('/regulars' as never)}
+              hitSlop={8}
+              style={{ marginBottom: 12 }}
+            >
+              <Typography variant="body-sm" color="ink">
+                see the regulars ›
+              </Typography>
+            </Pressable>
           ) : null}
           <View
             style={{

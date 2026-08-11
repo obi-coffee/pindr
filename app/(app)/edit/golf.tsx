@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
@@ -25,6 +26,10 @@ import { EditHeader } from './basics';
 export default function EditGolf() {
   const { user, profile, refetchProfile } = useAuth();
   const { colors } = useTheme();
+  // Whether the currently linked home course is a private club — the
+  // host toggle only exists in that world. Free text (no id) is never
+  // private.
+  const [homeCourseIsPrivate, setHomeCourseIsPrivate] = useState(false);
 
   const {
     control,
@@ -41,10 +46,31 @@ export default function EditGolf() {
         profile?.years_playing != null ? String(profile.years_playing) : '',
       home_course_name: profile?.home_course_name ?? '',
       home_course_id: profile?.home_course_id ?? null,
+      can_host_guests: profile?.can_host_guests ?? false,
     },
   });
 
   const hasHandicap = watch('has_handicap');
+  const homeCourseId = watch('home_course_id');
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!homeCourseId) {
+      setHomeCourseIsPrivate(false);
+      return;
+    }
+    supabase
+      .from('courses')
+      .select('is_public')
+      .eq('id', homeCourseId)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!cancelled) setHomeCourseIsPrivate(data ? !data.is_public : false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [homeCourseId]);
 
   const onSubmit = async (values: GolfInput) => {
     if (!user) return;
@@ -56,6 +82,11 @@ export default function EditGolf() {
         years_playing: values.years_playing,
         home_course_name: values.home_course_name || null,
         home_course_id: values.home_course_name ? (values.home_course_id ?? null) : null,
+        // The flag never survives leaving a private club.
+        can_host_guests:
+          homeCourseIsPrivate && !!values.home_course_name && !!values.home_course_id
+            ? (values.can_host_guests ?? false)
+            : false,
       })
       .eq('user_id', user.id);
     if (error) {
@@ -168,6 +199,44 @@ export default function EditGolf() {
               />
             )}
           />
+
+          {homeCourseIsPrivate ? (
+            <Controller
+              control={control}
+              name="can_host_guests"
+              render={({ field: { value, onChange } }) => (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 14,
+                    borderTopWidth: 1,
+                    borderBottomWidth: 1,
+                    borderColor: colors.stroke,
+                  }}
+                >
+                  <View style={{ flex: 1, paddingRight: 12 }}>
+                    <Typography variant="body-lg">
+                      can host guests at my club
+                    </Typography>
+                    <Typography variant="body-sm" color="ink-soft">
+                      shows on your profile. no bookings — it just starts
+                      the conversation.
+                    </Typography>
+                  </View>
+                  <Switch
+                    value={!!value}
+                    onValueChange={onChange}
+                    trackColor={{
+                      false: colors['stroke-strong'],
+                      true: colors.ink,
+                    }}
+                  />
+                </View>
+              )}
+            />
+          ) : null}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

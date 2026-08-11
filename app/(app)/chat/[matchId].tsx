@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Hint } from '../../../components/Hint';
 import { SkeletonChatList } from '../../../components/lists/SkeletonChatList';
 import { FadeIn } from '../../../components/motion/FadeIn';
 import { useToast } from '../../../components/motion/Toast';
@@ -30,6 +31,7 @@ import {
   type MatchDetails,
 } from '../../../lib/chat/queries';
 import { useHaptics } from '../../../lib/haptics';
+import { useHint } from '../../../lib/hints';
 import {
   acceptPlan,
   cancelPlan,
@@ -61,6 +63,8 @@ export default function ChatThread() {
   const [plans, setPlans] = useState<PlanWithCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // First-run hint, once the conversation has actually loaded.
+  const chatHint = useHint('chat', !loading && !error);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const [busyPlanId, setBusyPlanId] = useState<string | null>(null);
@@ -558,6 +562,15 @@ export default function ChatThread() {
         </View>
       </KeyboardAvoidingView>
       </FadeIn>
+
+      {chatHint.visible ? (
+        <Hint
+          text="when it clicks, lock in a round — right from here."
+          showSkip={chatHint.isFirst}
+          onDismiss={chatHint.dismiss}
+          onSkipAll={chatHint.skipAll}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

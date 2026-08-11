@@ -9,12 +9,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useReducedMotion } from 'react-native-reanimated';
 import { Swiper, type SwiperCardRefType } from 'rn-swiper-list';
+import { Hint } from '../../../components/Hint';
 import { SkeletonDeck } from '../../../components/lists/SkeletonDeck';
 import { FadeIn } from '../../../components/motion/FadeIn';
 import { SwipeCard } from '../../../components/SwipeCard';
 import { LockedInStamp, MaybeLaterStamp } from '../../../components/swipe/SwipeStamp';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
+import { useHint } from '../../../lib/hints';
 import { useMatch } from '../../../lib/match/MatchProvider';
 import {
   DEFAULT_FILTERS,
@@ -52,6 +54,8 @@ export default function Discover() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // First-run hint: only over a real deck, never a spinner/empty state.
+  const deckHint = useHint('deck', !loading && !error && candidates.length > 0);
   // Banner visibility starts hidden so we don't flash it before the
   // AsyncStorage check resolves. Toggle to true only after we've
   // confirmed the user hasn't dismissed it.
@@ -353,6 +357,14 @@ export default function Discover() {
         </FadeIn>
       )}
 
+      {deckHint.visible ? (
+        <Hint
+          text="pull right if you'd play together — left is a pass."
+          showSkip={deckHint.isFirst}
+          onDismiss={deckHint.dismiss}
+          onSkipAll={deckHint.skipAll}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

@@ -13,8 +13,10 @@ import {
   presetRange,
   type RoundsFilters,
 } from '../../../components/RoundsFilterBar';
+import { Hint } from '../../../components/Hint';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
+import { useHint } from '../../../lib/hints';
 import { listPendingCheckinRounds } from '../../../lib/rounds/checkins';
 import { listTodayLockedRounds } from '../../../lib/rounds/today';
 import {
@@ -38,6 +40,8 @@ export default function Rounds() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // First-run hint, once the tab has real content (or its empty state).
+  const roundsHint = useHint('rounds', !loading && !error);
 
   const load = useCallback(
     async (next: RoundsFilters, isRefresh = false) => {
@@ -216,6 +220,15 @@ export default function Rounds() {
         />
         </FadeIn>
       )}
+
+      {roundsHint.visible ? (
+        <Hint
+          text="open rounds near you — join one, or post your own."
+          showSkip={roundsHint.isFirst}
+          onDismiss={roundsHint.dismiss}
+          onSkipAll={roundsHint.skipAll}
+        />
+      ) : null}
     </SafeAreaView>
   );
 }

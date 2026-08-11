@@ -48,6 +48,9 @@ export const golfSchema = z
       .min(0, 'Cannot be negative')
       .max(100, 'Enter a realistic number'),
     home_course_name: z.string().trim().max(80).optional(),
+    // Set when the name was picked from the course list; cleared the
+    // moment the user types free text (see CoursePickerInput usage).
+    home_course_id: z.string().uuid().nullable().optional(),
   })
   .refine((d) => !d.has_handicap || typeof d.handicap === 'number', {
     message: 'Enter your handicap or toggle it off',

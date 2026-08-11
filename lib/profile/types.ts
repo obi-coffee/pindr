@@ -21,6 +21,12 @@ export type Profile = {
   home_location?: unknown | null;
   home_city: string | null;
   home_course_name: string | null;
+  // Structured link under home_course_name — set when the course was
+  // picked from the list, null for legacy/unmatched free text.
+  home_course_id: string | null;
+  // Only meaningful when home_course_id points at a private club
+  // (courses.is_public = false); surfaced in Phase D.
+  can_host_guests: boolean;
   handicap: number | null;
   has_handicap: boolean;
   years_playing: number | null;

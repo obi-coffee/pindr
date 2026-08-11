@@ -37,6 +37,8 @@ const PROFILE_COLUMNS = [
   'bio',
   'home_city',
   'home_course_name',
+  'home_course_id',
+  'can_host_guests',
   'handicap',
   'has_handicap',
   'years_playing',

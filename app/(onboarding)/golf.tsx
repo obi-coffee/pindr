@@ -41,6 +41,7 @@ export default function Golf() {
       years_playing:
         profile?.years_playing != null ? String(profile.years_playing) : '',
       home_course_name: profile?.home_course_name ?? '',
+      home_course_id: profile?.home_course_id ?? null,
     },
   });
 
@@ -55,6 +56,7 @@ export default function Golf() {
         handicap: values.has_handicap ? values.handicap : null,
         years_playing: values.years_playing,
         home_course_name: values.home_course_name || null,
+        home_course_id: values.home_course_name ? (values.home_course_id ?? null) : null,
       })
       .eq('user_id', user.id);
     if (error) {
@@ -177,7 +179,13 @@ export default function Golf() {
                 label="Home course (optional)"
                 error={errors.home_course_name?.message}
                 value={value ?? ''}
-                onChangeText={onChange}
+                onChangeText={(t) => {
+                  onChange(t);
+                  // Typing free text breaks the structured link; only a
+                  // pick from the list restores it.
+                  setValue('home_course_id', null);
+                }}
+                onSelect={(course) => setValue('home_course_id', course.id)}
                 onBlur={onBlur}
                 placeholder="Bethpage Black"
                 autoCorrect={false}

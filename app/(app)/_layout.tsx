@@ -27,6 +27,7 @@ export default function AppLayout() {
       <Stack.Screen name="(tabs)" />
       <Stack.Screen name="filters" options={sheetOptions} />
       <Stack.Screen name="settings" options={sheetOptions} />
+      <Stack.Screen name="notifications" options={sheetOptions} />
       <Stack.Screen name="travel" options={sheetOptions} />
       <Stack.Screen name="report/[userId]" options={sheetOptions} />
       <Stack.Screen name="share-plan/[matchId]" options={sheetOptions} />

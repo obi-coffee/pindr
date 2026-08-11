@@ -18,6 +18,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ToastProvider } from '../components/motion/Toast';
 import { ThemeProvider, useTheme } from '../components/ui';
+import { useActivityHeartbeat } from '../lib/activity';
 import { AuthProvider, useAuth } from '../lib/auth/AuthProvider';
 import { HapticsProvider } from '../lib/haptics';
 import { MatchProvider } from '../lib/match/MatchProvider';
@@ -45,6 +46,7 @@ function RootSlot() {
   const { loading } = useAuth();
   const { colors, scheme } = useTheme();
   usePushDeepLinking();
+  useActivityHeartbeat();
   if (loading)
     return <View style={{ flex: 1, backgroundColor: colors.paper }} />;
   return (

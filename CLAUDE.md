@@ -68,7 +68,12 @@ Core tables: users, profiles, interests, profile_interests, courses, swipes,
 matches, messages, reports, travel_sessions. Phase 5b adds: rounds,
 round_requests, plus a `partner_refs` jsonb column on courses. Phase 5c
 adds: push_tokens, notification_preferences, notifications_log. See the
-project plan for full schema. Location columns use `geography(point, 4326)`
+project plan for full schema. 1.0.1 adds: account_deletions (anonymous
+churn tombstones) and round_status_log (both analytics-only — RLS on,
+no policies, no client access), profiles.last_active_at +
+touch_last_active(), and notifications_log.opened_at +
+mark_notification_opened() with the log row id carried in push payloads
+as log_id. Location columns use `geography(point, 4326)`
 with PostGIS. The `rounds.source`, `rounds.external_ref`,
 `rounds.price_cents`, and `courses.partner_refs` fields are V2-readiness
 slots — present in V1 but unused/null; partner inventory (GolfNow) will

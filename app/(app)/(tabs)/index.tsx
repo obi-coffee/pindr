@@ -56,6 +56,8 @@ export default function Discover() {
   // AsyncStorage check resolves. Toggle to true only after we've
   // confirmed the user hasn't dismissed it.
   const [bannerDismissed, setBannerDismissed] = useState<boolean>(true);
+  const [homeCourseBannerDismissed, setHomeCourseBannerDismissed] =
+    useState<boolean>(true);
 
   useEffect(() => {
     if (!user) return;
@@ -63,6 +65,11 @@ export default function Discover() {
     AsyncStorage.getItem(`pindr.banner.complete-profile.dismissed.${user.id}`)
       .then((v) => {
         if (!cancelled) setBannerDismissed(v === '1');
+      })
+      .catch(() => {});
+    AsyncStorage.getItem(`pindr.banner.home-course.dismissed.${user.id}`)
+      .then((v) => {
+        if (!cancelled) setHomeCourseBannerDismissed(v === '1');
       })
       .catch(() => {});
     return () => {
@@ -80,12 +87,30 @@ export default function Discover() {
     }
   }, [user]);
 
+  const dismissHomeCourseBanner = useCallback(() => {
+    setHomeCourseBannerDismissed(true);
+    if (user) {
+      AsyncStorage.setItem(
+        `pindr.banner.home-course.dismissed.${user.id}`,
+        '1',
+      ).catch(() => {});
+    }
+  }, [user]);
+
   const answersEmpty =
     !profile?.profile_answers ||
     Object.values(profile.profile_answers).every(
       (v) => !v || v.trim().length === 0,
     );
   const showCompleteProfileBanner = answersEmpty && !bannerDismissed;
+  // One nudge at a time: the questions banner wins; the home-course
+  // variant waits its turn. Legacy free-text home courses (name set,
+  // id null) count as unset — re-picking from the list links them.
+  const showHomeCourseBanner =
+    !showCompleteProfileBanner &&
+    !!profile &&
+    !profile.home_course_id &&
+    !homeCourseBannerDismissed;
 
   const load = useCallback(async (nextFilters: DiscoverFilters) => {
     setLoading(true);
@@ -183,8 +208,15 @@ export default function Discover() {
 
       {showCompleteProfileBanner ? (
         <CompleteProfileBanner
+          label="complete your profile · answer a few questions"
           onPress={() => router.push('/edit/answers')}
           onDismiss={dismissProfileBanner}
+        />
+      ) : showHomeCourseBanner ? (
+        <CompleteProfileBanner
+          label="complete your profile · set your home course"
+          onPress={() => router.push('/edit/golf')}
+          onDismiss={dismissHomeCourseBanner}
         />
       ) : null}
 
@@ -381,9 +413,11 @@ function HeaderPill({
 }
 
 function CompleteProfileBanner({
+  label,
   onPress,
   onDismiss,
 }: {
+  label: string;
   onPress: () => void;
   onDismiss: () => void;
 }) {
@@ -404,7 +438,7 @@ function CompleteProfileBanner({
       }}
     >
       <Typography variant="caption" style={{ flex: 1, color: '#0E0E0C' }}>
-        complete your profile · answer a few questions
+        {label}
       </Typography>
       <Pressable
         onPress={(e) => {

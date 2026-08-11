@@ -227,6 +227,8 @@ export default function Rounds() {
           showSkip={roundsHint.isFirst}
           onDismiss={roundsHint.dismiss}
           onSkipAll={roundsHint.skipAll}
+          // Floats over the feed it describes, clear of the tab bar.
+          offset={104}
         />
       ) : null}
     </SafeAreaView>

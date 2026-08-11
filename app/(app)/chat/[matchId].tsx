@@ -569,6 +569,10 @@ export default function ChatThread() {
           showSkip={chatHint.isFirst}
           onDismiss={chatHint.dismiss}
           onSkipAll={chatHint.skipAll}
+          // Drops in under the header, next to the lock-in button it
+          // points at — and clear of the composer at the bottom.
+          placement="top"
+          offset={64}
         />
       ) : null}
     </SafeAreaView>

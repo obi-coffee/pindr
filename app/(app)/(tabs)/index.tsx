@@ -363,6 +363,8 @@ export default function Discover() {
           showSkip={deckHint.isFirst}
           onDismiss={deckHint.dismiss}
           onSkipAll={deckHint.skipAll}
+          // Right under the card stack, clear of the 88pt floating tab bar.
+          offset={104}
         />
       ) : null}
     </SafeAreaView>

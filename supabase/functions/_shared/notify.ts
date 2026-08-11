@@ -40,6 +40,7 @@ const RATE_LIMIT_WINDOW_HOURS = 24;
 const RATE_LIMIT_MAX = 5;
 
 async function writeLog(
+  logId: string,
   userId: string,
   eventType: string,
   payload: Record<string, unknown>,
@@ -48,6 +49,7 @@ async function writeLog(
 ) {
   const admin = getSupabaseAdmin();
   await admin.from('notifications_log').insert({
+    id: logId,
     user_id: userId,
     event_type: eventType,
     payload,
@@ -72,6 +74,10 @@ async function countSentInLast24h(userId: string): Promise<number> {
 
 export async function notifyUser(input: NotifyInput): Promise<void> {
   const admin = getSupabaseAdmin();
+  // The log row's id, generated BEFORE the send so the push payload can
+  // carry it — the app's tap handler passes it back to
+  // mark_notification_opened(), which is how open rate gets measured.
+  const logId = crypto.randomUUID();
   const logPayload = {
     ...input.copy,
     ...(input.extraPayload ?? {}),
@@ -102,7 +108,7 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
 
   const categoryEnabled = prefsRow ? prefsRow[input.category] !== false : true;
   if (!categoryEnabled) {
-    await writeLog(input.userId, input.eventType, logPayload, 'failed', 'category_disabled');
+    await writeLog(logId, input.userId, input.eventType, logPayload, 'failed', 'category_disabled');
     return;
   }
 
@@ -114,7 +120,7 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
       timezone: prefsRow.timezone,
     });
     if (quiet) {
-      await writeLog(input.userId, input.eventType, logPayload, 'queued');
+      await writeLog(logId, input.userId, input.eventType, logPayload, 'queued');
       return;
     }
   }
@@ -123,6 +129,7 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
     const sentRecently = await countSentInLast24h(input.userId);
     if (sentRecently >= RATE_LIMIT_MAX) {
       await writeLog(
+        logId,
         input.userId,
         input.eventType,
         logPayload,
@@ -134,7 +141,7 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
   }
 
   if (!tokens || tokens.length === 0) {
-    await writeLog(input.userId, input.eventType, logPayload, 'failed', 'no_tokens');
+    await writeLog(logId, input.userId, input.eventType, logPayload, 'failed', 'no_tokens');
     return;
   }
 
@@ -147,6 +154,7 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
         data: {
           deep_link: input.copy.deepLink,
           event_type: input.eventType,
+          log_id: logId,
           ...(input.extraPayload ?? {}),
         },
         priority: 'high',
@@ -158,16 +166,16 @@ export async function notifyUser(input: NotifyInput): Promise<void> {
 
   const transportFailure = results.find((r) => !r.ok);
   if (transportFailure && !transportFailure.ok) {
-    await writeLog(input.userId, input.eventType, logPayload, 'failed', transportFailure.error);
+    await writeLog(logId, input.userId, input.eventType, logPayload, 'failed', transportFailure.error);
     return;
   }
   const ticketError = results
     .map((r) => (r.ok ? r.ticket : null))
     .find((t) => t && t.status === 'error');
   if (ticketError && ticketError.status === 'error') {
-    await writeLog(input.userId, input.eventType, logPayload, 'failed', ticketError.message);
+    await writeLog(logId, input.userId, input.eventType, logPayload, 'failed', ticketError.message);
     return;
   }
 
-  await writeLog(input.userId, input.eventType, logPayload, 'sent');
+  await writeLog(logId, input.userId, input.eventType, logPayload, 'sent');
 }

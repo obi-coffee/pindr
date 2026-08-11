@@ -172,7 +172,12 @@ Deno.serve(async (req) => {
           to: token,
           title,
           body,
-          data: { ...payload, event_type: row.event_type, deep_link: deepLink },
+          data: {
+            ...payload,
+            event_type: row.event_type,
+            deep_link: deepLink,
+            log_id: row.id,
+          },
           priority: 'high',
           interruptionLevel: 'active',
           channelId: 'default',

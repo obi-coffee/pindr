@@ -23,8 +23,10 @@ export default function SettingsScreen() {
     mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system';
 
   const handleSignOut = async () => {
+    // No router.back() here — signing out unmounts the whole (app)
+    // group and the auth redirect takes over. A back() at that point
+    // fires GO_BACK on a navigator that no longer exists.
     await signOut();
-    router.back();
   };
 
   const handleDeleteAccount = () => {

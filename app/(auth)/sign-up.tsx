@@ -12,6 +12,7 @@ import {
 import { KeyboardAvoider } from '../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandMark } from '../../components/BrandMark';
+import { SocialSignInButtons } from '../../components/SocialSignInButtons';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
 import { signUpSchema, type SignUpInput } from '../../lib/auth/schemas';
 import { supabase } from '../../lib/supabase';
@@ -72,6 +73,8 @@ export default function SignUp() {
           >
             first time, just curious, caught the bug, or lifelong ringer — everyone is welcome.
           </Typography>
+
+          <SocialSignInButtons />
 
           <Controller
             control={control}

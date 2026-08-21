@@ -3,12 +3,11 @@ import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Input, Select, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
@@ -67,10 +66,7 @@ export default function EditBasics() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <EditHeader
           title="edit basics"
           onSave={handleSubmit(onSubmit)}
@@ -156,7 +152,7 @@ export default function EditBasics() {
             )}
           />
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

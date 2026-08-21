@@ -33,6 +33,11 @@ SplashScreen.preventAutoHideAsync().catch(() => {});
 // brand moment rather than flashing into an empty paper screen.
 const SPLASH_MIN_MS = 2000;
 
+// Failsafe: the splash must never outlive this, no matter what breaks
+// upstream (fonts, a throwing effect, a bad deep link). A wrong screen
+// beats a frozen one.
+const SPLASH_FAILSAFE_MS = 5000;
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
@@ -58,7 +63,7 @@ function RootSlot() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     Inter_400Regular,
     Inter_500Medium,
     Inter_600SemiBold,
@@ -66,19 +71,29 @@ export default function RootLayout() {
     Inter_800ExtraBold,
     Inter_900Black,
   });
+  // Fonts are bundled, so an error is near-impossible — but if one ever
+  // happens, render with system-font fallbacks instead of hanging.
+  const fontsReady = fontsLoaded || Boolean(fontError);
   const [mountedAt] = useState(() => Date.now());
 
   useEffect(() => {
-    if (!fontsLoaded) return;
+    if (!fontsReady) return;
     const elapsed = Date.now() - mountedAt;
     const remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
     const timer = setTimeout(() => {
       SplashScreen.hideAsync().catch(() => {});
     }, remaining);
     return () => clearTimeout(timer);
-  }, [fontsLoaded, mountedAt]);
+  }, [fontsReady, mountedAt]);
 
-  if (!fontsLoaded) return null;
+  useEffect(() => {
+    const failsafe = setTimeout(() => {
+      SplashScreen.hideAsync().catch(() => {});
+    }, SPLASH_FAILSAFE_MS);
+    return () => clearTimeout(failsafe);
+  }, []);
+
+  if (!fontsReady) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

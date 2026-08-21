@@ -3,11 +3,10 @@ import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChipSelect, Typography, useTheme } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth/AuthProvider';
@@ -101,10 +100,7 @@ export default function EditStyle() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <EditHeader
           title="edit how you play"
           onSave={handleSubmit(onSubmit)}
@@ -198,7 +194,7 @@ export default function EditStyle() {
             )}
           />
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

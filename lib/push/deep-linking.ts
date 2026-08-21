@@ -1,6 +1,7 @@
-import { router } from 'expo-router';
+import { router, useRootNavigationState } from 'expo-router';
 import * as Notifications from 'expo-notifications';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { useAuth } from '../auth/AuthProvider';
 import { supabase } from '../supabase';
 
 // Push payloads carry a `deep_link` field like "pindr:///chat/<id>" or
@@ -44,32 +45,85 @@ function markOpenedFromResponse(
     });
 }
 
-// Installs both listeners that matter for routing:
+// A broken deep link must never take down the launch — landing on the
+// default screen beats a frozen one.
+function safePush(route: string): void {
+  try {
+    router.push(route as never);
+  } catch (err) {
+    console.warn(
+      '[push] deep-link navigation failed:',
+      (err as Error).message,
+    );
+  }
+}
+
+// Installs both paths that matter for routing:
 //   1. addNotificationResponseReceivedListener — user taps a push while
 //      the app is already running (background or foreground).
 //   2. getLastNotificationResponseAsync — the tap that launched the app
 //      from a cold start; response is already waiting when we mount.
+//
+// Cold-start taps arrive before the root navigator is mounted and
+// before the Supabase session is restored, so responses are buffered
+// until both are ready — navigating earlier throws and can strand the
+// app on the splash screen, and the opened-at RPC would fire without a
+// session. On some SDK versions the launching tap is delivered through
+// BOTH paths, so responses are deduped by notification identifier.
 export function usePushDeepLinking(): void {
-  const coldStartHandled = useRef(false);
+  const { loading: authLoading } = useAuth();
+  const navState = useRootNavigationState();
+  const ready = !authLoading && Boolean(navState?.key);
+
+  const readyRef = useRef(ready);
+  readyRef.current = ready;
+  const pending = useRef<Notifications.NotificationResponse[]>([]);
+  const handledIds = useRef<Set<string>>(new Set());
+  const coldStartChecked = useRef(false);
+
+  const handleResponse = useCallback(
+    (response: Notifications.NotificationResponse | null | undefined) => {
+      if (!response) return;
+      const id = response.notification?.request?.identifier;
+      if (typeof id === 'string' && id.length > 0) {
+        if (handledIds.current.has(id)) return;
+        handledIds.current.add(id);
+      }
+      if (readyRef.current) {
+        markOpenedFromResponse(response);
+        const route = routeFromResponse(response);
+        if (route) safePush(route);
+      } else {
+        pending.current.push(response);
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     const subscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        markOpenedFromResponse(response);
-        const route = routeFromResponse(response);
-        if (route) router.push(route as never);
-      },
+      handleResponse,
     );
 
-    if (!coldStartHandled.current) {
-      coldStartHandled.current = true;
-      Notifications.getLastNotificationResponseAsync().then((response) => {
-        markOpenedFromResponse(response);
-        const route = routeFromResponse(response);
-        if (route) router.push(route as never);
-      });
+    if (!coldStartChecked.current) {
+      coldStartChecked.current = true;
+      Notifications.getLastNotificationResponseAsync()
+        .then(handleResponse)
+        .catch(() => {});
     }
 
     return () => subscription.remove();
-  }, []);
+  }, [handleResponse]);
+
+  // Flush anything that arrived before the app was ready to route.
+  useEffect(() => {
+    if (!ready || pending.current.length === 0) return;
+    const queued = pending.current;
+    pending.current = [];
+    for (const response of queued) {
+      markOpenedFromResponse(response);
+      const route = routeFromResponse(response);
+      if (route) safePush(route);
+    }
+  }, [ready]);
 }

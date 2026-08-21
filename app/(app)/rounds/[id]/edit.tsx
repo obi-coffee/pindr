@@ -2,11 +2,10 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RoundForm } from '../../../../components/RoundForm';
 import { PindrLogo, Typography, useTheme } from '../../../../components/ui';
@@ -63,10 +62,7 @@ export default function EditRound() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <View
           style={{
             flexDirection: 'row',
@@ -102,7 +98,7 @@ export default function EditRound() {
             }}
           />
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

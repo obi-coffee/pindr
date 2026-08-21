@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import {
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { RoundForm } from '../../../components/RoundForm';
 import { PindrLogo, Typography, useTheme } from '../../../components/ui';
@@ -23,10 +22,7 @@ export default function NewRound() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <Header />
         <ScrollView keyboardShouldPersistTaps="handled">
           <RoundForm
@@ -45,7 +41,7 @@ export default function NewRound() {
             }}
           />
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

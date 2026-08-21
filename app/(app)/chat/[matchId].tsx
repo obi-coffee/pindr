@@ -3,12 +3,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
-  KeyboardAvoidingView,
-  Platform,
+  Keyboard,
   Pressable,
   TextInput,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Hint } from '../../../components/Hint';
 import { SkeletonChatList } from '../../../components/lists/SkeletonChatList';
@@ -179,6 +179,15 @@ export default function ChatThread() {
       });
     }
   }, [timeline.length]);
+
+  // The keyboard shrinks the list viewport; keep the newest messages in
+  // view instead of leaving them hidden behind the composer.
+  useEffect(() => {
+    const sub = Keyboard.addListener('keyboardDidShow', () => {
+      listRef.current?.scrollToEnd({ animated: true });
+    });
+    return () => sub.remove();
+  }, []);
 
   const patchPlan = useCallback(
     (planId: string, patch: Partial<PlanWithCourse>) => {
@@ -448,10 +457,7 @@ export default function ChatThread() {
         ) : null}
       </View>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider safeBottom>
         <FlatList
           ref={listRef}
           data={timeline}
@@ -528,15 +534,20 @@ export default function ChatThread() {
             multiline
             style={{
               flex: 1,
-              maxHeight: 120,
+              // ~5 lines, then the input scrolls internally.
+              maxHeight: 124,
               minHeight: 40,
-              paddingHorizontal: 14,
+              // A constant radius (pill-look at single-line height) so
+              // the corners don't grow into wrapped text; wider insets
+              // keep every line clear of the curve.
+              paddingHorizontal: 18,
               paddingVertical: 10,
-              borderRadius: radii.pill,
+              borderRadius: 20,
               borderWidth: 1,
               borderColor: colors['stroke-strong'],
               backgroundColor: colors['paper-high'],
               fontSize: 16,
+              lineHeight: 21,
               fontFamily: fontFamilyFor('400'),
               color: colors.ink,
             }}
@@ -560,7 +571,7 @@ export default function ChatThread() {
             </Typography>
           </Pressable>
         </View>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
       </FadeIn>
 
       {chatHint.visible ? (

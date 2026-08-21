@@ -3,12 +3,12 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CoursePickerModal } from '../../../components/CoursePickerModal';
 import { DateTimeSheet } from '../../../components/DateTimeSheet';
@@ -114,10 +114,7 @@ export default function ProposePlan() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <View
           style={{
             flexDirection: 'row',
@@ -209,7 +206,7 @@ export default function ProposePlan() {
             Propose it.
           </Button>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
 
       <CoursePickerModal
         visible={pickerOpen}

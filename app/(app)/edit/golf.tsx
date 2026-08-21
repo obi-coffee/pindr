@@ -4,12 +4,11 @@ import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   Switch,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CoursePickerInput } from '../../../components/CoursePickerInput';
 import { HandicapInput } from '../../../components/HandicapInput';
@@ -102,10 +101,7 @@ export default function EditGolf() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <EditHeader
           title="edit golf"
           onSave={handleSubmit(onSubmit)}
@@ -238,7 +234,7 @@ export default function EditGolf() {
             />
           ) : null}
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }

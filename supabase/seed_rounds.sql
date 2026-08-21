@@ -23,6 +23,8 @@ declare
   v_host uuid;
   v_host_loc geography;
   v_course uuid;
+  v_course_state text;
+  v_tz text;
   v_tee timestamptz;
   v_seats int;
   v_walking text;
@@ -50,25 +52,35 @@ begin
     for i in 1..2 loop
       -- Random course within 60 miles of this host's home_location.
       -- Falls back to the nearest course if none qualify (rural hosts).
-      select id into v_course
+      select id, state into v_course, v_course_state
       from public.courses
       where ST_DWithin(location, v_host_loc, 96560)
       order by random()
       limit 1;
 
       if v_course is null then
-        select id into v_course
+        select id, state into v_course, v_course_state
         from public.courses
         order by ST_Distance(location, v_host_loc)
         limit 1;
       end if;
 
-      -- Random future tee time: today+1 .. today+30 days, 07:00..18:00.
+      -- Random future tee time: today+1 .. today+30 days, 07:00..18:00
+      -- in the COURSE'S local time. Generating in UTC (the session tz)
+      -- put east-coast rounds at 3–4 AM local — the launch-week
+      -- "3:45 AM tee time" bug.
+      v_tz := case
+        when v_course_state in ('CA', 'OR', 'WA', 'NV') then 'America/Los_Angeles'
+        when v_course_state in ('CO', 'UT', 'AZ', 'NM', 'MT', 'WY', 'ID') then 'America/Denver'
+        when v_course_state in ('TX', 'IL', 'MN', 'MO', 'LA', 'OK', 'KS', 'AR', 'IA', 'WI', 'MS', 'AL', 'TN', 'NE', 'SD', 'ND') then 'America/Chicago'
+        else 'America/New_York'
+      end;
       v_tee :=
-        date_trunc('day', now())
-        + ((1 + floor(random() * 30))::int * interval '1 day')
-        + ((7 + floor(random() * 12))::int * interval '1 hour')
-        + ((floor(random() * 4) * 15)::int * interval '1 minute');
+        (date_trunc('day', now() at time zone v_tz)
+         + ((1 + floor(random() * 30))::int * interval '1 day')
+         + ((7 + floor(random() * 12))::int * interval '1 hour')
+         + ((floor(random() * 4) * 15)::int * interval '1 minute'))
+        at time zone v_tz;
 
       v_seats := 2 + floor(random() * 3)::int;  -- 2, 3, or 4
       v_walking := (array['walk','ride','either'])[1 + floor(random() * 3)::int];

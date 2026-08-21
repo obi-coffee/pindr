@@ -5,13 +5,12 @@ import { CoursePickerInput } from '../../components/CoursePickerInput';
 import { HandicapInput } from '../../components/HandicapInput';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   Switch,
   View,
 } from 'react-native';
+import { KeyboardAvoider } from '../../components/KeyboardAvoider';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BrandMark } from '../../components/BrandMark';
 import { Button, Input, Typography, useTheme } from '../../components/ui';
@@ -72,10 +71,7 @@ export default function Golf() {
       style={{ flex: 1, backgroundColor: colors.paper }}
       edges={['top']}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={{ flex: 1 }}
-      >
+      <KeyboardAvoider>
         <ScrollView
           contentContainerStyle={{ padding: 24, paddingBottom: 40 }}
           keyboardShouldPersistTaps="handled"
@@ -214,7 +210,7 @@ export default function Golf() {
             </Typography>
           </Pressable>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </KeyboardAvoider>
     </SafeAreaView>
   );
 }
